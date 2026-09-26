@@ -27,6 +27,21 @@ test('there is room to sleep and to stand', () => {
   assert.ok(S.door.x0 > D.core.x1 && S.door.x0 + S.door.width < D.legX0, 'door blocked by the stove or bench');
 });
 
+test('the counter leaves room to feed the stove and to walk through the door', () => {
+  const C = D.counter;
+  assert.ok(C.z0 - (D.feed.z + 0.11) >= 0.4, `only ${(C.z0 - D.feed.z - 0.11).toFixed(2)} m clear in front of the feed tube`);
+  assert.ok(C.frontX1 <= S.door.x0 - 0.05, `counter reaches ${C.frontX1} m, door starts at ${S.door.x0} m`);
+  assert.ok(C.z1 <= S.inside.z && C.x0 >= 0, 'counter outside the walls');
+  assert.ok(S.counter.height >= 0.7 && S.counter.height <= 0.95, `counter height ${S.counter.height} m`);
+  assert.ok(D.prepArea >= 0.3, `prep area ${D.prepArea.toFixed(2)} m²`);
+});
+
+test('the basin sits on the front leg of the counter', () => {
+  const C = D.counter, B = S.basin;
+  assert.ok(D.basin.x - B.length / 2 >= C.x1 && D.basin.x + B.length / 2 <= C.frontX1, 'basin hangs off the counter along x');
+  assert.ok(D.basin.z - B.width / 2 >= C.frontZ0 && D.basin.z + B.width / 2 <= C.z1, 'basin hangs off the counter along z');
+});
+
 test('the stove core fits inside, off the rock and the east wall', () => {
   assert.ok(D.core.x0 >= S.rockGap && D.core.z0 >= S.rockGap);
   assert.ok(D.feed.z + 0.11 < S.inside.z, 'feed tube outside the shelter');

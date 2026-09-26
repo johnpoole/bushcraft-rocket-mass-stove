@@ -84,6 +84,15 @@ a{color:var(--ember)}
     <p style="margin:8px 0 0">The bench runs along the rock and turns along the west wall. The flue leaves through the west wall to a chimney that stands clear of the roof. <a href="../simulator/">Open the stove simulator</a></p>
   </section>
   <section>
+    <h2>Cooking and water</h2>
+    <ul>
+      <li>The cooktop is the flat stone on top of the dome. Flame from the riser strikes its underside, so it is hottest over the riser and cooler toward the edges. Boil or fry in the middle and slide a pot to the edge to simmer.</li>
+      <li>The counter is a split log laid flat side up on stakes driven into the floor, 80 cm high. One leg runs along the east wall for food prep. The other runs along the front wall and holds the water basin.</li>
+      <li>The basin is a length of log hollowed by laying hot coals on it and scraping out the char, over and over. Fill it from the stream and keep a pot of water at the edge of the cooktop for hot water.</li>
+      <li>Throw used water out well away from the stream, not into the drain.</li>
+    </ul>
+  </section>
+  <section>
     <h2>Build order</h2>
     <ol>
       <li>Clear to mineral soil. Dig a gravel-filled drain along the foot of the rock face, running out under the west wall and downhill.</li>
@@ -94,6 +103,7 @@ a{color:var(--ember)}
       <li>Lay a dry stone plinth 30 cm high under the walls. Weave hazel or willow rods between the posts above it.</li>
       <li>Daub both sides of the wattle with cob. Daub it thick where it faces the stove.</li>
       <li>Leave an air inlet low in the front wall and a vent high at the back under the roof. Hang a hide or blanket in the door.</li>
+      <li>Drive four stakes for the counter and lay split log halves across them. Burn and scrape a log for the basin.</li>
       <li>Dry everything, then fire the stove small at first as the guide says.</li>
     </ol>
   </section>
@@ -102,7 +112,7 @@ a{color:var(--ember)}
     <ul>
       <li>Keep the low air inlet and the high vent open whenever the stove burns. If you get a headache, dizziness or nausea, get outside.</li>
       <li>Let the fire burn out before you sleep. The bench holds the heat through the night.</li>
-      <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube.</li>
+      <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube. Keep the floor in front of the feed tube clear.</li>
       <li>Wind off the rock face can push smoke back down the chimney. If it does, make the chimney taller.</li>
     </ul>
   </section>
@@ -144,6 +154,9 @@ try {
     ['Sleeping bench', `${D.sleepLength.toFixed(1)} × ${S.bench.width.toFixed(1)} m`],
     ['Seat along the west wall', `${(S.inside.z - S.rockGap - S.bench.width - 0.1).toFixed(1)} × ${S.bench.legWidth.toFixed(1)} m`],
     ['Bench top above floor', `${Math.round(S.bench.height * 100)} cm`],
+    ['Cooktop above floor', `${Math.round(D.cooktopTop * 100)} cm`],
+    ['Prep counter', `${S.counter.depth.toFixed(2)} × ${(D.counter.z1 - D.counter.z0).toFixed(2)} m, ${Math.round(S.counter.height * 100)} cm high`],
+    ['Water basin', `${Math.round(S.basin.length * 100)} × ${Math.round(S.basin.width * 100)} cm, ${Math.round(S.basin.height * 100)} cm deep`],
     ['Roof pitch', `${Math.round(Math.atan2(S.backHeight - S.frontHeight, S.inside.z + S.wall) * 180 / Math.PI)}°`],
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   document.getElementById('stove').innerHTML = [
@@ -193,6 +206,7 @@ try {
     cob: mat(0xb98a5e), plaster: mat(0xcfb58c), refr: mat(0x8e4a32), slab: mat(0x6f7671),
     gravel: mat(0x9a948a), bedroll: mat(0x3f5a6e), pillow: mat(0xa9a18f), wood: mat(0x7a5a3a),
     hole: mat(0x1d1a17), water: new THREE.MeshStandardMaterial({ color: 0x3f7fa6, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
+    plank: mat(0x9b7b55), pot: mat(0x8a5a3c),
     ember: new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 1.2 }),
   };
 
@@ -374,6 +388,30 @@ try {
   label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true);
   label('chimney', cx, D.chimneyTop + 0.25, cz);
 
+  // Cooking pot on the cooktop over the riser.
+  {
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.09, 0.14, 20), MAT.pot);
+    pot.position.set(D.riser.x, D.cooktopTop + 0.07, D.riser.z);
+    pot.castShadow = true;
+    groups.stove.add(pot);
+    label('cooktop', D.riser.x, D.cooktopTop + 0.45, D.riser.z + 0.2, true);
+  }
+
+  // Counter: split log tops on stakes, and the hollowed log basin on the front leg.
+  {
+    const C = D.counter, H = S.counter.height, t = S.counter.top;
+    box(groups.stove, MAT.plank, C.x0, H - t, C.z0, C.x1, H, C.z1);
+    box(groups.stove, MAT.plank, C.x1, H - t, C.frontZ0, C.frontX1, H, C.z1);
+    for (const [x, z] of [[C.x1 - 0.06, C.z0 + 0.06], [C.x1 - 0.06, C.frontZ0 - 0.04], [C.frontX1 - 0.06, C.frontZ0 + 0.06], [C.frontX1 - 0.06, C.z1 - 0.06], [0.06, C.z0 + 0.06]]) {
+      pole(groups.stove, MAT.timber, [x, 0, z], [x, H - t, z], 0.035);
+    }
+    const B = S.basin, bx = D.basin.x, bz = D.basin.z, top = H + B.height;
+    box(groups.stove, MAT.wood, bx - B.length / 2, H, bz - B.width / 2, bx + B.length / 2, top, bz + B.width / 2);
+    box(groups.stove, MAT.water, bx - B.length / 2 + 0.035, top - 0.03, bz - B.width / 2 + 0.035, bx + B.length / 2 - 0.035, top + 0.002, bz + B.width / 2 - 0.035, false);
+    label('prep counter', (C.x0 + C.x1) / 2, H + 0.25, (C.z0 + C.frontZ0) / 2, true);
+    label('water basin', bx, top + 0.22, bz, true);
+  }
+
   // Hidden flue path, shown when the stove is opened up.
   const hot = (a, b, c, d, e, g) => box(groups.inside, MAT.ember, a, b, c, d, e, g, false);
   const cy0 = f, cy1 = f + 0.1;
@@ -406,7 +444,7 @@ try {
   // ---------- views and toggles ----------
   const VIEWS = {
     Outside: [[7.5, 4.2, 9], [1.4, 1.0, 1.0]],
-    Inside: [[2.9, 2.1, 4.2], [1.2, 0.5, 0.5]],
+    Inside: [[3.1, 2.6, 3.3], [0.7, 0.6, 0.9]],
     'From above': [[1.6, 9.5, 3.6], [1.5, 0, 1.1]],
     'To the stream': [[-7, 7, 16], [1.5, -1, 12]],
   };

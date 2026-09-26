@@ -20,6 +20,10 @@
     chimney: { outer: 0.4, z: 1.8, roofClearance: 0.1 },
     stream: { distance: 25, drop: 2.5 },
     stove: { riserHeight: 100, tunnelLength: 40, riserSize: 10, feedSize: 10 },
+    // L-shaped counter in the south-east corner: one leg along the east wall for food prep,
+    // one along the front wall holding the water basin. Room is left in front of the feed tube.
+    counter: { height: 0.8, depth: 0.45, feedClearance: 0.45, frontEnd: 0.85, top: 0.06 },
+    basin: { length: 0.36, width: 0.3, height: 0.16 },
   };
 
   const coreX0 = S.rockGap, coreZ0 = S.rockGap;
@@ -43,7 +47,17 @@
     channelLength, riserTop, roofTop, chimneyTop,
     sleepLength: S.inside.x - coreX1,
     cooktopTop: riserTop + 0.07 + 0.06,
+    counter: {
+      x0: 0, x1: S.counter.depth,
+      z0: feed.z + 0.11 + S.counter.feedClearance, z1: S.inside.z - 0.05,
+      frontX1: S.counter.frontEnd, frontZ0: S.inside.z - 0.05 - S.counter.depth,
+    },
   };
+  derived.basin = {
+    x: (S.counter.depth + S.counter.frontEnd) / 2,
+    z: derived.counter.frontZ0 + S.counter.depth / 2,
+  };
+  derived.prepArea = (derived.counter.x1 - derived.counter.x0) * (derived.counter.z1 - derived.counter.z0);
 
   // Changes from the guide design in simulator/model.js that this layout makes.
   const stoveChanges = {
