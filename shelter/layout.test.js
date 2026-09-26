@@ -30,7 +30,7 @@ test('the sunken core puts the cooktop at cooking height and keeps the pit dry',
 
 test('there is room to sleep and to stand', () => {
   assert.ok(D.sleepLength >= 2.0, `sleeping bench ${D.sleepLength} m`);
-  assert.ok(S.backHeight >= 1.8, `height at the rock ${S.backHeight} m`);
+  assert.ok(S.backHeight >= 1.8, `height at the back wall ${S.backHeight} m`);
   assert.ok(S.door.height < S.frontHeight, 'door taller than the front wall');
   assert.ok(S.door.x0 > D.core.x1 && S.door.x0 + S.door.width < D.legX0, 'door blocked by the stove or bench');
 });
@@ -50,8 +50,24 @@ test('the basin sits on the front leg of the counter', () => {
   assert.ok(D.basin.z - B.width / 2 >= C.frontZ0 && D.basin.z + B.width / 2 <= C.z1, 'basin hangs off the counter along z');
 });
 
-test('the stove core fits inside, off the rock and the east wall', () => {
-  assert.ok(D.core.x0 >= S.rockGap && D.core.z0 >= S.rockGap);
+test('the stove core fits inside, off the back and east walls', () => {
+  assert.ok(D.core.x0 >= S.backGap && D.core.z0 >= S.backGap);
   assert.ok(D.feed.z + 0.11 < S.inside.z, 'feed tube outside the shelter');
   assert.ok(D.cooktopTop < S.backHeight - 0.5, `cooktop ${D.cooktopTop} m too close to the roof`);
+});
+
+test('the stove, pit and chimney keep clear of the trees', () => {
+  const nearest = Math.min(...D.trees.map((t) => Math.hypot(t.x - D.riser.x, t.z - D.riser.z)));
+  const toPost = Math.hypot(D.corners.post.x - D.riser.x, D.corners.post.z - D.riser.z);
+  assert.ok(toPost < nearest, 'the stove should sit in the post corner, farthest from the trees');
+  assert.ok(D.pitToTree >= 1.0, `stove pit ${D.pitToTree.toFixed(2)} m from a trunk`);
+  assert.ok(D.chimneyToTree >= 0.6, `chimney ${D.chimneyToTree.toFixed(2)} m from a trunk`);
+  assert.ok(S.tree.lowestBranch - D.chimneyTop >= 2, `branches ${S.tree.lowestBranch - D.chimneyTop} m above the chimney top`);
+});
+
+test('the trees stand at three corners in a right angle', () => {
+  const { treeNW: a, treeSW: b, treeSE: c } = D.corners;
+  const dot = (a.x - b.x) * (c.x - b.x) + (a.z - b.z) * (c.z - b.z);
+  assert.equal(Math.abs(dot) < 1e-9, true, 'no right angle at the south-west tree');
+  assert.ok(D.treeSpacing.x > S.inside.x && D.treeSpacing.z > S.inside.z);
 });
