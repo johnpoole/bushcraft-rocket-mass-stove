@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rock Face Stove Shelter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light;--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;--ember:#d4531c;--danger:#b3261e;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--danger:#ef6b62;}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--danger:#ef6b62;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:1400px;margin:0 auto;padding:22px 16px 40px}
+h1,h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;letter-spacing:.01em}
+h1{font-size:2.1rem;font-weight:700;line-height:1.05}
+h2{font-size:1.2rem;font-weight:600;margin:0 0 6px}
+.sub{color:var(--muted);margin:6px 0 0;max-width:80ch}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:18px;margin-top:16px;align-items:start}
+@media (max-width:1000px){.layout{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:4px}
+.viewer{position:relative;height:min(72vh,720px);min-height:380px;overflow:hidden;border-radius:4px 4px 0 0}
+.viewer canvas{display:block}
+.bar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-top:1px solid var(--line);align-items:center}
+.bar .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bar .grp + .grp{margin-left:auto}
+.btn{font:600 .9rem "Barlow Condensed",sans-serif;letter-spacing:.03em;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 10px;border-radius:3px;cursor:pointer}
+.btn:hover{border-color:var(--ember)}
+.btn[aria-pressed="true"]{background:var(--ember);border-color:var(--ember);color:#fff}
+.lbl3d{font:600 12px "Barlow Condensed",sans-serif;letter-spacing:.03em;color:#1f2a28;background:rgba(247,248,245,.9);border:1px solid #c9cfc9;padding:1px 6px;border-radius:2px;white-space:nowrap;pointer-events:none}
+.side section{padding:14px 16px;border-top:1px solid var(--line)}
+.side section:first-child{border-top:0}
+.side ul,.side ol{margin:4px 0;padding-left:20px}
+.side li{margin:3px 0}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td{padding:4px 0;border-top:1px solid var(--line);vertical-align:top}
+td:last-child{text-align:right;font-weight:600;white-space:nowrap;padding-left:10px}
+tr:first-child td{border-top:0}
+a{color:var(--ember)}
+.hint{color:var(--muted);font-size:.8rem;padding:0 12px 10px}
+#err{display:none;margin-top:12px;padding:10px 14px;border:2px solid var(--danger);color:var(--danger);font-weight:600;white-space:pre-wrap}
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div class="wrap">
+<h1>One-person shelter against a rock face</h1>
+<p class="sub">A lean-to of poles, wattle and daub and a turf roof, built against a south-facing rock face with the rocket mass stove inside. The stove's bench is the bed.</p>
+<div id="err" role="alert"></div>
+
+<div class="layout">
+<div class="panel">
+  <div class="viewer" id="viewer"></div>
+  <div class="bar">
+    <div class="grp" id="views"></div>
+    <div class="grp" id="toggles"></div>
+  </div>
+  <div class="hint">Drag to turn. Scroll or pinch to zoom. Right-drag to move.</div>
+</div>
+
+<div class="panel side">
+  <section>
+    <h2>Site</h2>
+    <ul>
+      <li>A rock face that faces south, so the sun warms it and the shelter opens to the light.</li>
+      <li>Solid rock with no loose slabs or cracks overhead, no dead trees above, and a face that stays dry. Water running down the face will run into the shelter.</li>
+      <li>Level ground at least 25 m from the stream and well above its high-water mark. Cold air and fog settle along the stream at night.</li>
+      <li>The stream gives clay from its banks, sand from its bed and water for mixing. Keep stones from the stream away from the fire. Use them for the drain and the path.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Size</h2>
+    <table id="sizes"></table>
+  </section>
+  <section>
+    <h2>The stove in this shelter</h2>
+    <table id="stove"></table>
+    <p style="margin:8px 0 0">The bench runs along the rock and turns along the west wall. The flue leaves through the west wall to a chimney that stands clear of the roof. <a href="../simulator/">Open the stove simulator</a></p>
+  </section>
+  <section>
+    <h2>Build order</h2>
+    <ol>
+      <li>Clear to mineral soil. Dig a gravel-filled drain along the foot of the rock face, running out under the west wall and downhill.</li>
+      <li>Set the posts: three against the rock, four along the front. Lash a beam across the back posts at 2.0 m and a plate across the front posts at 1.2 m.</li>
+      <li>Lay rafters every 40 cm from beam to plate. Cover them with bark sheets lapped like shingles, then 10–15 cm of turf, grass side up.</li>
+      <li>Where the roof meets the rock, tuck bark into the rock and seal the joint with a thick bead of clay.</li>
+      <li>Under the roof, build the stove, the bench and the chimney as in the <a href="../build-guide.html">build guide</a>. Leave 10 cm of light clay between the rock and the stove and bench.</li>
+      <li>Lay a dry stone plinth 30 cm high under the walls. Weave hazel or willow rods between the posts above it.</li>
+      <li>Daub both sides of the wattle with cob. Daub it thick where it faces the stove.</li>
+      <li>Leave an air inlet low in the front wall and a vent high at the back under the roof. Hang a hide or blanket in the door.</li>
+      <li>Dry everything, then fire the stove small at first as the guide says.</li>
+    </ol>
+  </section>
+  <section>
+    <h2>Safety</h2>
+    <ul>
+      <li>Keep the low air inlet and the high vent open whenever the stove burns. If you get a headache, dizziness or nausea, get outside.</li>
+      <li>Let the fire burn out before you sleep. The bench holds the heat through the night.</li>
+      <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube.</li>
+      <li>Wind off the rock face can push smoke back down the chimney. If it does, make the chimney taller.</li>
+    </ul>
+  </section>
+</div>
+</div>
+</div>
+
+<script src="../simulator/model.js"></script>
+<script src="layout.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const errBox = document.getElementById('err');
+function showError(e) {
+  errBox.style.display = 'block';
+  errBox.textContent = `The shelter view stopped: ${e.message}`;
+  console.error(e);
+}
+window.addEventListener('error', (e) => showError(e.error || new Error(e.message)));
+
+try {
+  const M = window.StoveModel, Lay = window.ShelterLayout;
+  if (!M) throw new Error('../simulator/model.js did not load: StoveModel is missing.');
+  if (!Lay) throw new Error('layout.js did not load: ShelterLayout is missing.');
+  const { S, derived: D, stoveChanges } = Lay;
+
+  // ---------- side panel numbers ----------
+  const res = M.simulate({ ...M.DEFAULTS, ...stoveChanges });
+  const probs = M.diagnose(res);
+  const m = (v) => `${v.toFixed(1)} m`;
+  document.getElementById('sizes').innerHTML = [
+    ['Inside, along the rock', m(S.inside.x)],
+    ['Inside, rock to front wall', m(S.inside.z)],
+    ['Height at the rock', m(S.backHeight)],
+    ['Height at the front wall', m(S.frontHeight)],
+    ['Door', `${S.door.width.toFixed(1)} × ${S.door.height.toFixed(2)} m`],
+    ['Sleeping bench', `${D.sleepLength.toFixed(1)} × ${S.bench.width.toFixed(1)} m`],
+    ['Seat along the west wall', `${(S.inside.z - S.rockGap - S.bench.width - 0.1).toFixed(1)} × ${S.bench.legWidth.toFixed(1)} m`],
+    ['Bench top above floor', `${Math.round(S.bench.height * 100)} cm`],
+    ['Roof pitch', `${Math.round(Math.atan2(S.backHeight - S.frontHeight, S.inside.z + S.wall) * 180 / Math.PI)}°`],
+  ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  document.getElementById('stove').innerHTML = [
+    ['Bench channel', `${m(D.channelLength)}, ${stoveChanges.bends} bends`],
+    ['Chimney top above floor', m(D.chimneyTop)],
+    ['Chimney above the riser top', `${stoveChanges.chimneyAboveRiser} cm`],
+    ['Chimney above the roof', `${Math.round((D.chimneyTop - D.roofTop) * 100)} cm`],
+    ['Fire', `${(res.firePower / 1000).toFixed(1)} kW`],
+    ['Exhaust', `${Math.round(res.temps.exhaust)}°C`],
+    ['Bench stays warm', `about ${Math.round(res.bench.warmHours)} h after ${M.DEFAULTS.burnHours} h of firing`],
+    ['Problems found', probs.length ? probs.map((d) => d.title).join(', ') : 'none'],
+  ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+  // ---------- scene ----------
+  const host = document.getElementById('viewer');
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  host.appendChild(renderer.domElement);
+  const labelRenderer = new CSS2DRenderer();
+  labelRenderer.domElement.style.position = 'absolute';
+  labelRenderer.domElement.style.inset = '0';
+  labelRenderer.domElement.style.pointerEvents = 'none';
+  host.appendChild(labelRenderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xcdd8dc);
+  scene.fog = new THREE.Fog(0xcdd8dc, 30, 70);
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.maxPolarAngle = Math.PI * 0.495;
+
+  scene.add(new THREE.HemisphereLight(0xe8f0ff, 0x5a5040, 1.1));
+  const sun = new THREE.DirectionalLight(0xfff1dc, 2.2);
+  sun.position.set(-6, 12, 14);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -8, right: 10, top: 8, bottom: -6, near: 1, far: 40 });
+  scene.add(sun);
+
+  const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.95, metalness: 0, ...extra });
+  const MAT = {
+    rock: mat(0x7c7f79), ground: mat(0x6f7d52), floor: mat(0x8a7d66), plinth: mat(0x8d918b),
+    daub: mat(0xb89a72), timber: mat(0x6b4a2b), bark: mat(0x5a4632), turf: mat(0x5d7a3a),
+    cob: mat(0xb98a5e), plaster: mat(0xcfb58c), refr: mat(0x8e4a32), slab: mat(0x6f7671),
+    gravel: mat(0x9a948a), bedroll: mat(0x3f5a6e), pillow: mat(0xa9a18f), wood: mat(0x7a5a3a),
+    hole: mat(0x1d1a17), water: new THREE.MeshStandardMaterial({ color: 0x3f7fa6, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
+    ember: new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 1.2 }),
+  };
+
+  const groups = {};
+  for (const k of ['site', 'frame', 'roof', 'front', 'ends', 'stove', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
+
+  // Axis-aligned box from min and max corners in shelter coordinates.
+  function box(g, material, x0, y0, z0, x1, y1, z1, shadow = true) {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0), material);
+    mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+    mesh.castShadow = shadow; mesh.receiveShadow = true;
+    g.add(mesh);
+    return mesh;
+  }
+  function pole(g, material, a, b, r = 0.055) {
+    const va = new THREE.Vector3(...a), vb = new THREE.Vector3(...b);
+    const len = va.distanceTo(vb);
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.1, len, 10), material);
+    mesh.position.copy(va).add(vb).multiplyScalar(0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), vb.clone().sub(va).normalize());
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    g.add(mesh);
+    return mesh;
+  }
+  function label(text, x, y, z, inner = false) {
+    const el = document.createElement('div');
+    el.className = 'lbl3d';
+    el.textContent = text;
+    const o = new CSS2DObject(el);
+    o.position.set(x, y, z);
+    (inner ? groups.innerLabels : groups.labels).add(o);
+  }
+
+  // ---------- ground, rock, stream ----------
+  const noise = (x, y) => Math.sin(x * 1.7 + Math.sin(y * 0.9)) * 0.5 + Math.sin(x * 0.43 + y * 1.3) * 0.35 + Math.sin(x * 3.1 - y * 2.3) * 0.15;
+  const streamZ = (x) => S.stream.distance + Math.sin(x * 0.18) * 2.2;
+  const groundY = (x, z) => {
+    let y = z > 3 ? -((z - 3) / (S.stream.distance - 3)) * (S.stream.drop - 0.4) : 0;
+    const dz = z - streamZ(x);
+    y -= 0.7 * Math.exp(-(dz * dz) / 3);
+    if (z > 3.5) y += 0.08 * noise(x * 0.6, z * 0.6);
+    return y;
+  };
+  {
+    const g = new THREE.PlaneGeometry(90, 70, 180, 140);
+    g.rotateX(-Math.PI / 2);
+    g.translate(1.5, 0, 30);
+    const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setY(i, groundY(pos.getX(i), pos.getZ(i)));
+    g.computeVertexNormals();
+    const mesh = new THREE.Mesh(g, MAT.ground);
+    mesh.receiveShadow = true;
+    groups.site.add(mesh);
+
+    const w = new THREE.PlaneGeometry(90, 2.6, 180, 1);
+    w.rotateX(-Math.PI / 2);
+    const wp = w.attributes.position;
+    for (let i = 0; i < wp.count; i++) { const x = wp.getX(i) + 1.5; wp.setX(i, x); wp.setZ(i, wp.getZ(i) + streamZ(x)); wp.setY(i, groundY(x, streamZ(x)) + 0.45); }
+    w.computeVertexNormals();
+    groups.site.add(new THREE.Mesh(w, MAT.water));
+    for (let i = 0; i < 26; i++) {
+      const x = -12 + i * 1.1 + noise(i, 2) * 0.6, z = streamZ(x) + (i % 2 ? 1.4 : -1.4) + noise(i, 5) * 0.3;
+      const s = new THREE.Mesh(new THREE.DodecahedronGeometry(0.12 + 0.1 * Math.abs(noise(i, 9))), MAT.plinth);
+      s.position.set(x, groundY(x, z) + 0.05, z);
+      groups.site.add(s);
+    }
+    label(`stream, ${S.stream.distance} m away and ${S.stream.drop} m lower`, 1.5, groundY(1.5, streamZ(1.5)) + 1.0, streamZ(1.5));
+
+    // Rock face: its front stays at or behind the shelter's back line.
+    const rw = 16, rh = 7;
+    const r = new THREE.PlaneGeometry(rw, rh, 96, 48);
+    r.translate(1.5, rh / 2 - 0.4, 0);
+    const rp = r.attributes.position;
+    for (let i = 0; i < rp.count; i++) {
+      const x = rp.getX(i), y = rp.getY(i);
+      const nearShelter = x > -0.5 && x < 3.5 && y < S.backHeight + 0.4;
+      const depth = Math.abs(noise(x * 0.9, y * 0.9)) * (nearShelter ? 0.04 : 0.45) + (Math.abs(x - 1.5) > 6 ? (Math.abs(x - 1.5) - 6) * 0.5 : 0);
+      rp.setZ(i, -depth);
+    }
+    r.computeVertexNormals();
+    const rock = new THREE.Mesh(r, MAT.rock);
+    rock.castShadow = true; rock.receiveShadow = true;
+    groups.site.add(rock);
+    box(groups.site, MAT.rock, -6.5, -0.4, -4, 9.5, rh - 0.4, -0.3);
+    box(groups.site, MAT.rock, -6.5, rh - 0.6, -4, 9.5, rh - 0.3, 0.1);
+    label('rock face', 5.2, 3.2, 0);
+  }
+
+  // ---------- floor, drain ----------
+  box(groups.site, MAT.floor, -S.wall, -0.03, 0, S.inside.x + S.wall, 0.001, S.inside.z + S.wall, false);
+  box(groups.site, MAT.gravel, S.inside.x + S.wall, -0.02, 0, S.inside.x + S.wall + 0.3, 0.02, 0.5, false);
+  {
+    const pts = [];
+    for (let i = 0; i <= 12; i++) { const z = 0.5 + i * 0.5, x = S.inside.x + S.wall + 0.15 + i * 0.12; pts.push([x, z]); }
+    for (const [x, z] of pts) box(groups.site, MAT.gravel, x - 0.15, groundY(x, z) - 0.02, z - 0.26, x + 0.15, groundY(x, z) + 0.025, z + 0.26, false);
+    label('drain', S.inside.x + S.wall + 0.8, 0.3, 2.6);
+  }
+
+  // ---------- frame ----------
+  const backZ = 0.08, frontZ = S.inside.z + S.wall / 2;
+  const slope = (S.frontHeight - S.backHeight) / (frontZ - backZ);
+  const roofY = (z) => S.backHeight + slope * (z - backZ);
+  const xL = -S.wall - S.overhang.east, xR = D.roofWestEdge;
+  for (const x of [-0.1, 1.5, S.inside.x + 0.1]) pole(groups.frame, MAT.timber, [x, 0, backZ], [x, S.backHeight, backZ]);
+  for (const x of [-0.1, S.door.x0 - 0.06, S.door.x0 + S.door.width + 0.06, S.inside.x + 0.1]) pole(groups.frame, MAT.timber, [x, 0, frontZ], [x, S.frontHeight, frontZ]);
+  pole(groups.frame, MAT.timber, [xL, S.backHeight, backZ], [xR, S.backHeight, backZ], 0.07);
+  pole(groups.frame, MAT.timber, [xL, S.frontHeight, frontZ], [xR, S.frontHeight, frontZ], 0.065);
+  const zEave = frontZ + S.overhang.front;
+  for (let x = xL + 0.05; x <= xR; x += 0.4) pole(groups.frame, MAT.timber, [x, S.backHeight + 0.09, backZ - 0.05], [x, roofY(zEave) + 0.07, zEave], 0.04);
+
+  // ---------- roof ----------
+  {
+    const run = zEave - (backZ - 0.08);
+    const len = Math.hypot(run, roofY(zEave) - roofY(backZ - 0.08));
+    const ang = Math.atan2(roofY(zEave) - roofY(backZ - 0.08), run);
+    const mk = (m, t, lift) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(xR - xL, t, len), m);
+      mesh.rotation.x = -ang;
+      const zc = (backZ - 0.08 + zEave) / 2;
+      mesh.position.set((xL + xR) / 2, roofY(zc) + 0.12 + lift, zc);
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      groups.roof.add(mesh);
+    };
+    mk(MAT.bark, 0.03, 0);
+    mk(MAT.turf, 0.12, 0.075);
+    box(groups.roof, MAT.cob, xL, S.backHeight + 0.05, -0.02, xR, D.roofTop + 0.05, 0.1);
+    label('turf roof on bark', 1.5, D.roofTop + 0.3, 1.4);
+  }
+
+  // ---------- walls ----------
+  const endWall = (x0) => {
+    const sh = new THREE.Shape();
+    sh.moveTo(0, S.plinth); sh.lineTo(frontZ + S.wall / 2, S.plinth);
+    sh.lineTo(frontZ + S.wall / 2, roofY(frontZ + S.wall / 2)); sh.lineTo(0, S.backHeight);
+    sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: S.wall, bevelEnabled: false });
+    g.rotateY(-Math.PI / 2);
+    const mesh = new THREE.Mesh(g, MAT.daub);
+    mesh.position.x = x0 + S.wall;
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    groups.ends.add(mesh);
+    box(groups.ends, MAT.plinth, x0, 0, 0, x0 + S.wall, S.plinth, frontZ + S.wall / 2);
+  };
+  endWall(-S.wall);
+  endWall(S.inside.x);
+  const fz0 = S.inside.z, fz1 = S.inside.z + S.wall;
+  const dx0 = S.door.x0, dx1 = S.door.x0 + S.door.width;
+  box(groups.front, MAT.plinth, -S.wall, 0, fz0, dx0, S.plinth, fz1);
+  box(groups.front, MAT.plinth, dx1, 0, fz0, S.inside.x + S.wall, S.plinth, fz1);
+  box(groups.front, MAT.daub, -S.wall, S.plinth, fz0, dx0, S.frontHeight, fz1);
+  box(groups.front, MAT.daub, dx1, S.plinth, fz0, S.inside.x + S.wall, S.frontHeight, fz1);
+  box(groups.front, MAT.daub, dx0, S.door.height, fz0, dx1, S.frontHeight, fz1);
+  box(groups.front, MAT.hole, 0.15, 0.32, fz1 - 0.005, 0.35, 0.45, fz1 + 0.01, false);
+  label('door', (dx0 + dx1) / 2, S.door.height + 0.3, fz1 + 0.1);
+  label('air inlet', 0.25, 0.55, fz1 + 0.1);
+  label('high vent', 2.2, S.backHeight + 0.15, 0.2, true);
+
+  // ---------- stove, bench, chimney ----------
+  const f = S.foundation;
+  box(groups.stove, MAT.plinth, D.core.x0 - 0.05, 0, D.core.z0 - 0.05, S.inside.x, f, D.core.z1 + 0.25);
+  box(groups.stove, MAT.plinth, D.legX0, 0, D.core.z1, S.inside.x, f, S.inside.z - 0.05);
+  const domeMat = MAT.cob.clone(), benchMat = MAT.plaster.clone();
+  const dome = box(groups.stove, domeMat, D.core.x0, f, D.core.z0, D.core.x1, D.cooktopTop - 0.06, D.core.z1);
+  box(groups.stove, MAT.slab, D.core.x0 - 0.06, D.cooktopTop - 0.06, D.core.z0 - 0.06, D.core.x1 + 0.06, D.cooktopTop, D.core.z1 + 0.06);
+  box(groups.stove, MAT.refr, D.feed.x - 0.11, f, D.feed.z - 0.11, D.feed.x + 0.11, D.riserTop - 0.7, D.feed.z + 0.11);
+  box(groups.stove, MAT.hole, D.feed.x - 0.05, D.riserTop - 0.7, D.feed.z - 0.05, D.feed.x + 0.05, D.riserTop - 0.695, D.feed.z + 0.05, false);
+  for (const dx of [-0.025, 0.015]) pole(groups.stove, MAT.wood, [D.feed.x + dx, D.riserTop - 0.9, D.feed.z], [D.feed.x + dx * 1.6, D.riserTop - 0.35, D.feed.z + 0.03], 0.013);
+  const benchA = box(groups.stove, benchMat, D.core.x1, f, S.rockGap, S.inside.x, S.bench.height, S.rockGap + S.bench.width);
+  const benchB = box(groups.stove, benchMat, D.legX0, f, S.rockGap + S.bench.width, S.inside.x, S.bench.height, S.inside.z - 0.1);
+  box(groups.stove, MAT.bedroll, D.core.x1 + 0.12, S.bench.height, S.rockGap + 0.08, S.inside.x - 0.1, S.bench.height + 0.08, S.rockGap + S.bench.width - 0.08);
+  box(groups.stove, MAT.pillow, S.inside.x - 0.45, S.bench.height + 0.08, S.rockGap + 0.14, S.inside.x - 0.14, S.bench.height + 0.16, S.rockGap + S.bench.width - 0.14);
+  const cx = D.chimneyX, cz = S.chimney.z, co = S.chimney.outer / 2;
+  box(groups.stove, MAT.cob, cx - co, 0, cz - co, cx + co, D.chimneyTop, cz + co);
+  box(groups.stove, MAT.hole, cx - 0.05, D.chimneyTop, cz - 0.05, cx + 0.05, D.chimneyTop + 0.005, cz + 0.05, false);
+  box(groups.stove, MAT.cob, S.inside.x + S.wall, 0, cz - 0.12, cx - co, 0.25, cz + 0.12);
+  label('stove', D.core.x0 + S.dome / 2, D.cooktopTop + 0.25, D.core.z0 + S.dome / 2, true);
+  label('feed tube', D.feed.x, D.riserTop - 0.5, D.feed.z + 0.25, true);
+  label('sleeping bench', 1.8, S.bench.height + 0.35, S.rockGap + S.bench.width / 2, true);
+  label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true);
+  label('chimney', cx, D.chimneyTop + 0.25, cz);
+
+  // Hidden flue path, shown when the stove is opened up.
+  const hot = (a, b, c, d, e, g) => box(groups.inside, MAT.ember, a, b, c, d, e, g, false);
+  const cy0 = f, cy1 = f + 0.1;
+  hot(D.riser.x - 0.05, cy0, D.riser.z - 0.05, D.riser.x + 0.05, D.riserTop, D.riser.z + 0.05);
+  hot(D.feed.x - 0.05, cy0, D.riser.z - 0.05, D.feed.x + 0.05, cy1, D.feed.z + 0.05);
+  hot(D.feed.x - 0.05, cy0, D.feed.z - 0.05, D.feed.x + 0.05, D.riserTop - 0.7, D.feed.z + 0.05);
+  hot(D.core.x1 - 0.1, cy0, D.channelZ - 0.05, D.bendX + 0.05, cy1, D.channelZ + 0.05);
+  hot(D.bendX - 0.05, cy0, D.channelZ - 0.05, D.bendX + 0.05, cy1, cz + 0.05);
+  hot(D.bendX - 0.05, cy0, cz - 0.05, cx + 0.05, cy1, cz + 0.05);
+  hot(cx - 0.05, cy0, cz - 0.05, cx + 0.05, D.chimneyTop, cz + 0.05);
+  groups.inside.visible = false;
+
+  // Woodpile under the east eave.
+  for (let row = 0; row < 5; row++) for (let i = 0; i < 7; i++) {
+    const x = -S.wall - 0.22, y = 0.07 + row * 0.12, z = 0.5 + i * 0.16 + (row % 2) * 0.08;
+    pole(groups.site, MAT.wood, [x - 0.2, y, z], [x + 0.18, y, z], 0.055);
+  }
+  label('woodpile', -S.wall - 0.25, 0.9, 1.0);
+
+  // ---------- smoke ----------
+  const smoke = [];
+  const smokeMat = new THREE.MeshBasicMaterial({ color: 0xdcdcd6, transparent: true, opacity: 0.2, depthWrite: false });
+  for (let i = 0; i < 16; i++) {
+    const s = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), smokeMat.clone());
+    s.userData.t = i / 16;
+    groups.stove.add(s);
+    smoke.push(s);
+  }
+
+  // ---------- views and toggles ----------
+  const VIEWS = {
+    Outside: [[7.5, 4.2, 9], [1.4, 1.0, 1.0]],
+    Inside: [[2.9, 2.1, 4.2], [1.2, 0.5, 0.5]],
+    'From above': [[1.6, 9.5, 3.6], [1.5, 0, 1.1]],
+    'To the stream': [[-7, 7, 16], [1.5, -1, 12]],
+  };
+  const TOGGLES = [
+    ['Roof', ['roof', 'frame'], true],
+    ['Front wall', ['front'], true],
+    ['End walls', ['ends'], true],
+    ['Open the stove', ['inside'], false],
+    ['Labels', ['labels'], true],
+  ];
+  let fly = null;
+  function go(name) {
+    const [p, t] = VIEWS[name];
+    fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: new THREE.Vector3(...p), t1: new THREE.Vector3(...t), k: 0 };
+    if (name === 'Inside') { setToggle('Roof', false); setToggle('Front wall', false); }
+  }
+  const vbox = document.getElementById('views');
+  for (const name of Object.keys(VIEWS)) {
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = name;
+    b.addEventListener('click', () => go(name));
+    vbox.appendChild(b);
+  }
+  const tbox = document.getElementById('toggles');
+  const toggleButtons = {};
+  function setToggle(name, on) {
+    const [, keys] = TOGGLES.find((t) => t[0] === name);
+    const b = toggleButtons[name];
+    b.setAttribute('aria-pressed', String(on));
+    if (name === 'Open the stove') {
+      for (const mtl of [domeMat, benchMat]) { mtl.transparent = on; mtl.opacity = on ? 0.3 : 1; mtl.depthWrite = !on; mtl.needsUpdate = true; }
+    }
+    for (const k of keys) groups[k].visible = on;
+    if (name === 'Labels') labelRenderer.domElement.style.display = on ? '' : 'none';
+    groups.innerLabels.visible = !groups.roof.visible || !groups.front.visible;
+  }
+  for (const [name, , on] of TOGGLES) {
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = name;
+    toggleButtons[name] = b;
+    b.addEventListener('click', () => setToggle(name, b.getAttribute('aria-pressed') !== 'true'));
+    tbox.appendChild(b);
+    setToggle(name, on);
+  }
+
+  camera.position.set(...VIEWS.Outside[0]);
+  controls.target.set(...VIEWS.Outside[1]);
+
+  function resize() {
+    const w = host.clientWidth, h = host.clientHeight;
+    renderer.setSize(w, h);
+    labelRenderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(host);
+  resize();
+
+  const clock = new THREE.Clock();
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  renderer.setAnimationLoop(() => {
+    const dt = Math.min(0.05, clock.getDelta());
+    if (fly) {
+      fly.k = Math.min(1, fly.k + dt / 1.1);
+      const e = fly.k < 0.5 ? 2 * fly.k * fly.k : 1 - (-2 * fly.k + 2) ** 2 / 2;
+      camera.position.lerpVectors(fly.p0, fly.p1, e);
+      controls.target.lerpVectors(fly.t0, fly.t1, e);
+      if (fly.k >= 1) fly = null;
+    }
+    for (const s of smoke) {
+      if (!reduce) s.userData.t = (s.userData.t + dt * 0.12) % 1;
+      const t = s.userData.t;
+      s.position.set(cx + t * 1.2 + Math.sin(t * 9 + s.id) * 0.06, D.chimneyTop + 0.1 + t * 2.2, cz - t * 0.5);
+      s.scale.setScalar(0.05 + t * 0.2);
+      s.material.opacity = 0.18 * (1 - t);
+    }
+    controls.update();
+    renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
+  });
+} catch (e) {
+  showError(e);
+}
+</script>
+</body>
+</html>

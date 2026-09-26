@@ -45,6 +45,16 @@ test('a longer channel cools the exhaust and a very long one chokes the pull', (
   assert.ok(run({ channelLength: 100 }).ids.includes('hotExhaust'));
 });
 
+test('a lit stove stays on its hot running draft as the channel grows a little', () => {
+  let last = Infinity;
+  for (let L = 400; L <= 450; L += 5) {
+    const r = run({ channelLength: L, bends: 2, chimneyAboveRiser: 170 }).res;
+    assert.ok(r.airRatio >= 1.5, `air ratio ${r.airRatio} at ${L} cm`);
+    assert.ok(r.airRatio <= last, `air ratio rose from ${last} to ${r.airRatio} at ${L} cm`);
+    last = r.airRatio;
+  }
+});
+
 test('a bare riser runs cooler than an insulated one', () => {
   assert.ok(run({ riserInsulation: 0 }).res.temps.riserMean < run().res.temps.riserMean - 100);
   assert.ok(run({ riserInsulation: 0 }).ids.includes('bareRiser'));

@@ -137,11 +137,18 @@
       return draft(p, t, T0) - SECTIONS.reduce((a, s) => a + l[s], 0);
     };
 
+    // Draft and drag can balance at more than one flow: a hot, fast-running stove and a
+    // cool, sluggish one. A lit stove at full fire runs on the fastest balance, so take the
+    // highest flow at which the draft still beats the drag.
+    const lo0 = 1e-6, hiMax = 0.2, steps = 240;
+    if (imbalance(hiMax) > 0) throw new Error(`simulate: draft still exceeds drag at ${hiMax} kg/s; the flow search range is too small for these parameters`);
+    const grid = Array.from({ length: steps + 1 }, (_, i) => lo0 * (hiMax / lo0) ** (i / steps));
+    let top = -1;
+    for (let i = steps - 1; i >= 0; i--) if (imbalance(grid[i]) > 0) { top = i; break; }
     let m = 0;
-    const lo0 = 1e-6;
-    if (imbalance(lo0) > 0) {
-      let lo = lo0, hi = 0.2;
-      for (let i = 0; i < 80; i++) {
+    if (top >= 0) {
+      let lo = grid[top], hi = grid[top + 1];
+      for (let i = 0; i < 60; i++) {
         const mid = Math.sqrt(lo * hi);
         if (imbalance(mid) > 0) lo = mid; else hi = mid;
       }
