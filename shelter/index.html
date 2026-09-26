@@ -95,11 +95,11 @@ a{color:var(--ember)}
   <section>
     <h2>Build order</h2>
     <ol>
-      <li>Clear to mineral soil. Dig a gravel-filled drain along the foot of the rock face, running out under the west wall and downhill.</li>
+      <li>Clear to mineral soil. Dig a gravel-filled drain 50 cm deep along the foot of the rock face, so it runs below the stove pit, then out under the west wall and downhill.</li>
       <li>Set the posts: three against the rock, four along the front. Lash a beam across the back posts at 2.0 m and a plate across the front posts at 1.2 m.</li>
       <li>Lay rafters every 40 cm from beam to plate. Cover them with bark sheets lapped like shingles, then 10–15 cm of turf, grass side up.</li>
       <li>Where the roof meets the rock, tuck bark into the rock and seal the joint with a thick bead of clay.</li>
-      <li>Under the roof, build the stove, the bench and the chimney as in the <a href="../build-guide.html">build guide</a>. Leave 10 cm of light clay between the rock and the stove and bench.</li>
+      <li>Under the roof, dig a pit 30 cm deep for the stove core in the corner by the rock and line it with stone. Build the stove in the pit, then the bench and the chimney, as in the <a href="../build-guide.html">build guide</a>. The channel climbs out of the pit into the bench. Leave 10 cm of light clay between the rock and the stove and bench.</li>
       <li>Lay a dry stone plinth 30 cm high under the walls. Weave hazel or willow rods between the posts above it.</li>
       <li>Daub both sides of the wattle with cob. Daub it thick where it faces the stove.</li>
       <li>Leave an air inlet low in the front wall and a vent high at the back under the roof. Hang a hide or blanket in the door.</li>
@@ -112,7 +112,8 @@ a{color:var(--ember)}
     <ul>
       <li>Keep the low air inlet and the high vent open whenever the stove burns. If you get a headache, dizziness or nausea, get outside.</li>
       <li>Let the fire burn out before you sleep. The bench holds the heat through the night.</li>
-      <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube. Keep the floor in front of the feed tube clear.</li>
+      <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube. </li>
+      <li>The feed tube opens just above the floor. Lay a flat hearth stone in front of it to catch sparks and ash, and keep the floor around it clear.</li>
       <li>Wind off the rock face can push smoke back down the chimney. If it does, make the chimney taller.</li>
     </ul>
   </section>
@@ -154,7 +155,9 @@ try {
     ['Sleeping bench', `${D.sleepLength.toFixed(1)} × ${S.bench.width.toFixed(1)} m`],
     ['Seat along the west wall', `${(S.inside.z - S.rockGap - S.bench.width - 0.1).toFixed(1)} × ${S.bench.legWidth.toFixed(1)} m`],
     ['Bench top above floor', `${Math.round(S.bench.height * 100)} cm`],
+    ['Stove pit', `${Math.round(S.coreSink * 100)} cm deep`],
     ['Cooktop above floor', `${Math.round(D.cooktopTop * 100)} cm`],
+    ['Feed tube opening above floor', `${Math.round(D.feedTop * 100)} cm`],
     ['Prep counter', `${S.counter.depth.toFixed(2)} × ${(D.counter.z1 - D.counter.z0).toFixed(2)} m, ${Math.round(S.counter.height * 100)} cm high`],
     ['Water basin', `${Math.round(S.basin.length * 100)} × ${Math.round(S.basin.width * 100)} cm, ${Math.round(S.basin.height * 100)} cm deep`],
     ['Roof pitch', `${Math.round(Math.atan2(S.backHeight - S.frontHeight, S.inside.z + S.wall) * 180 / Math.PI)}°`],
@@ -296,7 +299,8 @@ try {
   }
 
   // ---------- floor, drain ----------
-  box(groups.site, MAT.floor, -S.wall, -0.03, 0, S.inside.x + S.wall, 0.001, S.inside.z + S.wall, false);
+  const floorMat = MAT.floor.clone();
+  box(groups.site, floorMat, -S.wall, -0.03, 0, S.inside.x + S.wall, 0.001, S.inside.z + S.wall, false);
   box(groups.site, MAT.gravel, S.inside.x + S.wall, -0.02, 0, S.inside.x + S.wall + 0.3, 0.02, 0.5, false);
   {
     const pts = [];
@@ -366,14 +370,18 @@ try {
 
   // ---------- stove, bench, chimney ----------
   const f = S.foundation;
-  box(groups.stove, MAT.plinth, D.core.x0 - 0.05, 0, D.core.z0 - 0.05, S.inside.x, f, D.core.z1 + 0.25);
+  const pb = D.coreBase - f, px0 = D.core.x0 - 0.06, px1 = D.core.x1 + 0.04, pz0 = D.core.z0 - 0.06, pz1 = D.feed.z + 0.15;
+  box(groups.stove, MAT.plinth, px0, pb, pz0, px1, D.coreBase, pz1);
+  for (const [a, b, c, d] of [[px0, pz0, px0 + 0.04, pz1], [px1 - 0.04, pz0, px1, pz1], [px0, pz1 - 0.04, px1, pz1], [px0, pz0, px1, pz0 + 0.04]]) box(groups.stove, MAT.plinth, a, pb, b, c, 0, d);
+  box(groups.stove, MAT.plinth, D.core.x1, 0, D.core.z0 - 0.05, S.inside.x, f, D.core.z1 + 0.25);
   box(groups.stove, MAT.plinth, D.legX0, 0, D.core.z1, S.inside.x, f, S.inside.z - 0.05);
   const domeMat = MAT.cob.clone(), benchMat = MAT.plaster.clone();
-  const dome = box(groups.stove, domeMat, D.core.x0, f, D.core.z0, D.core.x1, D.cooktopTop - 0.06, D.core.z1);
+  box(groups.stove, domeMat, D.core.x0, D.coreBase, D.core.z0, D.core.x1, D.cooktopTop - 0.06, D.core.z1);
   box(groups.stove, MAT.slab, D.core.x0 - 0.06, D.cooktopTop - 0.06, D.core.z0 - 0.06, D.core.x1 + 0.06, D.cooktopTop, D.core.z1 + 0.06);
-  box(groups.stove, MAT.refr, D.feed.x - 0.11, f, D.feed.z - 0.11, D.feed.x + 0.11, D.riserTop - 0.7, D.feed.z + 0.11);
-  box(groups.stove, MAT.hole, D.feed.x - 0.05, D.riserTop - 0.7, D.feed.z - 0.05, D.feed.x + 0.05, D.riserTop - 0.695, D.feed.z + 0.05, false);
-  for (const dx of [-0.025, 0.015]) pole(groups.stove, MAT.wood, [D.feed.x + dx, D.riserTop - 0.9, D.feed.z], [D.feed.x + dx * 1.6, D.riserTop - 0.35, D.feed.z + 0.03], 0.013);
+  box(groups.stove, MAT.refr, D.feed.x - 0.11, D.coreBase, D.feed.z - 0.11, D.feed.x + 0.11, D.feedTop, D.feed.z + 0.11);
+  box(groups.stove, MAT.hole, D.feed.x - 0.05, D.feedTop, D.feed.z - 0.05, D.feed.x + 0.05, D.feedTop + 0.005, D.feed.z + 0.05, false);
+  for (const dx of [-0.025, 0.015]) pole(groups.stove, MAT.wood, [D.feed.x + dx, D.feedTop - 0.2, D.feed.z], [D.feed.x + dx * 1.6, D.feedTop + 0.35, D.feed.z + 0.03], 0.013);
+  box(groups.stove, MAT.slab, D.feed.x - 0.22, 0, D.feed.z + 0.11, D.feed.x + 0.22, 0.03, D.feed.z + 0.5);
   const benchA = box(groups.stove, benchMat, D.core.x1, f, S.rockGap, S.inside.x, S.bench.height, S.rockGap + S.bench.width);
   const benchB = box(groups.stove, benchMat, D.legX0, f, S.rockGap + S.bench.width, S.inside.x, S.bench.height, S.inside.z - 0.1);
   box(groups.stove, MAT.bedroll, D.core.x1 + 0.12, S.bench.height, S.rockGap + 0.08, S.inside.x - 0.1, S.bench.height + 0.08, S.rockGap + S.bench.width - 0.08);
@@ -383,7 +391,8 @@ try {
   box(groups.stove, MAT.hole, cx - 0.05, D.chimneyTop, cz - 0.05, cx + 0.05, D.chimneyTop + 0.005, cz + 0.05, false);
   box(groups.stove, MAT.cob, S.inside.x + S.wall, 0, cz - 0.12, cx - co, 0.25, cz + 0.12);
   label('stove', D.core.x0 + S.dome / 2, D.cooktopTop + 0.25, D.core.z0 + S.dome / 2, true);
-  label('feed tube', D.feed.x, D.riserTop - 0.5, D.feed.z + 0.25, true);
+  label('feed tube', D.feed.x, D.feedTop + 0.45, D.feed.z + 0.1, true);
+  label('hearth stone', D.feed.x + 0.1, 0.2, D.feed.z + 0.4, true);
   label('sleeping bench', 1.8, S.bench.height + 0.35, S.rockGap + S.bench.width / 2, true);
   label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true);
   label('chimney', cx, D.chimneyTop + 0.25, cz);
@@ -415,10 +424,12 @@ try {
   // Hidden flue path, shown when the stove is opened up.
   const hot = (a, b, c, d, e, g) => box(groups.inside, MAT.ember, a, b, c, d, e, g, false);
   const cy0 = f, cy1 = f + 0.1;
-  hot(D.riser.x - 0.05, cy0, D.riser.z - 0.05, D.riser.x + 0.05, D.riserTop, D.riser.z + 0.05);
-  hot(D.feed.x - 0.05, cy0, D.riser.z - 0.05, D.feed.x + 0.05, cy1, D.feed.z + 0.05);
-  hot(D.feed.x - 0.05, cy0, D.feed.z - 0.05, D.feed.x + 0.05, D.riserTop - 0.7, D.feed.z + 0.05);
-  hot(D.core.x1 - 0.1, cy0, D.channelZ - 0.05, D.bendX + 0.05, cy1, D.channelZ + 0.05);
+  const tb = D.coreBase;
+  hot(D.riser.x - 0.05, tb, D.riser.z - 0.05, D.riser.x + 0.05, D.riserTop, D.riser.z + 0.05);
+  hot(D.feed.x - 0.05, tb, D.riser.z - 0.05, D.feed.x + 0.05, tb + 0.1, D.feed.z + 0.05);
+  hot(D.feed.x - 0.05, tb, D.feed.z - 0.05, D.feed.x + 0.05, D.feedTop, D.feed.z + 0.05);
+  hot(D.core.x1 - 0.1, tb, D.channelZ - 0.05, D.core.x1 + 0.05, cy1, D.channelZ + 0.05);
+  hot(D.core.x1 - 0.05, cy0, D.channelZ - 0.05, D.bendX + 0.05, cy1, D.channelZ + 0.05);
   hot(D.bendX - 0.05, cy0, D.channelZ - 0.05, D.bendX + 0.05, cy1, cz + 0.05);
   hot(D.bendX - 0.05, cy0, cz - 0.05, cx + 0.05, cy1, cz + 0.05);
   hot(cx - 0.05, cy0, cz - 0.05, cx + 0.05, D.chimneyTop, cz + 0.05);
@@ -475,7 +486,7 @@ try {
     const b = toggleButtons[name];
     b.setAttribute('aria-pressed', String(on));
     if (name === 'Open the stove') {
-      for (const mtl of [domeMat, benchMat]) { mtl.transparent = on; mtl.opacity = on ? 0.3 : 1; mtl.depthWrite = !on; mtl.needsUpdate = true; }
+      for (const mtl of [domeMat, benchMat, floorMat]) { mtl.transparent = on; mtl.opacity = on ? 0.3 : 1; mtl.depthWrite = !on; mtl.needsUpdate = true; }
     }
     for (const k of keys) groups[k].visible = on;
     if (name === 'Labels') labelRenderer.domElement.style.display = on ? '' : 'none';

@@ -19,7 +19,10 @@
     bench: { width: 0.7, height: 0.45, legWidth: 0.6 },
     chimney: { outer: 0.4, z: 1.8, roofClearance: 0.1 },
     stream: { distance: 25, drop: 2.5 },
-    stove: { riserHeight: 100, tunnelLength: 40, riserSize: 10, feedSize: 10 },
+    stove: { riserHeight: 100, tunnelLength: 40, riserSize: 10, feedSize: 10, feedHeight: 30 },
+    // The core stands in a stone-lined pit so the cooktop sits at cooking height.
+    coreSink: 0.3,
+    drainDepth: 0.5,
     // L-shaped counter in the south-east corner: one leg along the east wall for food prep,
     // one along the front wall holding the water basin. Room is left in front of the feed tube.
     counter: { height: 0.8, depth: 0.45, feedClearance: 0.45, frontEnd: 0.85, top: 0.06 },
@@ -36,14 +39,17 @@
   const roofWestEdge = S.inside.x + S.wall + S.overhang.west;
   const chimneyX = roofWestEdge + S.chimney.roofClearance + S.chimney.outer / 2;
 
-  const channelLength = (bendX - coreX1) + (S.chimney.z - channelZ) + (chimneyX - bendX);
-  const riserTop = S.foundation + S.stove.riserHeight / 100;
+  const coreBase = S.foundation - S.coreSink;
+  const channelRise = S.foundation - coreBase;
+  const channelLength = (bendX - coreX1) + (S.chimney.z - channelZ) + (chimneyX - bendX) + channelRise;
+  const riserTop = coreBase + S.stove.riserHeight / 100;
   const roofTop = S.backHeight + S.roofBuild;
   const chimneyTop = roofTop + 0.6;
 
   const derived = {
     core: { x0: coreX0, z0: coreZ0, x1: coreX1, z1: coreZ0 + S.dome },
-    riser, feed, channelZ, legX0, bendX, chimneyX, roofWestEdge,
+    riser, feed, channelZ, legX0, bendX, chimneyX, roofWestEdge, coreBase, channelRise,
+    feedTop: coreBase + S.stove.feedHeight / 100,
     channelLength, riserTop, roofTop, chimneyTop,
     sleepLength: S.inside.x - coreX1,
     cooktopTop: riserTop + 0.07 + 0.06,

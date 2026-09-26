@@ -16,8 +16,16 @@ test('the chimney clears the riser and the roof', () => {
   assert.ok(D.chimneyX - S.chimney.outer / 2 > D.roofWestEdge, 'chimney touches the roof edge');
 });
 
-test('the channel run is within the guide limit of 3–4 m plus the duct to the chimney', () => {
-  assert.ok(D.channelLength >= 3 && D.channelLength <= 4.5, `channel ${D.channelLength} m`);
+test('the channel run is within the guide limit of 3–4 m plus the duct to the chimney and the climb out of the pit', () => {
+  const flat = D.channelLength - D.channelRise;
+  assert.ok(flat >= 3 && flat <= 4.5, `level channel ${flat} m`);
+});
+
+test('the sunken core puts the cooktop at cooking height and keeps the pit dry', () => {
+  assert.ok(D.cooktopTop >= 0.85 && D.cooktopTop <= 1.0, `cooktop ${D.cooktopTop} m`);
+  assert.ok(D.feedTop >= 0.05, `feed tube opening ${D.feedTop} m above the floor`);
+  assert.ok(S.drainDepth > S.coreSink + 0.1, `drain ${S.drainDepth} m is not below the pit floor at ${S.coreSink} m`);
+  assert.ok(D.channelRise > 0, 'the channel must rise from the core toward the chimney');
 });
 
 test('there is room to sleep and to stand', () => {
