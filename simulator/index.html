@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rocket Mass Stove Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:light;--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;
+--cob:#b98a5e;--refr:#8e4a32;--slab:#6f7671;--ember:#d4531c;--stone:#9aa39c;--stone2:#7f8983;--insul:#e9dfb8;--insul2:#b9a56a;
+--former:#8a6a3a;--plaster:#e6d8bc;--sky:#eef0ec;
+--danger:#b3261e;--problem:#b8610c;--note:#3f6488;--ok:#2f7d4f;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;
+--cob:#8f6a48;--refr:#8a4630;--slab:#5d6560;--ember:#ec6a32;--stone:#6f7872;--stone2:#59625c;--insul:#bfb48e;--insul2:#8c7e4e;
+--former:#9c7a45;--plaster:#b9ab90;--sky:#151a19;
+--danger:#ef6b62;--problem:#e59a3c;--note:#7fa6cf;--ok:#63b884;}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;
+--cob:#8f6a48;--refr:#8a4630;--slab:#5d6560;--ember:#ec6a32;--stone:#6f7872;--stone2:#59625c;--insul:#bfb48e;--insul2:#8c7e4e;
+--former:#9c7a45;--plaster:#b9ab90;--sky:#151a19;
+--danger:#ef6b62;--problem:#e59a3c;--note:#7fa6cf;--ok:#63b884;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:1320px;margin:0 auto;padding:22px 16px 40px}
+h1,h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;letter-spacing:.01em}
+h1{font-size:2.1rem;font-weight:700;line-height:1.05}
+h2{font-size:1.2rem;font-weight:600;padding:10px 14px 4px}
+.sub{color:var(--muted);margin:6px 0 0;max-width:80ch}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:18px;margin-top:16px;align-items:start}
+@media (max-width:960px){.layout{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:4px}
+.panel + .panel{margin-top:14px}
+.steps{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:center}
+.steps button,.btn{font:600 .9rem "Barlow Condensed",sans-serif;letter-spacing:.03em;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 10px;border-radius:3px;cursor:pointer}
+.steps button[aria-current="step"]{background:var(--ember);border-color:var(--ember);color:#fff}
+.steps .play{margin-left:auto}
+.btn:hover,.steps button:hover{border-color:var(--ember)}
+.steptext{padding:10px 14px;border-top:1px solid var(--line);color:var(--ink);min-height:3.2em}
+.steptext b{font-family:"Barlow Condensed",sans-serif;font-size:1.05rem;margin-right:6px}
+#stove{display:block;width:100%;height:auto;background:var(--sky)}
+#stove rect,#stove polyline,#stove path{vector-effect:non-scaling-stroke}
+#stove .cob{fill:var(--cob);stroke:var(--ink);stroke-width:1}
+#stove .refr{fill:var(--refr);stroke:var(--ink);stroke-width:1}
+#stove .slab{fill:var(--slab);stroke:var(--ink);stroke-width:1}
+#stove .insul{fill:url(#p-dots);stroke:var(--ink);stroke-width:1}
+#stove .stone{fill:url(#p-stones);stroke:var(--ink);stroke-width:1}
+#stove .former{fill:url(#p-sticks);stroke:var(--former);stroke-width:1}
+#stove .plaster{fill:var(--plaster);stroke:none}
+#stove .stick{fill:var(--former);stroke:var(--ink);stroke-width:.6}
+#stove .new{stroke:var(--ember);stroke-width:2.5}
+#stove .brk{fill:none;stroke:var(--ink);stroke-width:1.2}
+#stove .glow{pointer-events:none}
+#stove text{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--sky);stroke-width:3px;stroke-linejoin:round}
+#stove .flame{animation:flick .35s infinite alternate}
+@keyframes flick{from{opacity:.75}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#stove .flame{animation:none}}
+.readouts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));border-top:1px solid var(--line)}
+.ro{padding:9px 14px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.ro span{display:block;color:var(--muted);font-size:.78rem}
+.ro b{font:600 1.35rem "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
+.ro.bad b{color:var(--danger)} .ro.warn b{color:var(--problem)}
+.dragbar{display:flex;height:22px;margin:4px 14px 6px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.dragbar div{height:100%;min-width:0}
+.draglegend{display:flex;flex-wrap:wrap;gap:4px 14px;padding:0 14px 12px;font-size:.8rem;color:var(--muted)}
+.draglegend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:2px}
+.problems{list-style:none;margin:0;padding:4px 14px 14px;display:grid;gap:8px}
+.problems li{border-left:4px solid var(--note);background:var(--bg);padding:8px 12px;border-radius:0 3px 3px 0}
+.problems li.danger{border-color:var(--danger)} .problems li.problem{border-color:var(--problem)}
+.problems li.ok{border-color:var(--ok)}
+.problems .lv{font:700 .72rem "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.1em;margin-right:8px}
+.problems li.danger .lv{color:var(--danger)} .problems li.problem .lv{color:var(--problem)} .problems li.note .lv{color:var(--note)} .problems li.ok .lv{color:var(--ok)}
+.problems strong{font-weight:600}
+.problems p{margin:3px 0 0;color:var(--ink)}
+details{border-top:1px solid var(--line)}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;padding:10px 14px;font:600 1.1rem "Barlow Condensed",sans-serif}
+.ctls{padding:0 14px 12px;display:grid;gap:10px}
+.ctl label{display:flex;justify-content:space-between;gap:10px}
+.ctl output{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ctl input[type=range]{width:100%;accent-color:var(--ember);margin:2px 0 0}
+.ctl .hint{font-size:.75rem;color:var(--muted)}
+.ctl.off .hint{color:var(--problem);font-weight:600}
+.check{display:flex;gap:8px;align-items:flex-start}
+.check input{margin-top:3px;accent-color:var(--ember)}
+select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:3px 6px;border-radius:3px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;padding:4px 14px 14px}
+#err{display:none;margin-top:12px;padding:10px 14px;border:2px solid var(--danger);color:var(--danger);font-weight:600;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Rocket mass stove simulator</h1>
+<p class="sub">Step through the build, then change the stove and watch what happens to the draft, the fire and the heat stored in the bench. All sizes are inside clear openings in centimetres.</p>
+<div id="err" role="alert"></div>
+
+<div class="layout">
+<div>
+  <div class="panel">
+    <div class="steps" id="steps"></div>
+    <svg id="stove" role="img" aria-label="Section through the stove"></svg>
+    <div class="steptext" id="steptext"></div>
+  </div>
+  <div class="panel">
+    <h2>How it runs</h2>
+    <div class="readouts" id="readouts"></div>
+    <h2>Where the drag is</h2>
+    <div class="dragbar" id="dragbar"></div>
+    <div class="draglegend" id="draglegend"></div>
+  </div>
+  <div class="panel">
+    <h2>Problems</h2>
+    <ul class="problems" id="problems"></ul>
+  </div>
+</div>
+
+<div>
+  <div class="panel">
+    <h2>Try a problem</h2>
+    <div class="presets" id="presets"></div>
+  </div>
+  <div class="panel" id="controls"></div>
+</div>
+</div>
+</div>
+
+<script src="model.js"></script>
+<script>
+'use strict';
+const M = window.StoveModel;
+if (!M) throw new Error('model.js did not load: StoveModel is missing. Keep model.js next to index.html.');
+
+const PASSAGES = ['feedSize', 'tunnelSize', 'riserSize', 'channelSize', 'chimneySize'];
+const GROUPS = [
+  { title: 'Passage sizes', open: true, items: [
+    { key: 'allSizes', label: 'Every passage', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: 10, the same all the way through', linkedOnly: true },
+    { key: 'feedSize', label: 'Feed tube', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: 10', unlinkedOnly: true },
+    { key: 'tunnelSize', label: 'Burn tunnel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'riserSize', label: 'Heat riser', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'channelSize', label: 'Bench channel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'chimneySize', label: 'Chimney', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+  ] },
+  { title: 'Core', open: true, items: [
+    { key: 'feedHeight', label: 'Feed tube height', min: 15, max: 80, step: 1, unit: 'cm', guide: [25, 35], hint: 'Guide: about 30' },
+    { key: 'tunnelLength', label: 'Burn tunnel length', min: 15, max: 90, step: 1, unit: 'cm', guide: [30, 40], hint: 'Guide: 30–40' },
+    { key: 'riserHeight', label: 'Riser height', min: 40, max: 200, step: 5, unit: 'cm', guide: [80, 120], hint: 'Guide: 80–120, at least 2–3× the tunnel' },
+    { key: 'riserInsulation', label: 'Riser insulation', min: 0, max: 15, step: 1, unit: 'cm', guide: [8, 10], hint: 'Guide: 8–10 of light clay' },
+    { key: 'topGap', label: 'Gap over the riser', min: 1, max: 20, step: 1, unit: 'cm', guide: [5, 8], hint: 'Guide: 5–8' },
+    { key: 'sideGap', label: 'Gap around the riser', min: 1, max: 15, step: 1, unit: 'cm', guide: [4, 6], hint: 'Guide: about 5' },
+  ] },
+  { title: 'Bench and chimney', open: false, items: [
+    { key: 'channelLength', label: 'Channel length', min: 50, max: 800, step: 10, unit: 'cm', guide: [100, 400], hint: 'Guide: up to 3–4 m' },
+    { key: 'bends', label: 'Bends in the channel', min: 0, max: 8, step: 1, unit: '', guide: [0, 4], hint: 'Guide: as few as you can' },
+    { key: 'benchCover', label: 'Mass over the channel', min: 5, max: 40, step: 1, unit: 'cm', guide: [15, 25], hint: 'Guide: 15–25' },
+    { key: 'chimneyAboveRiser', label: 'Chimney top above riser top', min: -30, max: 150, step: 5, unit: 'cm', guide: [60, 150], hint: 'Guide: at least 60' },
+  ] },
+  { title: 'Materials and use', open: false, items: [
+    { key: 'fuel', type: 'select', label: 'Fuel', options: [['dry', 'Dry sticks'], ['damp', 'Damp sticks']] },
+    { key: 'riverStones', type: 'check', label: 'Stones from rivers or wet ground near the fire' },
+    { key: 'fibreInRefractory', type: 'check', label: 'Straw or grass in the tunnel mix' },
+    { key: 'cracksSealed', type: 'check', label: 'Cracks sealed with slip' },
+    { key: 'feedLid', type: 'check', label: 'Lid on the feed tube' },
+    { key: 'coldStart', type: 'check', label: 'Stove cold, first fire of the day' },
+  ] },
+  { title: 'Conditions', open: false, items: [
+    { key: 'ambient', label: 'Outside air', min: -20, max: 35, step: 1, unit: '°C', hint: '' },
+    { key: 'burnHours', label: 'Firing time', min: 0.5, max: 6, step: 0.5, unit: 'h', guide: [1, 3], hint: 'Guide: 1–3 hours hard' },
+  ] },
+];
+
+const PRESETS = [
+  ['Pinch the chimney', { chimneySize: 7 }, false],
+  ['Bare riser', { riserInsulation: 0 }],
+  ['Short riser', { riserHeight: 60 }],
+  ['Tall feed tube', { feedHeight: 60 }],
+  ['Long bench', { channelLength: 800 }],
+  ['Short bench', { channelLength: 100 }],
+  ['Low chimney', { chimneyAboveRiser: -20 }],
+  ['Tight cooktop gap', { topGap: 2 }],
+  ['Damp wood', { fuel: 'damp' }],
+  ['Cold start', { coldStart: true }],
+  ['Cracks left open', { cracksSealed: false }],
+  ['River stones', { riverStones: true }],
+];
+
+const STEPS = [
+  ['Site and foundation', 'Clear leaf litter and topsoil down to mineral soil on level, well-drained ground. Lay dry stones about 10 cm deep under the whole core and bench.'],
+  ['Burn tunnel and feed tube', 'Lay a flat floor stone. Set stick-bundle formers for the tunnel and the upright feed tube and pack refractory mix 5–8 cm thick around them. Cap the tunnel with flat stones.'],
+  ['Heat riser', 'Stand a tall former at the far end of the tunnel. Build a 2–3 cm refractory wall around it, then 8–10 cm of light clay insulation. Build in layers so it does not slump.'],
+  ['Dome and cooktop', 'Build the cob dome with about 5 cm clear around the riser and 5–8 cm above it. A large flat stone closes the top and becomes the cooktop.'],
+  ['Bench and channel', 'Lay the channel former from the dome outlet along the bench, rising slightly toward the chimney. Bury it under 15–25 cm of cob and dense stone. Leave a cleanout at the dome base and at every bend.'],
+  ['Exit chimney', 'Build the flue at the far end of the bench from stacked stone and cob. Its top must be above the riser top and clear of the roof.'],
+  ['Seal and plaster', 'Plaster everything with clay and sand and fill every crack with slip. Any leak lets out smoke and carbon monoxide.'],
+  ['Dry and fire', 'Air-dry for several days. Small fires burn out the formers. Build the fire up over several days. It is working when the fire roars sideways down the feed tube and the chimney shows little smoke.'],
+];
+
+const SEG_COLOURS = { feed: '#7a8c99', tunnel: '#d4531c', riser: '#e8892b', topGap: '#c9a227', sideGap: '#8e4a32', channel: '#6f7671', chimney: '#3f6488' };
+
+let params = { ...M.DEFAULTS };
+let linked = true;
+let stage = 8;
+let playing = null;
+let res = null;
+let scene = null;
+
+const $ = (id) => document.getElementById(id);
+
+function showError(e) {
+  const box = $('err');
+  box.style.display = 'block';
+  box.textContent = `The simulator stopped: ${e.message}`;
+  console.error(e);
+}
+
+// ---------- controls ----------
+function buildControls() {
+  const root = $('controls');
+  root.innerHTML = '';
+  for (const g of GROUPS) {
+    const d = document.createElement('details');
+    d.open = g.open;
+    d.innerHTML = `<summary>${g.title}</summary><div class="ctls"></div>`;
+    const box = d.querySelector('.ctls');
+    if (g.title === 'Passage sizes') {
+      const c = document.createElement('label');
+      c.className = 'check';
+      c.innerHTML = `<input type="checkbox" id="linked"> <span>Same size for every passage</span>`;
+      box.appendChild(c);
+      c.querySelector('input').addEventListener('change', (e) => {
+        linked = e.target.checked;
+        if (linked) PASSAGES.forEach((k) => (params[k] = params.feedSize));
+        syncControls(); update();
+      });
+    }
+    for (const it of g.items) {
+      const row = document.createElement('div');
+      row.className = 'ctl';
+      row.dataset.key = it.key;
+      if (it.type === 'check') {
+        row.innerHTML = `<label class="check"><input type="checkbox" data-k="${it.key}"> <span>${it.label}</span></label>`;
+        row.querySelector('input').addEventListener('change', (e) => { params[it.key] = e.target.checked; update(); });
+      } else if (it.type === 'select') {
+        row.innerHTML = `<label><span>${it.label}</span><select data-k="${it.key}">${it.options.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select></label>`;
+        row.querySelector('select').addEventListener('change', (e) => { params[it.key] = e.target.value; update(); });
+      } else {
+        const id = `c-${it.key}`;
+        row.innerHTML = `<label for="${id}"><span>${it.label}</span><output></output></label>
+          <input type="range" id="${id}" min="${it.min}" max="${it.max}" step="${it.step}" data-k="${it.key}">
+          <div class="hint">${it.hint || ''}</div>`;
+        row.querySelector('input').addEventListener('input', (e) => {
+          const v = Number(e.target.value);
+          if (it.key === 'allSizes') PASSAGES.forEach((k) => (params[k] = v));
+          else params[it.key] = v;
+          syncControls(); update();
+        });
+      }
+      row._item = it;
+      box.appendChild(row);
+    }
+    root.appendChild(d);
+  }
+}
+
+function syncControls() {
+  $('linked').checked = linked;
+  for (const row of document.querySelectorAll('#controls .ctl')) {
+    const it = row._item;
+    row.hidden = (it.linkedOnly && !linked) || (it.unlinkedOnly && linked);
+    const val = it.key === 'allSizes' ? params.feedSize : params[it.key];
+    const input = row.querySelector('[data-k]');
+    if (it.type === 'check') input.checked = !!val;
+    else if (it.type === 'select') input.value = val;
+    else {
+      input.value = val;
+      row.querySelector('output').textContent = `${val}${it.unit ? ' ' + it.unit : ''}`;
+      if (it.guide) row.classList.toggle('off', val < it.guide[0] || val > it.guide[1]);
+    }
+  }
+}
+
+function buildPresets() {
+  const box = $('presets');
+  const reset = document.createElement('button');
+  reset.className = 'btn';
+  reset.textContent = 'Guide design';
+  reset.addEventListener('click', () => { params = { ...M.DEFAULTS }; linked = true; syncControls(); update(); });
+  box.appendChild(reset);
+  for (const [name, change, keepLinked] of PRESETS) {
+    const b = document.createElement('button');
+    b.className = 'btn';
+    b.textContent = name;
+    b.addEventListener('click', () => {
+      params = { ...M.DEFAULTS, ...change };
+      linked = keepLinked !== false;
+      stage = 8;
+      syncControls(); renderSteps(); update();
+    });
+    box.appendChild(b);
+  }
+}
+
+// ---------- build steps ----------
+function renderSteps() {
+  const box = $('steps');
+  box.innerHTML = '';
+  STEPS.forEach(([name], i) => {
+    const b = document.createElement('button');
+    b.textContent = `${i + 1} ${name}`;
+    if (stage === i + 1) b.setAttribute('aria-current', 'step');
+    b.addEventListener('click', () => { stopPlay(); stage = i + 1; renderSteps(); draw(); });
+    box.appendChild(b);
+  });
+  const play = document.createElement('button');
+  play.className = 'play';
+  play.textContent = playing ? 'Stop' : 'Play the build';
+  play.addEventListener('click', () => (playing ? stopPlay() : startPlay()));
+  box.appendChild(play);
+  const [name, text] = STEPS[stage - 1];
+  $('steptext').innerHTML = `<b>${stage}. ${name}</b>${text}`;
+}
+
+function startPlay() {
+  stage = 1;
+  playing = setInterval(() => {
+    if (stage >= 8) { stopPlay(); return; }
+    stage += 1; renderSteps(); draw();
+  }, 2200);
+  renderSteps(); draw();
+}
+function stopPlay() {
+  if (playing) clearInterval(playing);
+  playing = null;
+  renderSteps();
+}
+
+// ---------- drawing ----------
+function layout(p) {
+  const W = 6, ROOF = 6, DOME = 8, COOK = 6, FOUND = 10, CW = 8, REFR = 3;
+  const sf = p.feedSize, st = p.tunnelSize, sr = p.riserSize, sc = p.channelSize, sk = p.chimneySize;
+  const Lt = Math.max(p.tunnelLength, sf + sr + 4);
+  const Hf = Math.max(p.feedHeight, st + 4);
+  const Hr = Math.max(p.riserHeight, st + 10);
+  const ins = p.riserInsulation;
+  const riserL = Lt - sr;
+  const outL = riserL - REFR - ins, outR = Lt + REFR + ins;
+  const domeInL = outL - p.sideGap, domeInR = outR + p.sideGap;
+  const domeTop = Hr + p.topGap;
+  const Ldraw = Math.min(p.channelLength, 170);
+  const benchStart = domeInR + DOME;
+  const xC = benchStart + Ldraw;
+  const Hc = Math.max(Hr + p.chimneyAboveRiser, sc + 10);
+  const benchTop = sc + p.benchCover;
+
+  const s = [];
+  const R = (st0, cls, x, z, w, h, until = 99) => { if (w > 0 && h > 0) s.push({ st: st0, until, cls, x, z, w, h }); };
+  R(1, 'stone', -W - 6, -FOUND, xC + sk + CW + W + 12, FOUND);
+  R(2, 'refr', -W, 0, W, Hf);
+  R(2, 'refr', sf, st, W, Math.max(0, Hf - st));
+  R(2, 'slab', sf, st, riserL - sf, ROOF);
+  R(2, 'former', 0, 0, sf, Hf, 7);
+  R(2, 'former', 0, 0, Lt, st, 7);
+  R(3, 'refr', riserL - REFR, st + ROOF, REFR, Hr - st - ROOF);
+  R(3, 'insul', outL, st + ROOF, ins, Hr - st - ROOF);
+  R(3, 'refr', Lt, 0, REFR, Hr);
+  R(3, 'insul', Lt + REFR, 0, ins, Hr);
+  R(3, 'former', riserL, st, sr, Hr - st, 7);
+  R(4, 'cob', domeInL - DOME, st + ROOF, DOME, domeTop - st - ROOF);
+  R(4, 'cob', domeInR, sc, DOME, domeTop - sc);
+  R(4, 'slab', domeInL - DOME - 4, domeTop, domeInR - domeInL + 2 * DOME + 8, COOK);
+  R(5, 'cob', benchStart, sc, xC - CW - benchStart, p.benchCover);
+  R(5, 'former', domeInR, 0, xC + sk - domeInR, sc, 7);
+  R(6, 'cob', xC - CW, sc, CW, Hc - sc);
+  R(6, 'cob', xC + sk, 0, CW, Hc);
+  R(6, 'former', xC, sc, sk, Hc - sc, 7);
+  const PL = 1.5;
+  R(7, 'plaster', benchStart, benchTop, xC - CW - benchStart, PL);
+  R(7, 'plaster', domeInL - DOME - PL, st + ROOF, PL, domeTop - st - ROOF);
+  R(7, 'plaster', domeInR + DOME, benchTop, PL, domeTop - benchTop);
+  R(7, 'plaster', xC + sk + CW, 0, PL, Hc);
+  R(7, 'plaster', xC - CW - PL, benchTop, PL, Hc - benchTop);
+  R(7, 'plaster', -W - PL, 0, PL, Hf);
+
+  const path = [
+    [sf / 2, Hf + 14], [sf / 2, st / 2], [Lt - sr / 2, st / 2], [Lt - sr / 2, Hr + p.topGap / 2],
+    [domeInR - p.sideGap / 2, Hr + p.topGap / 2], [domeInR - p.sideGap / 2, sc / 2],
+    [xC + sk / 2, sc / 2], [xC + sk / 2, Hc + 30],
+  ];
+  const widths = [sf, st, sr, p.topGap, p.sideGap, sc, sk];
+  return { s, path, widths, Ldraw, sf, st, sr, sc, sk, Lt, Hf, Hr, Hc, domeInL, domeInR, domeTop, DOME, COOK, FOUND, CW, W, xC, benchStart, benchTop, riserL };
+}
+
+function tempColour(t) {
+  const stops = [[0, [150, 170, 185]], [80, [170, 150, 130]], [250, [212, 83, 28]], [600, [240, 140, 40]], [1000, [255, 215, 110]]];
+  if (t <= stops[0][0]) return `rgb(${stops[0][1]})`;
+  for (let i = 1; i < stops.length; i++) {
+    if (t <= stops[i][0]) {
+      const [a, ca] = stops[i - 1], [b, cb] = stops[i];
+      const f = (t - a) / (b - a);
+      return `rgb(${ca.map((v, j) => Math.round(v + (cb[j] - v) * f)).join(',')})`;
+    }
+  }
+  return `rgb(${stops[stops.length - 1][1]})`;
+}
+
+function draw() {
+  const p = params, L = layout(p);
+  const xs = L.s.map((r) => [r.x, r.x + r.w]).flat();
+  const zs = L.s.map((r) => [r.z, r.z + r.h]).flat();
+  const span = Math.max(...xs) - Math.min(...xs);
+  const fs = span * 0.022;
+  const xmin = Math.min(...xs) - fs * 7, xmax = Math.max(...xs) + fs * 7;
+  const width = xmax - xmin;
+  const zmin = -L.FOUND - fs * 2.4, zmax = Math.max(...zs, L.Hc + 30) + fs * 1.5;
+  const svg = $('stove');
+  svg.setAttribute('viewBox', `${xmin} ${-zmax} ${width} ${zmax - zmin}`);
+
+  const pat = fs * 0.55;
+  let h = `<defs>
+    <pattern id="p-dots" width="${pat}" height="${pat}" patternUnits="userSpaceOnUse"><rect width="${pat}" height="${pat}" fill="var(--insul)"/><circle cx="${pat / 2}" cy="${pat / 2}" r="${pat * 0.17}" fill="var(--insul2)"/></pattern>
+    <pattern id="p-stones" width="${pat * 2.6}" height="${pat * 1.6}" patternUnits="userSpaceOnUse"><rect width="${pat * 2.6}" height="${pat * 1.6}" fill="var(--stone)"/><ellipse cx="${pat * 0.8}" cy="${pat * 0.6}" rx="${pat * 0.65}" ry="${pat * 0.42}" fill="var(--stone2)"/><ellipse cx="${pat * 2.1}" cy="${pat * 1.3}" rx="${pat * 0.5}" ry="${pat * 0.32}" fill="var(--stone2)"/></pattern>
+    <pattern id="p-sticks" width="${pat}" height="${pat}" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="${pat}" height="${pat}" fill="var(--sky)"/><rect width="${pat * 0.35}" height="${pat}" fill="var(--former)" opacity=".7"/></pattern>
+    <radialGradient id="g-flame"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#ffb13b"/><stop offset="1" stop-color="#d4531c" stop-opacity="0"/></radialGradient>
+  </defs>`;
+
+  const rect = (r, extra = '') => `<rect class="${r.cls}${r.st === stage && stage < 8 ? ' new' : ''}" x="${r.x}" y="${-(r.z + r.h)}" width="${r.w}" height="${r.h}" ${extra}/>`;
+  for (const r of L.s) if (stage >= r.st && stage <= r.until) h += rect(r);
+
+  const firing = stage === 8 && res;
+  if (firing) {
+    if (!res.stalled) {
+      const benchGlow = Math.min(0.5, res.bench.riseC / 50);
+      h += `<rect class="glow" x="${L.benchStart}" y="${-(L.benchTop)}" width="${L.xC - L.CW - L.benchStart}" height="${p.benchCover}" fill="#d4531c" opacity="${benchGlow.toFixed(2)}"/>`;
+      const cookGlow = Math.min(0.6, Math.max(0, (res.temps.cooktop - 60) / 600));
+      h += `<rect class="glow" x="${L.domeInL - L.DOME - 4}" y="${-(L.domeTop + L.COOK)}" width="${L.domeInR - L.domeInL + 2 * L.DOME + 8}" height="${L.COOK}" fill="#d4531c" opacity="${cookGlow.toFixed(2)}"/>`;
+    }
+    for (const f of [0.2, 0.45, 0.7]) h += `<rect class="stick" x="${L.sf * f}" y="${-(L.Hf + 12)}" width="${L.sf * 0.13}" height="${L.Hf + 12 - L.st * 0.25}"/>`;
+    const power = res.stalled ? 0.15 : res.firePower / res.fuelCapacity;
+    const climbing = res.stalled || res.airRatio < 1 || res.burnBackRatio < 2 || p.feedLid;
+    if (climbing) h += `<ellipse class="flame" cx="${L.sf / 2}" cy="${-L.Hf * 0.7}" rx="${L.sf * 0.55}" ry="${L.Hf * 0.35}" fill="url(#g-flame)" opacity="${(0.4 + 0.5 * power).toFixed(2)}"/>`;
+    if (!res.stalled) h += `<ellipse class="flame" cx="${(L.sf + L.Lt) * 0.45}" cy="${-L.st / 2}" rx="${L.Lt * 0.5 * (0.4 + 0.6 * power)}" ry="${L.st * 0.5}" fill="url(#g-flame)" opacity="${(0.35 + 0.65 * power).toFixed(2)}"/>`;
+  }
+
+  if (p.channelLength > L.Ldraw && stage >= 5) {
+    const mid = L.benchStart + (L.xC - L.CW - L.benchStart) / 2;
+    const zig = (x0) => { const pts = []; let k = 0; for (let z = -L.FOUND - 3; z <= L.benchTop + 5; z += fs * 0.6) pts.push(`${x0 + (k++ % 2 ? fs * 0.5 : 0)},${-z}`); return `<polyline class="brk" points="${pts.join(' ')}"/>`; };
+    h += `<rect x="${mid - fs * 0.6}" y="${-(L.benchTop + 6)}" width="${fs * 1.7}" height="${L.benchTop + L.FOUND + 10}" fill="var(--sky)"/>` + zig(mid - fs * 0.6) + zig(mid + fs * 0.6);
+  }
+
+  const T = (x, z, txt, anchor = 'middle') => `<text x="${x}" y="${-z}" font-size="${fs}" text-anchor="${anchor}">${txt}</text>`;
+  const t0 = res && stage === 8 && !res.stalled;
+  if (stage >= 2) h += T(-L.W - 4, L.Hf * 0.6, 'feed tube', 'end');
+  if (stage >= 2) h += T(L.Lt / 2, -L.FOUND - fs * 1.2, t0 ? `burn tunnel · ${Math.round(res.temps.fire)}°C` : 'burn tunnel');
+  if (stage >= 4) h += T((L.domeInL + L.domeInR) / 2, L.domeTop + L.COOK + fs * 0.5, t0 ? `cooktop · ${Math.round(res.temps.cooktop)}°C` : 'cooktop');
+  if (stage >= 3) h += T(L.domeInL - L.DOME - fs * 0.4, L.Hr * 0.55, t0 ? `riser · ${Math.round(res.temps.riserMean)}°C` : 'riser', 'end');
+  if (stage >= 5) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, L.benchTop + fs * 0.6, t0 ? `bench · +${res.bench.riseC.toFixed(0)}°C` : 'bench');
+  if (stage >= 5) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, -L.FOUND - fs * 1.2, `channel ${(p.channelLength / 100).toFixed(1)} m`);
+  if (stage >= 6) h += T(L.xC + L.sk + L.CW + fs * 0.4, L.Hc - fs * 0.6, t0 ? `exhaust ${Math.round(res.temps.exhaust)}°C` : 'chimney', 'start');
+
+  h += '<g id="parts"></g>';
+  svg.innerHTML = h;
+  scene = { L, fs, parts: svg.querySelector('#parts'), circles: [] };
+  resetParticles();
+}
+
+// ---------- particles ----------
+let flow = [], smoke = [], lastT = 0, smokeAcc = 0, crackAcc = 0;
+const SLOW = 0.3;
+
+function segments() {
+  const L = scene.L, p = params, t = res.temps;
+  const keys = M.SECTIONS;
+  const tmp = {
+    feed: [t.ambient, t.ambient], tunnel: [t.fire, t.fire], riser: [t.fire, t.riserTop], topGap: [t.riserTop, t.riserTop],
+    sideGap: [t.riserTop, t.bell], channel: [t.bell, t.exhaust], chimney: [t.exhaust, t.exhaust],
+  };
+  let acc = 0;
+  return keys.map((k, i) => {
+    const [x0, z0] = L.path[i], [x1, z1] = L.path[i + 1];
+    const len = Math.hypot(x1 - x0, z1 - z0);
+    const squeeze = k === 'channel' ? L.Ldraw / p.channelLength : 1;
+    const seg = { k, x0, z0, x1, z1, len, start: acc, w: L.widths[i], T: tmp[k],
+      speed: Math.max(4, res.velocity[k] * 100 * SLOW * squeeze), dx: (x1 - x0) / len, dz: (z1 - z0) / len };
+    acc += len;
+    return seg;
+  });
+}
+
+function resetParticles() {
+  flow = []; smoke = [];
+  if (!res || stage !== 8) return;
+  scene.segs = segments();
+  scene.total = scene.segs[scene.segs.length - 1].start + scene.segs[scene.segs.length - 1].len;
+  const n = res.stalled ? 0 : Math.min(160, Math.max(8, Math.round(res.airFlow * 1000 * 12)));
+  for (let i = 0; i < n; i++) flow.push({ s: Math.random() * scene.total, j: Math.random() - 0.5 });
+}
+
+function circle(i) {
+  const c = scene.circles;
+  while (c.length <= i) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    scene.parts.appendChild(el);
+    c.push(el);
+  }
+  return c[i];
+}
+
+function tick(now) {
+  requestAnimationFrame(tick);
+  const dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+  lastT = now;
+  if (!scene || !res || stage !== 8) { if (scene) scene.circles.forEach((c) => c.setAttribute('r', 0)); return; }
+  const L = scene.L, fs = scene.fs, p = params;
+  let ci = 0;
+  const smoky = !res.stalled && res.airRatio < 1.5;
+
+  for (const pt of flow) {
+    let seg = scene.segs.find((s) => pt.s < s.start + s.len) || scene.segs[scene.segs.length - 1];
+    pt.s += seg.speed * dt;
+    if (pt.s >= scene.total) { pt.s -= scene.total; pt.j = Math.random() - 0.5; }
+    seg = scene.segs.find((s) => pt.s < s.start + s.len) || scene.segs[scene.segs.length - 1];
+    const f = (pt.s - seg.start) / seg.len;
+    const off = pt.j * seg.w * 0.7;
+    const x = seg.x0 + seg.dx * f * seg.len - seg.dz * off;
+    const z = seg.z0 + seg.dz * f * seg.len + seg.dx * off;
+    const temp = seg.T[0] + (seg.T[1] - seg.T[0]) * f;
+    const el = circle(ci++);
+    el.setAttribute('cx', x.toFixed(1)); el.setAttribute('cy', (-z).toFixed(1));
+    el.setAttribute('r', (fs * 0.22).toFixed(2));
+    const late = seg.k === 'channel' || seg.k === 'chimney' || seg.k === 'sideGap';
+    el.setAttribute('fill', smoky && late ? '#6b6560' : tempColour(temp));
+    el.setAttribute('opacity', seg.k === 'chimney' && z > L.Hc ? Math.max(0, 1 - (z - L.Hc) / 30).toFixed(2) : '0.9');
+  }
+
+  const backflow = res.stalled || res.airRatio < 1 || res.burnBackRatio < 2 || p.feedLid;
+  if (backflow) {
+    smokeAcc += dt * (res.stalled ? 22 : 12);
+    while (smokeAcc > 1) { smokeAcc -= 1; smoke.push({ x: L.sf * (0.2 + Math.random() * 0.6), z: L.st, vx: -3 - Math.random() * 6, vz: 18 + Math.random() * 14, life: 1 }); }
+  }
+  if (!p.cracksSealed) {
+    crackAcc += dt * 8;
+    while (crackAcc > 1) { crackAcc -= 1; smoke.push({ x: L.domeInL - L.DOME, z: L.Hr * (0.3 + Math.random() * 0.5), vx: -10 - Math.random() * 8, vz: 6 + Math.random() * 6, life: 1 }); }
+  }
+  smoke = smoke.filter((s) => s.life > 0);
+  for (const s of smoke) {
+    s.x += s.vx * dt * (s.z > L.Hf ? 1.6 : 0.2); s.z += s.vz * dt;
+    if (s.z > L.Hf || s.x < L.domeInL - L.DOME - 2) s.life -= dt * 0.35;
+    const el = circle(ci++);
+    el.setAttribute('cx', s.x.toFixed(1)); el.setAttribute('cy', (-s.z).toFixed(1));
+    el.setAttribute('r', (fs * (0.3 + (1 - s.life) * 0.7)).toFixed(2));
+    el.setAttribute('fill', '#5e5a57');
+    el.setAttribute('opacity', (0.55 * s.life).toFixed(2));
+  }
+  for (let i = ci; i < scene.circles.length; i++) scene.circles[i].setAttribute('r', 0);
+}
+
+// ---------- readouts ----------
+function renderReadouts() {
+  const r = res, t = r.temps;
+  const cls = (bad, warn) => (bad ? 'bad' : warn ? 'warn' : '');
+  const items = [
+    ['Fire', r.stalled ? 'out' : `${(r.firePower / 1000).toFixed(1)} kW`, cls(r.stalled, r.firePower < 0.8 * r.fuelCapacity)],
+    ['Air for the fire', r.stalled ? 'none' : `${r.airRatio.toFixed(1)}× needed`, cls(r.airRatio < 1, r.airRatio < 1.5)],
+    ['Draft', `${Math.max(0, r.draft).toFixed(1)} Pa`, cls(r.stalled, false)],
+    ['Gas speed in riser', `${r.velocity.riser.toFixed(1)} m/s`, ''],
+    ['Riser', `${Math.round(t.riserMean)}°C`, cls(false, !r.stalled && t.riserMean < 630)],
+    ['Cooktop', `${Math.round(t.cooktop)}°C`, ''],
+    ['Exhaust', `${Math.round(t.exhaust)}°C`, cls(false, !r.stalled && (t.exhaust < 50 || t.exhaust > 150))],
+    ['Heat kept in the stove', `${Math.round(r.heat.keptFraction * 100)}%`, ''],
+    ['Bench warms by', `${r.bench.riseC.toFixed(0)}°C`, ''],
+    ['Bench stays warm', r.bench.warmHours > 0 ? `about ${Math.round(r.bench.warmHours)} h` : 'barely', cls(false, r.bench.warmHours < 3)],
+  ];
+  $('readouts').innerHTML = items.map(([k, v, c]) => `<div class="ro ${c}"><span>${k}</span><b>${v}</b></div>`).join('');
+
+  const shares = M.SECTIONS.map((k) => [k, r.lossShare[k]]);
+  $('dragbar').innerHTML = r.stalled ? '' : shares.map(([k, v]) => `<div title="${M.SECTION_NAMES[k]} ${Math.round(v * 100)}%" style="width:${(v * 100).toFixed(2)}%;background:${SEG_COLOURS[k]}"></div>`).join('');
+  $('draglegend').innerHTML = r.stalled ? 'No gas moving.' : shares.map(([k, v]) => `<span><i style="background:${SEG_COLOURS[k]}"></i>${M.SECTION_NAMES[k]} ${Math.round(v * 100)}%</span>`).join('');
+
+  const probs = M.diagnose(r);
+  const label = { danger: 'Danger', problem: 'Problem', note: 'Note' };
+  $('problems').innerHTML = probs.length
+    ? probs.map((d) => `<li class="${d.level}"><span class="lv">${label[d.level]}</span><strong>${d.title}</strong><p>${d.text}</p></li>`).join('')
+    : '<li class="ok"><span class="lv">Good</span><strong>The stove draws well and burns clean.</strong></li>';
+}
+
+function update() {
+  res = M.simulate(params);
+  renderReadouts();
+  draw();
+}
+
+try {
+  buildControls();
+  buildPresets();
+  syncControls();
+  renderSteps();
+  update();
+  requestAnimationFrame(tick);
+} catch (e) {
+  showError(e);
+}
+window.addEventListener('error', (e) => showError(e.error || new Error(e.message)));
+</script>
+</body>
+</html>
