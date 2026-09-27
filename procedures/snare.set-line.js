@@ -4,6 +4,7 @@
   const procedure = {
     "id": "snare.set-line",
     "kind": "task",
+    "builds": ["snare-line"],
     "title": "Set the snare line",
     "purpose": "Set about {snares.count} snares along a marked trail through young spruce and willow on the hare runs, with a skinning stump by the shelter.",
     "requires": {

@@ -4,6 +4,7 @@
   const procedure = {
     "id": "shelter.roof-cover",
     "kind": "task",
+    "builds": ["roof-cover"],
     "title": "Cover the roof",
     "purpose": "Put a roof over the frame in the first days: a mat of poles and spruce boughs, the inner tarp piece as a vapour barrier, and the outer piece over it to keep rain off until the moss goes on.",
     "requires": {

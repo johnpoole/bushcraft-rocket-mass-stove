@@ -14,26 +14,17 @@
     console.error(e);
   }
 
-  function loadAll(ids) {
-    return Promise.all(ids.map((id) => new Promise((ok, no) => {
-      const s = document.createElement('script');
-      s.src = `${id}.js`;
-      s.onload = ok;
-      s.onerror = () => no(new Error(`${id}.js did not load`));
-      document.body.appendChild(s);
-    })));
-  }
-
   function mount() {
     const P = window.PROJECT, L = window.ProcLib, C = window.Catalog;
     if (!P) throw new Error('project.js did not load: window.PROJECT is missing');
     if (!L) throw new Error('engine/lib.js did not load: window.ProcLib is missing');
     if (!C) throw new Error('the project catalog did not load: window.Catalog is missing');
     if (!window.PROCEDURE_IDS) throw new Error('the procedure index did not load: window.PROCEDURE_IDS is missing');
+    if (!window.ProcLoad) throw new Error('engine/load.js did not load: window.ProcLoad is missing');
     const W = P.labels;
     const money = (x) => `${P.currency || '$'}${Math.round(x)}`;
 
-    return loadAll(window.PROCEDURE_IDS).then(() => {
+    return window.ProcLoad.procedures(window.PROCEDURE_IDS).then(() => {
       const reg = L.byId(window.PROCEDURES);
       const params = P.params ? P.params() : {};
       const T = (t) => esc(L.render(t, params));

@@ -19,7 +19,7 @@ test('the garden index lists every procedure file and nothing else', () => {
 });
 
 test('the garden keeps every rule the engine checks', () => {
-  assert.deepEqual(checkProject({ reg, cat: C, root: project.root, params: project.params() }), []);
+  assert.deepEqual(checkProject({ reg, cat: C, root: project.root, params: project.params(), parts: project.parts() }), []);
 });
 
 test('the cut list, screws, mesh and soil cover the bed', () => {
@@ -54,4 +54,14 @@ test('on its weekend calendar the bed is built by Sunday, filled and sown the ne
   assert.equal(r.dateOf(0), '2027-04-24');
   assert.equal(r.days[0].work, 6);
   assert.equal(r.days[2].work, 1.5);
+});
+
+test('the schedule says when each part of the bed is finished', () => {
+  const r = S.run(project.root, reg, C, L, project.calendar);
+  const days = S.partDays(r, reg);
+  assert.deepEqual([...days.keys()].sort(), Object.keys(project.parts()).sort());
+  assert.equal(days.get('frame').done, 1);
+  assert.ok(days.get('mesh').done <= 1);
+  assert.equal(days.get('soil').done, 7);
+  assert.ok(days.get('rows').done > days.get('soil').done && days.get('rows').started >= days.get('soil').done + 2);
 });

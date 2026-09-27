@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.riser",
     "kind": "task",
+    "builds": ["riser"],
     "title": "Build the heat riser",
     "purpose": "Build the insulated riser over the tunnel mouth: a thin refractory wall around a woven basket former, wrapped in light clay insulation, so it gets very hot and pulls hard.",
     "requires": {

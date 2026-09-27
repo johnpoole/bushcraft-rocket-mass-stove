@@ -4,6 +4,7 @@
   const procedure = {
     "id": "make.water-basin",
     "kind": "make",
+    "builds": ["water-basin"],
     "title": "Make the water basin",
     "purpose": "Make a basin for water by burning out a half log, since the pot is needed for cooking.",
     "requires": {

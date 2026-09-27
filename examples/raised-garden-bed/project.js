@@ -36,6 +36,7 @@
       intro: 'The plan run day by day from a Saturday: six hours on weekend days, an hour and a half on weekday evenings. Daily watering comes first, then each job in order, starting only when what it needs exists and the soil has settled. Hours are estimates.',
       milestones: ['plan.first-weekend', 'soil.fill', 'plant.sow', 'plant.thin'],
     },
+    parts: () => design.parts,
     params: () => design.params,
   };
 

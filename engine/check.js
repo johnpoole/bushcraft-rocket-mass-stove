@@ -1,17 +1,19 @@
 // The rules every project's procedures must keep, as one check. Returns a list of problems,
 // empty when the project is sound. A project's tests call it and assert the list is empty.
 //
-//   project: { reg, cat, root, params }
+//   project: { reg, cat, root, params, parts }
 //     reg     Map of id → procedure (lib.byId)
 //     cat     catalog { KIT, TOOLS, MATERIALS }
 //     root    id of the one top-level plan
 //     params  design numbers that {placeholders} in the text may quote
+//     parts   optional { id: name } of the design's parts; each must be built by a procedure
+//             the plan runs, and a procedure may build only parts on this list
 (function (root) {
   'use strict';
 
   const L = (typeof module !== 'undefined' && module.exports) ? require('./lib.js') : root.ProcLib;
 
-  function checkProject({ reg, cat, root: top, params = {} }) {
+  function checkProject({ reg, cat, root: top, params = {}, parts }) {
     const e = [];
     const add = (list) => list.forEach((x) => e.push(x));
 
@@ -58,6 +60,18 @@
         if (src === 'site' || src === 'bought' || daily.has(m.id) || src === p.id) continue;
         if (!calls.has(src)) e.push(`${p.id} uses ${m.id} but does not call ${src}`);
       }
+    }
+
+    // Every part of the design is built by something the plan runs, and nothing builds a part the design lacks.
+    const builders = new Map();
+    for (const p of reg.values()) for (const b of p.builds || []) {
+      if (parts && !(b in parts)) e.push(`${p.id} builds "${b}", which is not a part of the design`);
+      if (!parts) e.push(`${p.id} builds "${b}", but the project lists no design parts`);
+      (builders.get(b) || builders.set(b, []).get(b)).push(p.id);
+    }
+    for (const id of Object.keys(parts || {})) {
+      const by = (builders.get(id) || []).filter((pid) => reached.has(pid));
+      if (!by.length) e.push(`design part "${id}" is built by no procedure that ${top} runs`);
     }
 
     // Every design number quoted in text is defined.

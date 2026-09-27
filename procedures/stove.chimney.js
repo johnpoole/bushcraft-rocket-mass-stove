@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.chimney",
     "kind": "task",
+    "builds": ["chimney"],
     "title": "Build the chimney",
     "purpose": "Build the chimney outside the west wall in stone and cob all the way up, with no wood in it, tall enough to draw and clear of the roof.",
     "requires": {

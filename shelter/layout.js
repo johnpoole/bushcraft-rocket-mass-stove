@@ -240,7 +240,34 @@
 
   const stage1Changes = { ...stoveChanges, benchCover: S.stage1.ductCover };
 
-  const api = { S, derived, stoveChanges, stage1Changes };
+  // The parts of the design a procedure can build, by id. Each procedure that builds one names
+  // it in its `builds` list, and the 3D view shows the part from the day that procedure finishes.
+  const PARTS = {
+    'ditch': 'Drain ditch',
+    'frame': 'Frame',
+    'roof-cover': 'Roof cover',
+    'roof-insulation': 'Roof insulation',
+    'walls': 'Log walls',
+    'stove-base': 'Stove base and drain',
+    'feed-tube': 'Feed tube and hearth',
+    'riser': 'Heat riser',
+    'dome': 'Dome and cooktop',
+    'duct': 'Stone duct',
+    'bench': 'Bench',
+    'chimney': 'Chimney',
+    'fit-out': 'Counter and pegs',
+    'water-basin': 'Water basin',
+    'weir': 'Fish weir',
+    'gill-net': 'Gill net',
+    'net-poles': 'Net poles',
+    'smoke-rack': 'Smoke rack',
+    'food-cache': 'Food cache',
+    'winter-cache': 'Winter cache',
+    'snare-line': 'Snare line',
+    'ice-gear': 'Ice gear',
+  };
+
+  const api = { S, derived, stoveChanges, stage1Changes, PARTS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ShelterLayout = api;
 })(this);

@@ -4,6 +4,7 @@
   const procedure = {
     "id": "make.net-poles",
     "kind": "make",
+    "builds": ["net-poles"],
     "title": "Build the net poles",
     "purpose": "Build a crossbar on two tripods at the shore, to dry and mend the gill net.",
     "requires": {

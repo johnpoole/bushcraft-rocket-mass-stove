@@ -4,6 +4,7 @@
   const procedure = {
     "id": "shelter.frame",
     "kind": "task",
+    "builds": ["ditch", "frame"],
     "title": "Build the shelter frame",
     "purpose": "Clear the site, turn the rain around it, and put up the posts, the beam, the plate and the rafters, then roof it with the tarp so you can sleep dry under it within the first days.",
     "requires": {

@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.bench-lifts",
     "kind": "task",
+    "builds": ["bench"],
     "title": "Build the bench in thin lifts",
     "purpose": "Build the bench over the stage-one duct as a stone core laid in thin lifts with clay only as mortar, faced and topped with dry clay blocks, so there is little water to dry.",
     "requires": {

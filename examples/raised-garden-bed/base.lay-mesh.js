@@ -5,6 +5,7 @@
   const procedure = {
     id: 'base.lay-mesh',
     kind: 'task',
+    builds: ['mesh'],
     title: 'Lay the mesh floor',
     purpose: 'Line the bottom with hardware cloth so moles and voles can\'t tunnel up into the bed.',
     requires: {

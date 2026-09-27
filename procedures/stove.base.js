@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.base",
     "kind": "task",
+    "builds": ["stove-base"],
     "title": "Prepare the stove site and base",
     "purpose": "Lay a drained, insulated base under the stove core and a bed of dry stone along the bench route, so the tunnel floor is level with the shelter floor and heat stays out of the ground.",
     "requires": {

@@ -5,6 +5,7 @@
   const procedure = {
     id: 'plant.sow',
     kind: 'task',
+    builds: ['rows'],
     title: 'Sow and mulch the bed',
     purpose: 'Sow four rows along the bed and mulch between them.',
     requires: { tools: ['tape-measure', 'rake', 'work-gloves'], materials: [{ id: 'seeds', qty: G.seedPackets }, { id: 'settled-bed', qty: 1 }, { id: 'straw', qty: 1 }], skills: [] },

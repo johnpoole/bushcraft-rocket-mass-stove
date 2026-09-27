@@ -73,6 +73,10 @@
     if (!p.estimate || !(typeof p.estimate.hours === 'number' && p.estimate.hours >= 0)) e.push(`${at}: estimate.hours is missing`);
     if (p.estimate && p.estimate.waitDays !== undefined && !(typeof p.estimate.waitDays === 'number' && p.estimate.waitDays > 0)) e.push(`${at}: estimate.waitDays must be a number of days above 0`);
     if (p.repeat !== undefined && p.repeat !== 'daily') e.push(`${at}: repeat must be "daily" when given`);
+    if (p.builds !== undefined) {
+      if (!Array.isArray(p.builds) || p.builds.some((b) => typeof b !== 'string' || !b.trim())) e.push(`${at}: builds must be a list of design part ids`);
+      else if (p.kind === 'plan' || p.kind === 'skill') e.push(`${at}: a ${p.kind} cannot build a design part; the procedure that does the work should`);
+    }
     if (p.estimate && p.estimate.afterDark !== undefined && typeof p.estimate.afterDark !== 'boolean') e.push(`${at}: estimate.afterDark must be true or false`);
     if (p.window !== undefined) {
       const w = p.window;

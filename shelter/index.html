@@ -40,6 +40,11 @@ td:last-child{text-align:right;font-weight:600;padding-left:10px}
 tr:first-child td{border-top:0}
 a{color:var(--ember)}
 .hint{color:var(--muted);font-size:.8rem;padding:0 12px 10px}
+.dayrow{border-top:1px solid var(--line);padding:10px 12px}
+.dayrow label{display:flex;justify-content:space-between;gap:10px;font:600 1rem "Barlow Condensed",sans-serif}
+.dayrow input{width:100%;accent-color:var(--ember);margin:4px 0 2px}
+.dayrow p{margin:2px 0;font-size:.85rem}
+.dayrow .muted{color:var(--muted)}
 #err{display:none;margin-top:12px;padding:10px 14px;border:2px solid var(--danger);color:var(--danger);font-weight:600;white-space:pre-wrap}
 </style>
 <script type="importmap">
@@ -63,6 +68,11 @@ a{color:var(--ember)}
     <div class="grp" id="stages-btns"></div>
     <div class="grp" id="views"></div>
     <div class="grp" id="toggles"></div>
+  </div>
+  <div class="dayrow">
+    <label for="day"><span>Built by day</span><output id="daydate">Loading the season schedule…</output></label>
+    <input type="range" id="day" min="0" max="1" step="1" value="1" disabled>
+    <p id="daytext" class="muted"></p>
   </div>
   <div class="hint">Drag to turn. Scroll or pinch to zoom. Right-drag to move.</div>
 </div>
@@ -151,6 +161,16 @@ a{color:var(--ember)}
 
 <script src="../simulator/model.js"></script>
 <script src="layout.js"></script>
+<script src="../engine/lib.js"></script>
+<script src="../engine/load.js"></script>
+<script src="../engine/schedule.js"></script>
+<script src="../engine/catalog.js"></script>
+<script src="../procedures/catalog.stove.js"></script>
+<script src="../procedures/catalog.shelter.js"></script>
+<script src="../procedures/catalog.food.js"></script>
+<script src="../procedures/catalog.js"></script>
+<script src="../procedures/index.js"></script>
+<script src="../procedures/project.js"></script>
 <script src="heat.js"></script>
 <script type="module">
 import * as THREE from 'three';
@@ -341,6 +361,24 @@ try {
     o.position.set(x, y, z);
     (inner ? groups.innerLabels : groups.labels).add(o);
     return o;
+  }
+
+  // Everything drawn between beginPart(id) and endPart() belongs to that design part, and the
+  // day slider shows it from the day the procedure that builds the part is finished.
+  const partObjs = new Map();
+  let partOpen = null, partBefore = null;
+  function beginPart(id) {
+    if (partOpen) throw new Error(`3D view: part "${partOpen}" is still open when "${id}" begins`);
+    if (!(id in Lay.PARTS)) throw new Error(`3D view: "${id}" is not a design part in shelter/layout.js`);
+    partOpen = id;
+    partBefore = new Set();
+    scene.traverse((o) => partBefore.add(o));
+  }
+  function endPart() {
+    const added = [];
+    scene.traverse((o) => { if (!partBefore.has(o) && partBefore.has(o.parent)) added.push(o); });
+    partObjs.set(partOpen, [...(partObjs.get(partOpen) || []), ...added]);
+    partOpen = null;
   }
 
   // Boreal trees. Spruce: stacked cones. Jack pine: a bare trunk with a ragged crown at the top.
@@ -554,11 +592,15 @@ try {
   {
     // Drain from the stove base: out under the east wall, then downhill.
     const dz = D.base.z0 + 0.25, dx = -S.wall - 0.75;
+    beginPart('stove-base');
     ribbon(groups.site, [[-S.wall, dz], [dx, dz], [dx, 7]], 0.35, MAT.gravelTrack, (x, z) => groundY(x, z) + 0.02, 3);
     label('drain from the stove base', dx - 0.2, 0.35, 3.0);
+    endPart();
     // Ditch on the uphill side, behind the back wall.
+    beginPart('ditch');
     box(groups.site, MAT.ditch, -S.wall - 0.8, -0.02, -S.wall - 0.75, S.inside.x + S.wall + 0.8, 0.012, -S.wall - 0.45, false);
     label('ditch', 1.5, 0.3, -S.wall - 0.6);
+    endPart();
   }
   // Three trees at the corners, and the post at the fourth.
   for (const t of D.trees) {
@@ -566,14 +608,17 @@ try {
     label('tree', t.x, 3.2, t.z);
   }
   label(`lowest branches ${S.tree.lowestBranch} m up`, D.corners.treeNW.x, S.tree.lowestBranch - 0.3, D.corners.treeNW.z);
+  beginPart('frame');
   pole(groups.frame, MAT.timber, [D.corners.post.x, 0, D.corners.post.z], [D.corners.post.x, S.backHeight + 0.05, D.corners.post.z], S.post.radius);
   label('post', D.corners.post.x - 0.1, S.backHeight + 0.3, D.corners.post.z - 0.1);
+  endPart();
 
   // ---------- frame ----------
   const backZ = -S.wall / 2, frontZ = S.inside.z + S.wall / 2;
   const slope = (S.frontHeight - S.backHeight) / (frontZ - backZ);
   const roofY = (z) => S.backHeight + slope * (z - backZ);
   const xL = -S.wall - S.overhang.east, xR = D.roofWestEdge;
+  beginPart('frame');
   pole(groups.frame, MAT.timber, [1.5, 0, backZ], [1.5, S.backHeight, backZ]);
   for (const x of [S.door.x0 - 0.06, S.door.x0 + S.door.width + 0.06]) pole(groups.frame, MAT.timber, [x, 0, frontZ], [x, S.frontHeight, frontZ]);
   // Padded lashings where the beams meet the trees.
@@ -588,6 +633,7 @@ try {
   const zEave = frontZ + S.overhang.front;
   const zBackEave = backZ - 0.25;
   for (let x = xL + 0.05; x <= xR; x += 0.4) pole(groups.frame, MAT.timber, [x, roofY(zBackEave) + 0.09, zBackEave], [x, roofY(zEave) + 0.07, zEave], 0.04);
+  endPart();
 
   // ---------- roof ----------
   {
@@ -604,13 +650,19 @@ try {
     };
     // Tarp stops short of the chimney side; bark covers that strip. Moss and dirt go over both.
     const tarpEnd = xR - 0.3;
+    beginPart('roof-cover');
     mkPart(MAT.tarp, 0.02, 0, xL, tarpEnd);
     mkPart(MAT.bark, 0.03, 0, tarpEnd, xR);
+    groups.roof.add(label('tarp roof', 1.3, D.roofTop + 0.3, 1.4));
+    endPart();
+    beginPart('roof-insulation');
     mkPart(MAT.moss, 0.1, 0.06, xL, xR);
-    groups.roof.add(label('tarp under moss and dirt', 1.3, D.roofTop + 0.3, 1.4));
+    groups.roof.add(label('moss and dirt on the tarp', 1.3, D.roofTop + 0.55, 0.8));
+    endPart();
   }
 
   // ---------- walls ----------
+  beginPart('walls');
   {
     const d = S.log.diameter, r = d / 2;
     const logMats = [MAT.log, MAT.logB, MAT.logC];
@@ -652,28 +704,48 @@ try {
   label('door', (dx0 + dx1) / 2, S.door.height + 0.3, fz1 + 0.1);
   label('air inlet', (S.airInlet.x0 + S.airInlet.x1) / 2, S.plinth + 1.5 * S.log.diameter + 0.25, fz1 + 0.1);
   label('high vent', (S.vent.x0 + S.vent.x1) / 2, S.backHeight + 0.1, -S.wall - 0.1);
+  endPart();
 
   // ---------- stove, bench, chimney ----------
   const f = S.foundation;
+  beginPart('stove-base');
   {
     const B = D.base;
     box(groups.stove, MAT.plinth, B.x0, B.y0, B.z0, B.x1, B.y0 + S.coreBase.stone, B.z1);
     box(groups.stove, MAT.lightClay, B.x0, B.y0 + S.coreBase.stone, B.z0, B.x1, B.y1, B.z1);
   }
+  endPart();
+  beginPart('duct');
   box(groups.stove, MAT.plinth, D.core.x1, 0, D.core.z0 - 0.05, S.inside.x, f, D.core.z1 + 0.25);
   box(groups.stove, MAT.plinth, D.legX0, 0, D.core.z1, S.inside.x, f, S.inside.z - 0.05);
+  endPart();
   const domeMat = MAT.cob.clone(), benchMat = MAT.plaster.clone();
+  beginPart('riser');
+  {
+    // The insulated riser inside the dome: hidden once the dome is built, until the stove is opened.
+    const ro = (S.stove.riserSize + 2 * (3 + S.stove.riserInsulation)) / 200;
+    box(groups.stove, MAT.lightClay, D.riser.x - ro, D.coreBase, D.riser.z - ro, D.riser.x + ro, D.riserTop, D.riser.z + ro);
+    label('heat riser', D.riser.x, D.riserTop + 0.2, D.riser.z, true);
+  }
+  endPart();
+  beginPart('dome');
   box(groups.stove, domeMat, D.core.x0, D.coreBase, D.core.z0, D.core.x1, D.cooktopTop - 0.06, D.core.z1);
   box(groups.stove, MAT.slab, D.core.x0 - 0.06, D.cooktopTop - 0.06, D.core.z0 - 0.06, D.core.x1 + 0.06, D.cooktopTop, D.core.z1 + 0.06);
+  endPart();
+  beginPart('feed-tube');
   box(groups.stove, MAT.refr, D.feed.x - 0.11, D.coreBase, D.feed.z - 0.11, D.feed.x + 0.11, D.feedTop, D.feed.z + 0.11);
   box(groups.stove, MAT.hole, D.feed.x - 0.05, D.feedTop, D.feed.z - 0.05, D.feed.x + 0.05, D.feedTop + 0.005, D.feed.z + 0.05, false);
   for (const dx of [-0.025, 0.015]) pole(groups.stove, MAT.wood, [D.feed.x + dx, D.feedTop - 0.2, D.feed.z], [D.feed.x + dx * 1.6, D.feedTop + 0.35, D.feed.z + 0.03], 0.013);
   box(groups.stove, MAT.slab, D.feed.x - 0.22, 0, D.feed.z + 0.11, D.feed.x + 0.22, 0.03, D.feed.z + 0.5);
+  endPart();
+  beginPart('bench');
   box(groups.bench, benchMat, D.core.x1, f, S.backGap, S.inside.x, S.bench.height, S.backGap + S.bench.width);
   box(groups.bench, benchMat, D.legX0, f, S.backGap + S.bench.width, S.inside.x, S.bench.height, S.inside.z - 0.1);
   box(groups.bench, MAT.bedroll, D.core.x1 + 0.12, S.bench.height, S.backGap + 0.08, S.inside.x - 0.1, S.bench.height + 0.08, S.backGap + S.bench.width - 0.08);
   box(groups.bench, MAT.pillow, S.inside.x - 0.45, S.bench.height + 0.08, S.backGap + 0.14, S.inside.x - 0.14, S.bench.height + 0.16, S.backGap + S.bench.width - 0.14);
+  endPart();
   const cx = D.chimneyX, cz = S.chimney.z, co = S.chimney.outer / 2;
+  beginPart('chimney');
   box(groups.stove, MAT.cob, cx - co, 0, cz - co, cx + co, D.chimneyTop, cz + co);
   {
     const hole = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), MAT.hole);
@@ -682,10 +754,14 @@ try {
     groups.stove.add(hole);
   }
   box(groups.stove, MAT.cob, S.inside.x + S.wall, 0, cz - 0.12, cx - co, 0.25, cz + 0.12);
+  endPart();
+  beginPart('dome');
   label('stove', D.core.x0 + D.dome / 2, D.cooktopTop + 0.25, D.core.z0 + D.dome / 2, true);
+  endPart();
 
   // Cleanouts: stone plugs where ash settles.
   for (const c of D.cleanouts) {
+    beginPart(c.id === 'dome' ? 'dome' : c.id === 'chimney' ? 'chimney' : 'bench');
     if (c.id === 'dome') {
       box(groups.stove, MAT.slab, c.x0, c.y0, c.z - 0.01, c.x1, c.y1, c.z + 0.03);
       label('cleanout', (c.x0 + c.x1) / 2 - 0.1, c.y1 + 0.4, c.z + 0.05, true);
@@ -696,9 +772,11 @@ try {
       box(groups.bench, MAT.slab, c.x - 0.1, c.y, c.z - 0.1, c.x + 0.1, c.y + 0.025, c.z + 0.1);
       benchLabels.add(label('cleanout under the stone', c.x, c.y + 0.3, c.z, true));
     }
+    endPart();
   }
 
   // Step up to the cooktop: a log round.
+  beginPart('dome');
   if (D.stepHeight > 0) {
     const st = S.step, r = Math.min(st.x1 - st.x0, st.z1 - st.z0) / 2;
     const round = new THREE.Mesh(new THREE.CylinderGeometry(r, r, D.stepHeight, 20), MAT.plank);
@@ -707,12 +785,18 @@ try {
     groups.stove.add(round);
     label('step', (st.x0 + st.x1) / 2, D.stepHeight + 0.2, (st.z0 + st.z1) / 2, true);
   }
+  endPart();
+  beginPart('feed-tube');
   label('feed tube', D.feed.x, D.feedTop + 0.45, D.feed.z + 0.1, true);
   label('hearth stone', D.feed.x + 0.1, 0.2, D.feed.z + 0.4, true);
+  endPart();
+  beginPart('bench');
   benchLabels.add(label('sleeping bench', 1.8, S.bench.height + 0.35, S.backGap + S.bench.width / 2, true));
   benchLabels.add(label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true));
+  endPart();
 
   // Stage one: the channel as a trench lined with stones and covered with flat stones.
+  beginPart('duct');
   {
     const hw = S.stage1.ductWidth / 2, top = f + 0.1, cz0 = D.channelZ, cz1 = S.chimney.z, bx = D.bendX;
     const runs = [
@@ -731,10 +815,14 @@ try {
     }
     ductLabels.add(label('duct under flat stones', 1.8, top + 0.35, cz0, true));
   }
+  endPart();
+  beginPart('chimney');
   label('chimney', cx, D.chimneyTop + 0.25, cz);
   label('stone and cob', cx + 0.2, D.chimneyTop * 0.5, cz + 0.25);
+  endPart();
 
   // Cooking pot on the cooktop over the riser.
+  beginPart('dome');
   {
     const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.09, 0.14, 20), MAT.pot);
     pot.position.set(D.riser.x, D.cooktopTop + 0.07, D.riser.z);
@@ -742,20 +830,25 @@ try {
     groups.stove.add(pot);
     label('cooktop', D.riser.x, D.cooktopTop + 0.45, D.riser.z + 0.2, true);
   }
+  endPart();
 
   // Counter: split log tops on stakes, and the hollowed log basin on the front leg.
   {
     const C = D.counter, H = S.counter.height, t = S.counter.top;
+    beginPart('fit-out');
     box(groups.stove, MAT.plank, C.x0, H - t, C.z0, C.x1, H, C.z1);
     box(groups.stove, MAT.plank, C.x1, H - t, C.frontZ0, C.frontX1, H, C.z1);
     for (const [x, z] of [[C.x1 - 0.06, C.z0 + 0.06], [C.x1 - 0.06, C.frontZ0 - 0.04], [C.frontX1 - 0.06, C.frontZ0 + 0.06], [C.frontX1 - 0.06, C.z1 - 0.06], [0.06, C.z0 + 0.06]]) {
       pole(groups.stove, MAT.timber, [x, 0, z], [x, H - t, z], 0.035);
     }
+    label('prep counter', (C.x0 + C.x1) / 2, H + 0.25, (C.z0 + C.frontZ0) / 2, true);
+    endPart();
+    beginPart('water-basin');
     const B = S.basin, bx = D.basin.x, bz = D.basin.z, top = H + B.height;
     box(groups.stove, MAT.wood, bx - B.length / 2, H, bz - B.width / 2, bx + B.length / 2, top, bz + B.width / 2);
     box(groups.stove, MAT.water, bx - B.length / 2 + 0.035, top - 0.03, bz - B.width / 2 + 0.035, bx + B.length / 2 - 0.035, top + 0.002, bz + B.width / 2 - 0.035, false);
-    label('prep counter', (C.x0 + C.x1) / 2, H + 0.25, (C.z0 + C.frontZ0) / 2, true);
     label('water basin', bx, top + 0.22, bz, true);
+    endPart();
   }
 
   // Hidden flue path, shown when the stove is opened up.
@@ -791,6 +884,7 @@ try {
     }
 
     // Fish weir: a V of stakes pointing upstream, leading through a gap into a round pen.
+    beginPart('weir');
     {
       const W = C.weir, cx = creekX(W.z), bed = (x, z) => baseY(x, z) - 0.4;
       const stakeLine = (x0, z0, x1, z1, n) => {
@@ -810,7 +904,9 @@ try {
       }
       label('fish weir and pen', cx, baseY(cx, W.z) + 1.2, W.z);
     }
+    endPart();
     // Gill net set straight out from the creek mouth: a line of floats and an end marker.
+    beginPart('gill-net');
     {
       const mx = creekX(S.lake.shoreZ), z0 = shoreZ(mx) + 1.2, L = C.gillNet.length;
       for (let d = 0; d <= L; d += 0.6) {
@@ -821,8 +917,10 @@ try {
       pole(g, MAT.timber, [mx, waterY - 0.5, z0 + L], [mx, waterY + 0.9, z0 + L], 0.03);
       label('gill net', mx + 0.5, waterY + 1.3, z0 + L / 2);
     }
+    endPart();
 
     // Smoke rack with a slow fire under it.
+    beginPart('smoke-rack');
     {
       const R = C.smokeRack, y0 = gy(R.x, R.z), hw = R.width / 2, hd = R.depth / 2;
       for (const [dx, dz] of [[-hw, -hd], [hw, -hd], [-hw, hd], [hw, hd]]) pole(g, MAT.timber, [R.x + dx, y0, R.z + dz], [R.x + dx, y0 + R.height + 0.35, R.z + dz], 0.035);
@@ -846,6 +944,7 @@ try {
       box(g, MAT.ember, R.x - 0.15, y0, R.z - 0.15, R.x + 0.15, y0 + 0.08, R.z + 0.15, false);
       label('smoke rack', R.x, y0 + R.height + 0.8, R.z);
     }
+    endPart();
     // Cleaning rock at the water.
     {
       const R = C.cleaningRock, y0 = gy(R.x, R.z);
@@ -856,6 +955,7 @@ try {
       label('fish cleaning rock', R.x, y0 + 0.8, R.z);
     }
     // Net drying poles.
+    beginPart('net-poles');
     {
       const N = C.netPoles, y0 = gy(N.x, N.z), x0 = N.x - N.span / 2, x1 = N.x + N.span / 2;
       for (const x of [x0, x1]) pole(g, MAT.timber, [x, y0, N.z], [x, y0 + 1.9, N.z], 0.04);
@@ -865,11 +965,13 @@ try {
       g.add(net);
       label('net drying poles', N.x, y0 + 2.3, N.z);
     }
+    endPart();
     // Food cache hung from a pole between two trees.
     {
       const K = C.cache, M0 = D.camp.cacheMid;
       tree(K.treeA.x, K.treeA.z, 12, 'spruce', K.height + 1.2);
       tree(K.treeB.x, K.treeB.z, 12, 'spruce', K.height + 1.2);
+      beginPart('food-cache');
       const y0 = gy(M0.x, M0.z), top = y0 + K.height + 0.6;
       pole(g, MAT.timber, [K.treeA.x, top, K.treeA.z], [K.treeB.x, top, K.treeB.z], 0.05);
       pole(g, MAT.bark, [M0.x, top, M0.z], [M0.x, y0 + K.height + 0.35, M0.z], 0.008);
@@ -878,8 +980,10 @@ try {
       bag.castShadow = true;
       g.add(bag);
       label(`food cache, ${K.height} m up`, M0.x, y0 + K.height + 1.1, M0.z);
+      endPart();
     }
     // Winter cache: frozen fish under stones on a log platform.
+    beginPart('winter-cache');
     {
       const W = C.winterCache, y0 = gy(W.x, W.z);
       for (let i = 0; i < 4; i++) pole(g, MAT.wood, [W.x - 0.6, y0 + 0.08, W.z - 0.4 + i * 0.27], [W.x + 0.6, y0 + 0.08, W.z - 0.4 + i * 0.27], 0.07);
@@ -891,7 +995,9 @@ try {
       }
       label('winter cache', W.x, y0 + 1.0, W.z);
     }
+    endPart();
     // Skinning stump.
+    beginPart('snare-line');
     {
       const T = C.skinningStump, y0 = gy(T.x, T.z);
       const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.55, 14), MAT.trunk);
@@ -900,11 +1006,13 @@ try {
       g.add(stump);
       label('skinning stump', T.x, y0 + 0.9, T.z);
     }
+    endPart();
     // Snare line: snares spaced along the trail, in young spruce.
     {
       const pts = C.snareLine;
       const segs = pts.slice(1).map((p, i) => [pts[i], p, Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1])]);
       const total = segs.reduce((t, sgm) => t + sgm[2], 0);
+      beginPart('snare-line');
       for (let k = 0; k < C.snares; k++) {
         let d = total * (k + 0.5) / C.snares;
         for (const [a, b, len] of segs) {
@@ -919,6 +1027,7 @@ try {
           break;
         }
       }
+      endPart();
       for (const { x, z, h } of D.camp.youngSpruce) {
         const sp = new THREE.Mesh(new THREE.ConeGeometry(h * 0.28, h, 8), MAT.spruce);
         sp.position.set(x, gy(x, z) + h / 2, z);
@@ -926,9 +1035,12 @@ try {
         g.add(sp);
       }
       const end = pts[Math.floor(pts.length / 2)];
+      beginPart('snare-line');
       label(`snare line, ${C.snares} snares`, end[0], gy(end[0], end[1]) + 2.4, end[1]);
+      endPart();
     }
     // Ice gear leaning on the front wall beside the door.
+    beginPart('ice-gear');
     {
       const z = S.inside.z + S.wall + 0.08, x0 = S.door.x0 + S.door.width + 0.25;
       pole(g, MAT.timber, [x0, 0, z + 0.25], [x0 + 0.3, 1.15, z], 0.025);
@@ -937,9 +1049,11 @@ try {
       pole(g, MAT.timber, [x0 + 0.5, 0, z + 0.2], [x0 + 0.6, 1.0, z], 0.018);
       label('ice pole, slush ladle, gaff', x0 + 0.3, 1.45, z + 0.2);
     }
+    endPart();
   }
 
   // Inside: pegs for the net, lines and snare wire; a drying line; a boot stone.
+  beginPart('fit-out');
   {
     const g = groups.stove;
     for (const [z, item] of [[1.35, 'net'], [1.65, 'line'], [1.95, 'wire']]) {
@@ -959,8 +1073,10 @@ try {
     for (const dx of [0.08, 0.24]) box(g, MAT.trunk, bx + dx, 0.03, S.inside.z - 0.3, bx + dx + 0.1, 0.2, S.inside.z - 0.06);
     label('boots', bx + 0.2, 0.45, S.inside.z - 0.2, true);
   }
+  endPart();
 
   // ---------- smoke ----------
+  beginPart('chimney');
   const smoke = [];
   const smokeMat = new THREE.MeshBasicMaterial({ color: 0xdcdcd6, transparent: true, opacity: 0.2, depthWrite: false });
   for (let i = 0; i < 16; i++) {
@@ -968,6 +1084,10 @@ try {
     s.userData.t = i / 16;
     groups.stove.add(s);
     smoke.push(s);
+  }
+  endPart();
+  for (const id of Object.keys(Lay.PARTS)) {
+    if (!(partObjs.get(id) || []).length) throw new Error(`3D view: design part "${id}" has nothing drawn for it`);
   }
 
   // ---------- views and toggles ----------
@@ -1037,6 +1157,61 @@ try {
     b.addEventListener('click', () => setToggle(name, b.getAttribute('aria-pressed') !== 'true'));
     tbox.appendChild(b);
     setToggle(name, on);
+  }
+
+  // ---------- built by day ----------
+  // Runs the camp's season schedule and shows each design part from the day the procedure that
+  // builds it is finished. The last stop shows the shelter as designed, with every part.
+  {
+    const dayInput = document.getElementById('day'), dayDate = document.getElementById('daydate'), dayText = document.getElementById('daytext');
+    const name = (id) => Lay.PARTS[id].charAt(0).toLowerCase() + Lay.PARTS[id].slice(1);
+    const list = (ids) => ids.map(name).join(', ');
+    let result = null, parts = null, last = 0;
+    function applyDay(v) {
+      const designed = !result || v > last;
+      for (const [id, objs] of partObjs) {
+        const pd = parts && parts.get(id);
+        const on = designed || (pd && pd.done !== null && pd.done <= v);
+        for (const o of objs) o.visible = on;
+      }
+      stageButtons.forEach((b) => { b.disabled = !designed; });
+      if (!result) return;
+      if (designed) {
+        dayDate.textContent = 'As designed';
+        dayText.textContent = 'Every part built. Move the slider to see the camp on a day of the season schedule.';
+        return;
+      }
+      const bench = parts.get('bench');
+      setStage(bench && bench.done !== null && bench.done <= v ? 2 : 1);
+      const ids = Object.keys(Lay.PARTS);
+      const done = ids.filter((id) => parts.get(id).done !== null && parts.get(id).done <= v);
+      const today = ids.filter((id) => parts.get(id).done === v);
+      const going = ids.filter((id) => { const x = parts.get(id); return x.started !== null && x.started <= v && (x.done === null || x.done > v); });
+      const d = new Date(`${result.dateOf(v)}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+      dayDate.textContent = `Day ${v} · ${d}`;
+      const bits = [`${done.length} of ${ids.length} parts built.`];
+      if (today.length) bits.push(`Finished today: ${list(today)}.`);
+      if (going.length) bits.push(`Being built: ${list(going)}.`);
+      if (v === last) {
+        const never = ids.filter((id) => parts.get(id).done === null);
+        if (never.length) bits.push(`Not built by the end of the schedule: ${list(never)}.`);
+      }
+      dayText.textContent = bits.join(' ');
+    }
+    dayInput.addEventListener('input', () => applyDay(+dayInput.value));
+    const Pj = window.PROJECT, PL = window.ProcLib, PS = window.ProcSchedule;
+    if (!Pj || !PL || !PS || !window.ProcLoad || !window.Catalog || !window.PROCEDURE_IDS) throw new Error('the season schedule scripts did not load');
+    window.ProcLoad.procedures(window.PROCEDURE_IDS, '../procedures/').then(() => {
+      const reg = PL.byId(window.PROCEDURES);
+      result = PS.run(Pj.root, reg, window.Catalog, PL, Pj.calendar);
+      parts = PS.partDays(result, reg);
+      for (const id of Object.keys(Lay.PARTS)) if (!parts.has(id)) throw new Error(`no procedure in the season builds the design part "${id}"`);
+      last = result.days.length - 1;
+      dayInput.max = String(last + 1);
+      dayInput.value = String(last + 1);
+      dayInput.disabled = false;
+      applyDay(last + 1);
+    }).catch(showError);
   }
 
   camera.position.set(...VIEWS.Outside[0]);

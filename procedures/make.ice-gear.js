@@ -4,6 +4,7 @@
   const procedure = {
     "id": "make.ice-gear",
     "kind": "make",
+    "builds": ["ice-gear"],
     "title": "Make the ice gear",
     "purpose": "Carve a long pole to carry across the ice and thread the net under it, a slotted ladle for slush, and a gaff hook, and keep them by the door.",
     "requires": {

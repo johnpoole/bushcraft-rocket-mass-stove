@@ -4,6 +4,7 @@
   const procedure = {
     "id": "fish.set-gill-net",
     "kind": "task",
+    "builds": ["gill-net"],
     "title": "Set the gill net from shore",
     "purpose": "Set the {net.length} m gill net straight out from the creek mouth without a boat, on a running loop so it can be checked from shore.",
     "requires": {

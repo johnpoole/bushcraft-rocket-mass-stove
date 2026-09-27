@@ -4,6 +4,7 @@
   const procedure = {
     "id": "shelter.walls",
     "kind": "task",
+    "builds": ["walls"],
     "title": "Build the log walls",
     "purpose": "Close in the shelter with walls of hewn logs, stacked between pairs of stakes on a course of stones, chinked with moss, with the air inlet, the vent and the flue passage built in.",
     "requires": {

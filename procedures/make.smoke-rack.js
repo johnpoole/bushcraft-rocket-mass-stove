@@ -4,6 +4,7 @@
   const procedure = {
     "id": "make.smoke-rack",
     "kind": "make",
+    "builds": ["smoke-rack"],
     "title": "Build the smoke rack",
     "purpose": "Build a frame of poles above the shore with two tiers for fish, a bark roof and a fire pit under it, since the stove makes no smoke.",
     "requires": {

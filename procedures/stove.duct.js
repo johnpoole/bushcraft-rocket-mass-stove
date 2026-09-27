@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.duct",
     "kind": "task",
+    "builds": ["duct"],
     "title": "Build the stone duct",
     "purpose": "Build the stone-lined channel that carries the exhaust from the dome outlet along the bench route to the chimney, covered with flat stones and sealed.",
     "requires": {

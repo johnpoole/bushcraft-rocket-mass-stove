@@ -14,7 +14,7 @@ const project = require(path.join(dir, 'project.js'));
 const fresh = () => {
   const procs = load().map((p) => JSON.parse(JSON.stringify(p)));
   const cat = JSON.parse(JSON.stringify(C));
-  return { reg: L.byId(procs), cat, root: project.root, params: project.params() };
+  return { reg: L.byId(procs), cat, root: project.root, params: project.params(), parts: { ...project.parts() } };
 };
 const problems = (mutate) => { const p = fresh(); mutate(p); return checkProject(p).join('\n'); };
 
@@ -76,4 +76,10 @@ test('the camp calendar gives the same working day the camp scheduler used befor
   const { work, light } = S.workHours(camp.calendar, 0);
   const expected = Math.max(3, Math.min(10, S.daylight(258, 62.5) - 1));
   assert.ok(Math.abs(work - expected) < 1e-9 && light > 12, `day one ${work.toFixed(2)} h of work in ${light.toFixed(2)} h of light`);
+});
+
+test('the checker catches a design part nothing builds, and a procedure building a part the design lacks', () => {
+  assert.match(problems(({ parts }) => { parts.trellis = 'Trellis'; }), /design part "trellis" is built by no procedure/);
+  assert.match(problems(({ reg }) => { reg.get('plant.thin').builds = ['greenhouse']; }), /plant\.thin builds "greenhouse", which is not a part of the design/);
+  assert.match(problems(({ reg }) => { reg.get('plan.thinning').builds = ['rows']; }), /a plan cannot build a design part/);
 });

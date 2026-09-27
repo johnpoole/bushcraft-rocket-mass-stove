@@ -5,6 +5,7 @@
   const procedure = {
     id: 'soil.fill',
     kind: 'task',
+    builds: ['soil'],
     title: 'Fill the bed',
     purpose: 'Fill the frame with the mixed soil and rake it level.',
     requires: { tools: ['rake', 'spade'], materials: [{ id: 'soil-mix', qty: G.fill }], skills: ['skill.lift'] },

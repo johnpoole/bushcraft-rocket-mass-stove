@@ -41,6 +41,13 @@
   const design = {
     ...D, innerLength, innerWidth, height, volume, fill, topsoil, compost,
     longPieces, endPieces, pieces: longPieces + endPieces, boards, postSticks, screws, screwBoxes, meshLength, firstWater,
+    // The parts of the bed a procedure can build.
+    parts: {
+      frame: 'Bed frame',
+      mesh: 'Mesh floor',
+      soil: 'Soil',
+      rows: 'Sown and mulched rows',
+    },
     // Numbers quoted in the procedures' text.
     params: {
       'bed.length': D.length.toFixed(1),

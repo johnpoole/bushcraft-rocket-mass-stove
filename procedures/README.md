@@ -27,6 +27,7 @@ The camp is one project for the engine in [`../engine`](../engine/README.md), wh
 {
   id: 'shelter.snow-bank',        // namespace.name; the file is shelter.snow-bank.js
   kind: 'task',                   // plan | task | make | gather | skill
+  builds: ['walls'],              // optional: design parts from shelter/layout.js PARTS
   title: 'Bank snow against the walls and roof',
   purpose: 'One sentence: why you do it.',
   requires: {

@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.dome",
     "kind": "task",
+    "builds": ["dome"],
     "title": "Build the dome, cooktop and step",
     "purpose": "Build the cob dome around the riser, with the gas outlet to the bench, a cleanout, and a flat stone cooktop on top, and set a step to cook from.",
     "requires": {

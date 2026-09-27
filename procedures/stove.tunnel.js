@@ -4,6 +4,7 @@
   const procedure = {
     "id": "stove.tunnel",
     "kind": "task",
+    "builds": ["feed-tube"],
     "title": "Build the burn tunnel and feed tube",
     "purpose": "Build the J: a horizontal burn tunnel and an upright feed tube in refractory mix around grass-and-bark formers, with a fired-tile floor that stands the wear.",
     "requires": {

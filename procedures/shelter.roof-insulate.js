@@ -4,6 +4,7 @@
   const procedure = {
     "id": "shelter.roof-insulate",
     "kind": "task",
+    "builds": ["roof-insulation"],
     "title": "Insulate the roof",
     "purpose": "Lay 15 cm of dry moss on the inner tarp piece, cover it with the outer piece left open at the top and bottom edges so the moss can breathe, and hold it down with soil. This halves the shelter's heat loss and keeps the moss dry.",
     "requires": {

@@ -35,6 +35,7 @@
       intro: "The season plan run day by day: daylight at 62.5° N, daily routines first, then each building job in order, starting only when its tools and materials exist and any drying wait has passed. Hours are the instructions' own estimates, so this is a rough guide, not a promise.",
       milestones: ['plan.first-days', 'shelter.frame', 'fish.build-weir', 'snare.set-line', 'shelter.walls', 'plan.stove-stage-one', 'stove.first-firing', 'plan.stove-stage-two', 'shelter.earth-skirt', 'shelter.snow-bank', 'fish.ice-net'],
     },
+    parts: () => (node ? require('../shelter/layout.js') : root.ShelterLayout).PARTS,
     params: () => (node
       ? require('./params.js').load()
       : root.ProcParams.build(root.ShelterLayout, root.StoveModel)),

@@ -142,7 +142,26 @@
     return { calendar: cal, jobs, routines, done, days, finish, late, unfinished, needed, built, routineOverrun: short, dateOf };
   }
 
-  const api = { DEFAULTS, daylight, workHours, compile, run };
+  // For each design part, the day building it started and the day it was finished (null if not
+  // by the end), from a run's result. A part is finished when every job that builds it is done.
+  function partDays(result, reg) {
+    const firstWorked = new Map();   // procedure id → first day any of its jobs got hours
+    result.days.forEach((d) => d.did.forEach((x) => { if (!firstWorked.has(x.id)) firstWorked.set(x.id, d.day); }));
+    const out = new Map();
+    result.jobs.forEach((j, i) => {
+      for (const b of reg.get(j.id).builds || []) {
+        const cur = out.get(b) || { started: null, done: -Infinity, jobs: [] };
+        cur.jobs.push(j.id);
+        const s = firstWorked.has(j.id) ? firstWorked.get(j.id) : null;
+        if (s !== null && (cur.started === null || s < cur.started)) cur.started = s;
+        cur.done = cur.done === null || result.done[i] === null ? null : Math.max(cur.done, result.done[i]);
+        out.set(b, cur);
+      }
+    });
+    return out;
+  }
+
+  const api = { DEFAULTS, daylight, workHours, compile, run, partDays };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ProcSchedule = api;
 })(this);

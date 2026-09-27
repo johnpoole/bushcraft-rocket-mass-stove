@@ -4,6 +4,7 @@
   const procedure = {
     "id": "shelter.fit-out",
     "kind": "task",
+    "builds": ["fit-out"],
     "title": "Fit out the shelter",
     "purpose": "Make the shelter usable day to day: a door, a counter with a water basin, a step to the cooktop, pegs, a drying line and a boot stone.",
     "requires": {

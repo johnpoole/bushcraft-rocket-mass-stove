@@ -32,11 +32,19 @@ Each tool and material in a project's catalog names its `source`:
 A job waits for another only through something the other makes: a tool, a material, or a state
 such as a settled bed. A job with `estimate.waitDays` holds back the jobs that use what it makes.
 
+## Design parts
+
+A procedure may list the parts of the design it builds: `builds: ['walls']`. When the project gives
+its parts as `{ id: name }`, the checker makes sure every part is built by something the plan runs
+and that nothing builds a part the design lacks. `schedule.partDays(result, reg)` gives, for each
+part, the day building it started and the day it was finished, or null if it was not finished by
+the end. The camp's 3D view uses it to show the camp on any day of its schedule.
+
 ## A project
 
 A folder with:
 
-- `project.js` — `{ root, pageTitle, heading, intro, labels, calendar, params() }`
+- `project.js` — `{ root, pageTitle, heading, intro, labels, calendar, params(), parts(), schedule }`
 - `catalog.js` — `{ KIT, TOOLS, MATERIALS }`, built with `engine/catalog.js`
 - `index.js` — the list of procedure ids
 - `<id>.js` — one procedure each

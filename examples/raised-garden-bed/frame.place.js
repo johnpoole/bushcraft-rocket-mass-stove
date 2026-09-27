@@ -5,6 +5,7 @@
   const procedure = {
     id: 'frame.place',
     kind: 'task',
+    builds: ['frame'],
     title: 'Set the frame level',
     purpose: 'Put the frame on the marked spot and bed it level and square.',
     requires: { tools: ['level', 'spade', 'tape-measure'], materials: [{ id: 'bed-frame', qty: 1 }], skills: ['skill.lift'] },

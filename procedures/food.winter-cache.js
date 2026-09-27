@@ -4,6 +4,7 @@
   const procedure = {
     "id": "food.winter-cache",
     "kind": "task",
+    "builds": ["winter-cache"],
     "title": "Build the winter cache",
     "purpose": "Keep frozen fish and hares under stones on a log platform closer to camp, once nothing thaws.",
     "requires": {

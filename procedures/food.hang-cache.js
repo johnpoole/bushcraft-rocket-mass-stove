@@ -4,6 +4,7 @@
   const procedure = {
     "id": "food.hang-cache",
     "kind": "task",
+    "builds": ["food-cache"],
     "title": "Hang the food cache",
     "purpose": "Hang the smoked fish high between two trees, well away from the shelter, out of reach of bears, wolverines and foxes.",
     "requires": {

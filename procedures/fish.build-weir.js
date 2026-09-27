@@ -4,6 +4,7 @@
   const procedure = {
     "id": "fish.build-weir",
     "kind": "task",
+    "builds": ["weir"],
     "title": "Build the fish weir",
     "purpose": "Build a fence of stakes across the creek just above its mouth that leads fish into a pen, so it fishes day and night with nothing to do but empty the pen.",
     "requires": {

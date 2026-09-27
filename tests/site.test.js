@@ -32,3 +32,11 @@ test('every link into the instructions names an instruction that exists', () => 
     }
   }
 });
+
+test('the shelter 3D view draws every design part, so the day slider can show it', () => {
+  const { PARTS } = require('../shelter/layout.js');
+  const html = fs.readFileSync(path.join(root, 'shelter', 'index.html'), 'utf8');
+  const drawn = new Set([...html.matchAll(/beginPart\('([a-z-]+)'\)/g)].map((m) => m[1]));
+  for (const id of Object.keys(PARTS)) assert.ok(drawn.has(id), `shelter/index.html draws nothing for design part "${id}"`);
+  for (const id of drawn) assert.ok(id in PARTS, `shelter/index.html draws "${id}", which is not a design part`);
+});
