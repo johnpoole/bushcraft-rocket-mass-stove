@@ -10,10 +10,16 @@ test('the stove in this layout draws well with no problems', () => {
   assert.ok(res.bench.warmHours >= 8, `bench warm ${res.bench.warmHours} h`);
 });
 
-test('the chimney clears the riser and the roof', () => {
+test('the chimney clears the riser and the roof beside it', () => {
   assert.ok(D.chimneyTop - D.riserTop >= 0.6, `chimney ${D.chimneyTop} riser ${D.riserTop}`);
-  assert.ok(D.chimneyTop - D.roofTop >= 0.6, `chimney ${D.chimneyTop} roof ${D.roofTop}`);
+  assert.ok(D.chimneyTop - D.roofBesideChimney >= 0.6, `chimney ${D.chimneyTop} roof beside it ${D.roofBesideChimney}`);
   assert.ok(D.chimneyX - S.chimney.outer / 2 > D.roofWestEdge, 'chimney touches the roof edge');
+});
+
+test('the log part of the chimney only carries cool exhaust', () => {
+  const res = M.simulate({ ...M.DEFAULTS, ...stoveChanges });
+  assert.ok(res.temps.exhaust <= 150, `exhaust ${res.temps.exhaust}°C is too hot for a clay-lined log`);
+  assert.ok(S.chimney.masonryHeight >= 0.8 && S.chimney.masonryHeight < S.chimney.top, `masonry ${S.chimney.masonryHeight} m`);
 });
 
 test('the channel run is within the guide limit of 3–4 m plus the duct to the chimney and the climb out of the pit', () => {

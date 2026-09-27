@@ -98,7 +98,7 @@ a{color:var(--ember)}
       <li>Clear to mineral soil. Cut a shallow ditch along the uphill side, behind the back wall, to turn rainwater around the shelter.</li>
       <li>Set the post at the fourth corner, one more halfway along the back, and one each side of the door. Lash a beam from the corner post to the north-west tree at 2.0 m, and a plate between the two south trees at 1.2 m. Pad the bark under each lashing with moss or bark and wrap it loosely, so the tree can sway and grow. Loosen the lashings every year.</li>
       <li>Lay rafters every 40 cm from beam to plate. Cover them with bark sheets lapped like shingles, then 10–15 cm of turf, grass side up. Where the roof passes a trunk, leave a hand's width and close it with a loose bark collar.</li>
-      <li>Under the roof, dig a pit 30 cm deep for the stove core in the post corner and line it with stone. Dig a gravel-filled drain 50 cm deep from the bottom of the pit, out under the east wall and downhill. Build the stove in the pit, then the bench and the chimney, as in the <a href="../build-guide.html">build guide</a>. The channel climbs out of the pit into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
+      <li>Under the roof, dig a pit 30 cm deep for the stove core in the post corner and line it with stone. Dig a gravel-filled drain 50 cm deep from the bottom of the pit, out under the east wall and downhill. Build the stove in the pit, then the bench, as in the <a href="../build-guide.html">build guide</a>. Build the chimney in stone and cob to 1 m, then stand a hollow log lined thick with clay on top, up to 2.35 m, and lash it to a post driven in beside it. The channel climbs out of the pit into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
       <li>Lay a dry stone plinth 30 cm high under the walls. Drive stakes into the ground and weave hazel or willow rods between them. Stop the weave 5 cm short of each trunk.</li>
       <li>Daub both sides of the wattle with cob. Daub it thick where it faces the stove. Fill the gap at each trunk with clay mixed with moss, which gives as the tree moves.</li>
       <li>Leave an air inlet low in the front wall and a vent high in the back wall. Hang a hide or blanket in the door.</li>
@@ -116,6 +116,7 @@ a{color:var(--ember)}
       <li>Look up before you build and after every storm. Pull down any dead branch over the shelter.</li>
       <li>Trees sway in the wind. After a storm, check the lashings and the clay seals where the walls meet the trunks.</li>
       <li>Keep branches cut back at least 2 m above the chimney top. Sparks land in them otherwise.</li>
+      <li>Check the clay lining inside the chimney log each season. If it has cracked or the wood has charred, reline it.</li>
     </ul>
   </section>
 </div>
@@ -166,9 +167,10 @@ try {
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   document.getElementById('stove').innerHTML = [
     ['Bench channel', `${m(D.channelLength)}, ${stoveChanges.bends} bends`],
-    ['Chimney top above floor', m(D.chimneyTop)],
+    ['Chimney top above floor', `${D.chimneyTop.toFixed(2)} m`],
     ['Chimney above the riser top', `${stoveChanges.chimneyAboveRiser} cm`],
-    ['Chimney above the roof', `${Math.round((D.chimneyTop - D.roofTop) * 100)} cm`],
+    ['Chimney above the roof beside it', `${Math.round((D.chimneyTop - D.roofBesideChimney) * 100)} cm`],
+    ['Stone and cob, then clay-lined log', `${S.chimney.masonryHeight.toFixed(2)} m, then ${(S.chimney.top - S.chimney.masonryHeight).toFixed(2)} m`],
     ['Chimney to the nearest trunk', m(D.chimneyToTree)],
     ['Lowest branches above the chimney top', m(S.tree.lowestBranch - D.chimneyTop)],
     ['Fire', `${(res.firePower / 1000).toFixed(1)} kW`],
@@ -413,8 +415,26 @@ try {
   box(groups.stove, MAT.bedroll, D.core.x1 + 0.12, S.bench.height, S.backGap + 0.08, S.inside.x - 0.1, S.bench.height + 0.08, S.backGap + S.bench.width - 0.08);
   box(groups.stove, MAT.pillow, S.inside.x - 0.45, S.bench.height + 0.08, S.backGap + 0.14, S.inside.x - 0.14, S.bench.height + 0.16, S.backGap + S.bench.width - 0.14);
   const cx = D.chimneyX, cz = S.chimney.z, co = S.chimney.outer / 2;
-  box(groups.stove, MAT.cob, cx - co, 0, cz - co, cx + co, D.chimneyTop, cz + co);
-  box(groups.stove, MAT.hole, cx - 0.05, D.chimneyTop, cz - 0.05, cx + 0.05, D.chimneyTop + 0.005, cz + 0.05, false);
+  const mh = S.chimney.masonryHeight, lr = S.chimney.logOuter / 2;
+  box(groups.stove, MAT.cob, cx - co, 0, cz - co, cx + co, mh, cz + co);
+  {
+    const log = new THREE.Mesh(new THREE.CylinderGeometry(lr * 0.95, lr, D.chimneyTop - mh, 16), MAT.trunk);
+    log.position.set(cx, (mh + D.chimneyTop) / 2, cz);
+    log.castShadow = true; log.receiveShadow = true;
+    groups.stove.add(log);
+    const lining = new THREE.Mesh(new THREE.RingGeometry(0.05, lr * 0.9, 20), MAT.cob);
+    lining.rotation.x = -Math.PI / 2;
+    lining.position.set(cx, D.chimneyTop + 0.003, cz);
+    groups.stove.add(lining);
+    const hole = new THREE.Mesh(new THREE.CircleGeometry(0.05, 16), MAT.hole);
+    hole.rotation.x = -Math.PI / 2;
+    hole.position.set(cx, D.chimneyTop + 0.004, cz);
+    groups.stove.add(hole);
+    box(groups.stove, MAT.cob, cx - lr - 0.02, mh, cz - lr - 0.02, cx + lr + 0.02, mh + 0.08, cz + lr + 0.02);
+    const bx = cx + co + S.chimney.braceGap - 0.1;
+    pole(groups.stove, MAT.timber, [bx, 0, cz], [bx, D.chimneyTop - 0.1, cz], 0.05);
+    for (const y of [mh + 0.3, D.chimneyTop - 0.3]) pole(groups.stove, MAT.bark, [cx, y, cz], [bx, y, cz], 0.02);
+  }
   box(groups.stove, MAT.cob, S.inside.x + S.wall, 0, cz - 0.12, cx - co, 0.25, cz + 0.12);
   label('stove', D.core.x0 + S.dome / 2, D.cooktopTop + 0.25, D.core.z0 + S.dome / 2, true);
   label('feed tube', D.feed.x, D.feedTop + 0.45, D.feed.z + 0.1, true);
@@ -422,6 +442,8 @@ try {
   label('sleeping bench', 1.8, S.bench.height + 0.35, S.backGap + S.bench.width / 2, true);
   label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true);
   label('chimney', cx, D.chimneyTop + 0.25, cz);
+  label('clay-lined log', cx + 0.2, (mh + D.chimneyTop) / 2 + 0.2, cz + 0.2);
+  label('stone and cob', cx + 0.2, mh * 0.5, cz + 0.25);
 
   // Cooking pot on the cooktop over the riser.
   {

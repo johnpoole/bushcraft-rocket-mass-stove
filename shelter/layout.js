@@ -19,7 +19,8 @@
     foundation: 0.1,
     dome: 0.58,
     bench: { width: 0.7, height: 0.45, legWidth: 0.6 },
-    chimney: { outer: 0.4, z: 1.3, roofClearance: 0.1 },
+    // Stone and cob to 1 m, then a hollow log lined with clay, lashed to a post beside it.
+    chimney: { outer: 0.4, z: 1.3, roofClearance: 0.1, top: 2.35, masonryHeight: 1.0, logOuter: 0.28, braceGap: 0.3 },
     stream: { distance: 25, drop: 2.5 },
     stove: { riserHeight: 100, tunnelLength: 40, riserSize: 10, feedSize: 10, feedHeight: 30 },
     // The core stands in a stone-lined pit so the cooktop sits at cooking height.
@@ -57,7 +58,9 @@
   const channelLength = (bendX - coreX1) + (S.chimney.z - channelZ) + (chimneyX - bendX) + channelRise;
   const riserTop = coreBase + S.stove.riserHeight / 100;
   const roofTop = S.backHeight + S.roofBuild;
-  const chimneyTop = roofTop + 0.6;
+  const chimneyTop = S.chimney.top;
+  // Top surface of the roof at a distance z from the inside of the back wall.
+  const roofAt = (z) => S.backHeight + (S.frontHeight - S.backHeight) * (z + S.wall / 2) / (S.inside.z + S.wall) + S.roofBuild;
 
   // Nearest distance from a tree trunk's surface to a rectangle on the ground.
   const trunkToRect = (x0, z0, x1, z1) => Math.min(...trees.map((t) => {
@@ -71,6 +74,7 @@
     riser, feed, channelZ, legX0, bendX, chimneyX, roofWestEdge, coreBase, channelRise,
     feedTop: coreBase + S.stove.feedHeight / 100,
     channelLength, riserTop, roofTop, chimneyTop,
+    roofBesideChimney: roofAt(S.chimney.z),
     sleepLength: S.inside.x - coreX1,
     cooktopTop: riserTop + 0.07 + 0.06,
     treeSpacing: { x: corners.treeNW.x - corners.treeSE.x, z: corners.treeSW.z - corners.treeNW.z },
