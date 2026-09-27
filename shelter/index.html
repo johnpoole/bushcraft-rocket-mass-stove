@@ -262,9 +262,23 @@ try {
   host.appendChild(labelRenderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xcdd8dc);
-  scene.fog = new THREE.Fog(0xcdd8dc, 60, 130);
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
+  {
+    // Sky: deeper blue overhead, pale at the horizon.
+    const c = document.createElement('canvas');
+    c.width = 2; c.height = 256;
+    const ctx = c.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, '#8fa9bf');
+    grad.addColorStop(0.55, '#c9d5dc');
+    grad.addColorStop(1, '#dde3e2');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 2, 256);
+    const sky = new THREE.CanvasTexture(c);
+    sky.colorSpace = THREE.SRGBColorSpace;
+    scene.background = sky;
+  }
+  scene.fog = new THREE.Fog(0xd6dddd, 90, 520);
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 900);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.maxPolarAngle = Math.PI * 0.495;
@@ -279,19 +293,24 @@ try {
 
   const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.95, metalness: 0, ...extra });
   const MAT = {
-    trunk: mat(0x5b4a3a), leaves: mat(0x4f6b3a), ditch: mat(0x4c4436), ground: mat(0x6f7d52), floor: mat(0x8a7d66), plinth: mat(0x8d918b),
+    trunk: mat(0x4f4034), leaves: mat(0x4f6b3a), spruce: mat(0x2f4a2c), pine: mat(0x3e5a34),
+    birchBark: mat(0xdcd6c8), birchLeaf: mat(0xc2a33c), granite: mat(0x8a857d), farShore: mat(0x2c3b2c),
+    logB: mat(0x6e5236), logC: mat(0x857056), ditch: mat(0x4c4436), ground: mat(0x6f7d52), floor: mat(0x8a7d66), plinth: mat(0x8d918b),
     log: mat(0x7a5c3e), tarp: mat(0x3f5f4c), moss: mat(0x5f6e38), timber: mat(0x6b4a2b), bark: mat(0x5a4632),
     cob: mat(0xb98a5e), plaster: mat(0xcfb58c), refr: mat(0x8e4a32), slab: mat(0x6f7671),
     gravel: mat(0x9a948a), bedroll: mat(0x3f5a6e), pillow: mat(0xa9a18f), wood: mat(0x7a5a3a),
     hole: mat(0x1d1a17), water: new THREE.MeshStandardMaterial({ color: 0x3f7fa6, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
-    float: mat(0xd9c9a3), plank: mat(0x9b7b55), pot: mat(0x8a5a3c), path: mat(0x8c7a5c), fish: mat(0xc98a4e), spruce: mat(0x33502e),
+    float: mat(0xd9c9a3), plank: mat(0x9b7b55), pot: mat(0x8a5a3c), fish: mat(0xc98a4e),
+    path: new THREE.MeshStandardMaterial({ color: 0x5e5644, roughness: 1, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
+    gravelTrack: new THREE.MeshStandardMaterial({ color: 0x8d8a82, roughness: 1, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
+    creek: new THREE.MeshStandardMaterial({ color: 0x3f6f8a, roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.85, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
     wire: mat(0x9aa0a6, { metalness: 0.6, roughness: 0.4 }),
     net: new THREE.MeshStandardMaterial({ color: 0x55605a, wireframe: true }), lightClay: mat(0xe0d3a8),
     ember: new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 1.2 }),
   };
 
   const groups = {};
-  for (const k of ['site', 'camp', 'trees', 'crowns', 'frame', 'roof', 'front', 'ends', 'stove', 'bench', 'duct', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
+  for (const k of ['site', 'camp', 'trees', 'forest', 'crowns', 'frame', 'roof', 'front', 'ends', 'stove', 'bench', 'duct', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
   // Labels that belong to one stage only; they also hide with the other inside labels.
   const benchLabels = new THREE.Group(), ductLabels = new THREE.Group();
   groups.innerLabels.add(benchLabels, ductLabels);
@@ -324,19 +343,37 @@ try {
     return o;
   }
 
-  function tree(x, z, h, main) {
-    const r = S.tree.radius;
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.55, r * 1.15, h, 14), MAT.trunk);
+  // Boreal trees. Spruce: stacked cones. Jack pine: a bare trunk with a ragged crown at the top.
+  // Birch: pale bark and a small crown, yellow in September. Crowns go under the crowns toggle.
+  function tree(x, z, h, kind = 'spruce', crownBase = null, trunkR = S.tree.radius, forest = false) {
+    const trunkGroup = forest ? groups.forest : groups.trees, crownGroup = forest ? groups.forest : groups.crowns;
+    const barkMat = kind === 'birch' ? MAT.birchBark : MAT.trunk;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR * 0.3, trunkR * 1.1, h, 10), barkMat);
     trunk.position.set(x, h / 2 - 0.05, z);
     trunk.castShadow = true; trunk.receiveShadow = true;
-    groups.trees.add(trunk);
-    const base = main ? S.tree.lowestBranch : h * 0.4;
-    for (let i = 0; i < 6; i++) {
-      const a = i * 1.9 + x, rr = 1.3 + 0.5 * Math.abs(Math.sin(a * 3.1));
-      const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, 1), MAT.leaves);
-      blob.position.set(x + Math.cos(a) * 1.1, base + rr * 0.8 + (i % 3) * 1.1, z + Math.sin(a) * 1.1);
-      blob.castShadow = true;
-      groups.crowns.add(blob);
+    trunkGroup.add(trunk);
+    const seed = x * 3.7 + z * 1.3;
+    if (kind === 'spruce') {
+      const base = crownBase ?? h * 0.15, span = h - base, n = 6, maxR = Math.min(2.2, 0.9 + span * 0.14);
+      for (let k = 0; k < n; k++) {
+        const r = maxR * (1 - k / (n + 0.6)), ch = (span / n) * 1.8;
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(r, ch, 9), MAT.spruce);
+        cone.position.set(x, base + k * span / n + ch / 2, z);
+        cone.rotation.y = seed + k;
+        cone.castShadow = true;
+        crownGroup.add(cone);
+      }
+    } else {
+      const base = crownBase ?? h * (kind === 'pine' ? 0.65 : 0.5);
+      const m = kind === 'pine' ? MAT.pine : MAT.birchLeaf;
+      for (let i = 0; i < 5; i++) {
+        const a = seed + i * 2.3, rr = (kind === 'pine' ? 0.9 : 0.8) + 0.4 * Math.abs(Math.sin(a * 3.1));
+        const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, 1), m);
+        blob.scale.set(1, kind === 'pine' ? 0.6 : 0.9, 1);
+        blob.position.set(x + Math.cos(a) * 0.7, base + (h - base) * (0.2 + 0.2 * (i % 4)), z + Math.sin(a) * 0.7);
+        blob.castShadow = true;
+        crownGroup.add(blob);
+      }
     }
   }
 
@@ -351,6 +388,64 @@ try {
     return z < shoreZ(x) && d < w ? 0.4 * (1 - (d / w) ** 2) : 0;
   };
   const groundY = (x, z) => baseY(x, z) - creekCut(x, z);
+  const C0 = S.camp;
+  const doorPt = [S.door.x0 + S.door.width / 2, S.inside.z + S.wall + 0.2];
+  const landingPt = [C0.smokeRack.x - 0.5, S.lake.shoreZ - 0.7];
+  const PATHS = [
+    [[doorPt, [1.8, 8], [3.2, 15], [4.8, 20], landingPt], 0.6],
+    [[landingPt, [0, S.lake.shoreZ - 0.6], [C0.cleaningRock.x + 0.6, C0.cleaningRock.z - 0.6], [creekX(S.lake.shoreZ - 1) + 1.6, S.lake.shoreZ - 1.4]], 0.6],
+    [[landingPt, [C0.netPoles.x, C0.netPoles.z + 0.3]], 0.6],
+    [[doorPt, ...C0.snareLine], 0.45],
+    [[doorPt, [-4, 5], [C0.winterCache.x + 0.8, C0.winterCache.z - 0.4], [-18, 9], [D.camp.cacheMid.x + 0.6, D.camp.cacheMid.z]], 0.6],
+  ];
+  // Distance from a point to a polyline of [x, z] points.
+  const distToLine = (x, z, pts) => {
+    let best = Infinity;
+    for (let i = 1; i < pts.length; i++) {
+      const [ax, az] = pts[i - 1], [bx, bz] = pts[i];
+      const vx = bx - ax, vz = bz - az, L2 = vx * vx + vz * vz || 1;
+      const t = Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / L2));
+      best = Math.min(best, Math.hypot(x - ax - t * vx, z - az - t * vz));
+    }
+    return best;
+  };
+  const creekLine = [];
+  for (let z = -12; z <= S.lake.shoreZ + 1; z += 1) creekLine.push([creekX(z), z]);
+  const nearPath = (x, z, m) => PATHS.some(([pts, w]) => distToLine(x, z, pts) < m + w / 2);
+  const campSpots = [C0.smokeRack, C0.cleaningRock, C0.netPoles, C0.winterCache, C0.skinningStump, D.camp.cacheMid, C0.cache.treeA, C0.cache.treeB, { x: creekX(C0.weir.z), z: C0.weir.z }];
+  const nearCamp = (x, z, m) => campSpots.some((q) => Math.hypot(x - q.x, z - q.z) < m);
+  const shelterMid = { x: S.inside.x / 2, z: S.inside.z / 2 };
+
+  // A ribbon laid along a line of ground points, following the terrain, with ragged edges.
+  function ribbon(g, pts, width, material, yAt, seed = 0) {
+    const samples = [];
+    for (let i = 1; i < pts.length; i++) {
+      const [x0, z0] = pts[i - 1], [x1, z1] = pts[i];
+      const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.3));
+      for (let k = i === 1 ? 0 : 1; k <= n; k++) samples.push([x0 + (x1 - x0) * k / n, z0 + (z1 - z0) * k / n]);
+    }
+    const verts = [], idx = [];
+    samples.forEach(([x, z], i) => {
+      const [ax, az] = samples[Math.max(0, i - 1)], [bx, bz] = samples[Math.min(samples.length - 1, i + 1)];
+      let dx = bx - ax, dz = bz - az;
+      const len = Math.hypot(dx, dz) || 1;
+      dx /= len; dz /= len;
+      for (const side of [-1, 1]) {
+        const hw = (width / 2) * (1 + 0.3 * noise(i * 0.7 + seed, side * 3.1 + seed));
+        const vx = x - dz * side * hw, vz = z + dx * side * hw;
+        verts.push(vx, yAt(vx, vz), vz);
+      }
+      if (i > 0) { const q = (i - 1) * 2; idx.push(q, q + 1, q + 2, q + 1, q + 3, q + 2); }
+    });
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+    geo.setIndex(idx);
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, material);
+    mesh.receiveShadow = true;
+    g.add(mesh);
+    return mesh;
+  }
   const baseY = (x, z) => {
     const sz = shoreZ(x);
     if (z < -0.6) return -(z + 0.6) * 0.05;
@@ -360,42 +455,97 @@ try {
   };
   const waterY = -S.lake.drop + 0.05;
   {
-    const g = new THREE.PlaneGeometry(90, 90, 180, 180);
+    const g = new THREE.PlaneGeometry(160, 150, 280, 260);
     g.rotateX(-Math.PI / 2);
-    g.translate(1.5, 0, 35);
+    g.translate(1.5, 0, 25);
     const pos = g.attributes.position;
-    for (let i = 0; i < pos.count; i++) pos.setY(i, groundY(pos.getX(i), pos.getZ(i)));
+    // Moss, lichen and bare granite across the ground; gravel at the waterline.
+    const col = [], cBase = new THREE.Color(0x66743f), cMoss = new THREE.Color(0x839043), cLichen = new THREE.Color(0xa3a78e),
+      cRock = new THREE.Color(0x8c877f), cBeach = new THREE.Color(0x8e8778), cBed = new THREE.Color(0x5b5849), tmp = new THREE.Color();
+    const smooth = (a, b, v) => { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), z = pos.getZ(i);
+      pos.setY(i, groundY(x, z));
+      const sz = shoreZ(x);
+      tmp.copy(cBase);
+      tmp.lerp(cMoss, smooth(0.1, 0.6, noise(x * 0.23, z * 0.19)));
+      tmp.lerp(cLichen, 0.7 * smooth(0.35, 0.8, noise(x * 0.41 + 5, z * 0.37 - 2)));
+      if (z > 3) tmp.lerp(cRock, 0.8 * smooth(0.3, 0.75, noise(x * 0.15 - 3, z * 0.2 + 7)));
+      tmp.lerp(cBeach, smooth(sz - 2.5, sz - 0.5, z));
+      if (z > sz) tmp.copy(cBed);
+      col.push(tmp.r, tmp.g, tmp.b);
+    }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
     g.computeVertexNormals();
-    const mesh = new THREE.Mesh(g, MAT.ground);
+    const mesh = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
     mesh.receiveShadow = true;
     groups.site.add(mesh);
 
-    const w = new THREE.PlaneGeometry(90, 60);
+    // The lake runs out to a far shore of low forested hills.
+    const w = new THREE.PlaneGeometry(1400, 700);
     w.rotateX(-Math.PI / 2);
     const water = new THREE.Mesh(w, MAT.water);
-    water.position.set(1.5, waterY, S.lake.shoreZ + 30);
+    water.position.set(1.5, waterY, S.lake.shoreZ + 340);
     groups.site.add(water);
+    for (let i = 0; i < 60; i++) {
+      const x = -600 + i * 20 + noise(i, 1) * 8, hgt = 22 + 16 * Math.abs(noise(i * 0.3, 2)), z = 260 + noise(i * 0.2, 5) * 25;
+      const hill = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), MAT.farShore);
+      hill.scale.set(22 + 10 * Math.abs(noise(i, 3)), hgt, 16);
+      hill.position.set(x, waterY - 2, z);
+      groups.site.add(hill);
+    }
+    // Two rocky islands with spruce.
+    for (const [ix, iz, ir] of [[-38, 95, 9], [30, 150, 14]]) {
+      const isl = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 10), MAT.granite);
+      isl.scale.set(ir, 2.2, ir * 0.7);
+      isl.position.set(ix, waterY - 0.6, iz);
+      groups.site.add(isl);
+      for (let k = 0; k < 9; k++) tree(ix + noise(k, 1) * ir * 0.6, iz + noise(k, 4) * ir * 0.4, 7 + 4 * Math.abs(noise(k, 7)), 'spruce', 0.8 + waterY + 1.2, 0.12, true);
+    }
     // Granite boulders along the shore.
     for (let i = 0; i < 40; i++) {
       const x = -30 + i * 1.6 + noise(i, 2) * 0.7, z = shoreZ(x) + noise(i, 5) * 0.8 - 0.2;
       const r = 0.15 + 0.25 * Math.abs(noise(i, 9));
-      const st = new THREE.Mesh(new THREE.DodecahedronGeometry(r), MAT.plinth);
+      const st = new THREE.Mesh(new THREE.DodecahedronGeometry(r), MAT.granite);
       st.position.set(x, groundY(x, z) + r * 0.3, z);
+      st.rotation.set(i, i * 1.7, 0);
       st.castShadow = true;
       groups.site.add(st);
     }
+    // Low granite outcrops breaking through the moss, clear of the camp and its paths.
+    let outcrops = 0;
+    for (let i = 0; i < 70 && outcrops < 26; i++) {
+      const x = -34 + ((i * 37) % 74) + noise(i, 3) * 3, z = -8 + ((i * 53) % 30) + noise(i, 8) * 3;
+      if (z > shoreZ(x) - 1.5 || Math.hypot(x - shelterMid.x, z - shelterMid.z) < 6) continue;
+      if (nearPath(x, z, 1.2) || nearCamp(x, z, 2.5) || distToLine(x, z, creekLine) < 2.2) continue;
+      const rock = new THREE.Mesh(new THREE.SphereGeometry(1, 12, 8), MAT.granite);
+      rock.scale.set(1.2 + 1.4 * Math.abs(noise(i, 1)), 0.25 + 0.25 * Math.abs(noise(i, 2)), 0.9 + Math.abs(noise(i, 5)));
+      rock.rotation.y = i;
+      rock.position.set(x, groundY(x, z) - 0.05, z);
+      rock.receiveShadow = true;
+      groups.site.add(rock);
+      outcrops += 1;
+    }
     label(`lake, ${Math.round(D.camp.shelterToShore)} m away and ${S.lake.drop} m lower`, -2, waterY + 1.2, S.lake.shoreZ + 3);
     // Creek water, a little below the banks.
-    for (let z = -10; z < S.lake.shoreZ + 0.5; z += 0.5) {
-      const x = creekX(z), seg = new THREE.Mesh(new THREE.BoxGeometry(S.camp.creek.width * 1.2, 0.02, 0.55), MAT.water);
-      seg.rotation.y = Math.atan2(creekX(z + 0.5) - x, 0.5);
-      seg.position.set(x, Math.max(baseY(x, z) - 0.22, waterY), z + 0.25);
-      groups.site.add(seg);
-    }
+    ribbon(groups.site, creekLine, S.camp.creek.width * 1.1, MAT.creek, (x, z) => Math.max(baseY(creekX(z), z) - 0.2, waterY), 7);
     label('creek', creekX(12), baseY(creekX(12), 12) + 0.9, 12);
 
-    // Other trees around the site.
-    for (const [x, z, h] of [[-5, -4, 11], [7, -3, 12], [-7, 3, 10], [9, 4, 11], [-3, -8, 12], [5, -9, 10], [12, -6, 11], [-10, -5, 9]]) tree(x, z, h, false);
+    // Forest around the clearing: spruce, jack pine and birch, kept off the paths, the creek,
+    // the camp and the open granite slope down to the lake.
+    const keepOpen = [[7.5, 9], [-5, 6], [-9, 17]];
+    for (let gx = -40; gx <= 44; gx += 3.6) for (let gz = -12; gz <= 22; gz += 3.6) {
+      const x = gx + noise(gx, gz) * 1.6, z = gz + noise(gz + 3, gx) * 1.6;
+      if (noise(x * 0.3, z * 0.3) < -0.35) continue;
+      if (z > shoreZ(x) - 3 || (z > 4 && x > -9 && x < 17)) continue;
+      if (Math.hypot(x - shelterMid.x, z - shelterMid.z) < 8) continue;
+      if (nearPath(x, z, 1.4) || nearCamp(x, z, 3) || distToLine(x, z, creekLine) < 2) continue;
+      if (keepOpen.some(([cx, cz]) => Math.hypot(x - cx, z - cz) < 5.5)) continue;
+      const pick = noise(x * 0.7, z * 0.9);
+      const kind = pick > 0.35 ? 'pine' : pick < -0.45 ? 'birch' : 'spruce';
+      const h = (kind === 'birch' ? 7 : 9) + 5 * Math.abs(noise(x, z * 1.3));
+      tree(x, z, h, kind, null, kind === 'birch' ? 0.1 : 0.15, true);
+    }
   }
 
   // ---------- floor, drain ----------
@@ -404,8 +554,7 @@ try {
   {
     // Drain from the stove base: out under the east wall, then downhill.
     const dz = D.base.z0 + 0.25, dx = -S.wall - 0.75;
-    box(groups.site, MAT.gravel, dx - 0.15, -0.02, dz - 0.15, -S.wall, 0.02, dz + 0.15, false);
-    for (let z = dz + 0.3; z < 7; z += 0.5) box(groups.site, MAT.gravel, dx - 0.15, groundY(dx, z) - 0.02, z - 0.26, dx + 0.15, groundY(dx, z) + 0.025, z + 0.26, false);
+    ribbon(groups.site, [[-S.wall, dz], [dx, dz], [dx, 7]], 0.35, MAT.gravelTrack, (x, z) => groundY(x, z) + 0.02, 3);
     label('drain from the stove base', dx - 0.2, 0.35, 3.0);
     // Ditch on the uphill side, behind the back wall.
     box(groups.site, MAT.ditch, -S.wall - 0.8, -0.02, -S.wall - 0.75, S.inside.x + S.wall + 0.8, 0.012, -S.wall - 0.45, false);
@@ -413,7 +562,7 @@ try {
   }
   // Three trees at the corners, and the post at the fourth.
   for (const t of D.trees) {
-    tree(t.x, t.z, 12, true);
+    tree(t.x, t.z, 13, 'spruce', S.tree.lowestBranch);
     label('tree', t.x, 3.2, t.z);
   }
   label(`lowest branches ${S.tree.lowestBranch} m up`, D.corners.treeNW.x, S.tree.lowestBranch - 0.3, D.corners.treeNW.z);
@@ -464,12 +613,13 @@ try {
   // ---------- walls ----------
   {
     const d = S.log.diameter, r = d / 2;
-    for (const l of D.logs) {
+    const logMats = [MAT.log, MAT.logB, MAT.logC];
+    D.logs.forEach((l, i) => {
       const g = { back: groups.ends, east: groups.ends, west: groups.ends, front: groups.front }[l.wall];
       const a = l.axis === 'x' ? [l.a, l.y, l.fixed] : [l.fixed, l.y, l.a];
       const b = l.axis === 'x' ? [l.b, l.y, l.fixed] : [l.fixed, l.y, l.b];
-      pole(g, MAT.log, a, b, r);
-    }
+      pole(g, logMats[i % 3], a, b, r * (0.93 + 0.07 * Math.abs(noise(i, 2))));
+    });
     // Flat stones under each wall.
     const w = S.wall, xi = S.inside.x, zi = S.inside.z;
     box(groups.ends, MAT.plinth, -w, 0, -w, xi + w, S.plinth, 0);
@@ -646,30 +796,9 @@ try {
   // ---------- camp for fishing and snares ----------
   {
     const C = S.camp, g = groups.camp, gy = groundY;
-    const strip = (pts, w = 0.6) => {
-      for (let i = 1; i < pts.length; i++) {
-        const [x0, z0] = pts[i - 1], [x1, z1] = pts[i];
-        const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.5));
-        for (let k = 0; k < n; k++) {
-          const x = x0 + (x1 - x0) * (k + 0.5) / n, z = z0 + (z1 - z0) * (k + 0.5) / n;
-          const seg = new THREE.Mesh(new THREE.BoxGeometry(w, 0.02, 0.55), MAT.path);
-          seg.rotation.y = Math.atan2(x1 - x0, z1 - z0);
-          seg.position.set(x, gy(x, z) + 0.012, z);
-          seg.receiveShadow = true;
-          g.add(seg);
-        }
-      }
-    };
-    const door = [S.door.x0 + S.door.width / 2, S.inside.z + S.wall + 0.2];
-    const landing = [C.smokeRack.x - 0.5, S.lake.shoreZ - 0.7];
-    strip([door, [1.8, 8], [3.2, 15], [4.8, 20], landing]);
-    strip([landing, [0, S.lake.shoreZ - 0.6], [C.cleaningRock.x + 0.6, C.cleaningRock.z - 0.6]]);
-    strip([landing, [C.netPoles.x, C.netPoles.z + 0.3]]);
-    strip([door, C.snareLine[0], ...C.snareLine.slice(1)], 0.45);
-    strip([door, [-4, 5], [C.winterCache.x + 0.8, C.winterCache.z - 0.4], [-18, 9], [D.camp.cacheMid.x + 0.6, D.camp.cacheMid.z]]);
+    PATHS.forEach(([pts, w], i) => ribbon(g, pts, w, MAT.path, (x, z) => gy(x, z) + 0.03, i * 11));
 
-    // Shore path on to the creek mouth, and a log across the creek on the cache path.
-    strip([[C.cleaningRock.x - 0.6, C.cleaningRock.z - 0.6], [creekX(S.lake.shoreZ - 1) + 1.6, S.lake.shoreZ - 1.4]]);
+    // A log across the creek on the cache path.
     {
       const bz = 7.8, bx = creekX(bz), by = baseY(bx, bz) + 0.08;
       pole(g, MAT.wood, [bx - 1.5, by, bz], [bx + 1.5, by, bz], 0.13);
@@ -753,8 +882,8 @@ try {
     // Food cache hung from a pole between two trees.
     {
       const K = C.cache, M0 = D.camp.cacheMid;
-      tree(K.treeA.x, K.treeA.z, 12, true);
-      tree(K.treeB.x, K.treeB.z, 12, true);
+      tree(K.treeA.x, K.treeA.z, 12, 'spruce', K.height + 1.2);
+      tree(K.treeB.x, K.treeB.z, 12, 'spruce', K.height + 1.2);
       const y0 = gy(M0.x, M0.z), top = y0 + K.height + 0.6;
       pole(g, MAT.timber, [K.treeA.x, top, K.treeA.z], [K.treeB.x, top, K.treeB.z], 0.05);
       pole(g, MAT.bark, [M0.x, top, M0.z], [M0.x, y0 + K.height + 0.35, M0.z], 0.008);
@@ -865,7 +994,7 @@ try {
     'Weir': [[-9, 3, 17], [-14, -2.4, 23]],
   };
   const TOGGLES = [
-    ['Tree crowns', ['crowns'], true],
+    ['Forest', ['crowns', 'forest'], true],
     ['Roof', ['roof', 'frame'], true],
     ['Front wall', ['front'], true],
     ['Back and side walls', ['ends'], true],
@@ -877,7 +1006,7 @@ try {
     const [p, t] = VIEWS[name];
     fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: new THREE.Vector3(...p), t1: new THREE.Vector3(...t), k: 0 };
     if (name === 'Inside') { setToggle('Roof', false); setToggle('Front wall', false); }
-    if (name === 'From above' || name === 'Whole camp') setToggle('Tree crowns', false);
+    if (name === 'From above' || name === 'Whole camp') setToggle('Forest', false);
     if (name === 'From above') setToggle('Roof', false);
   }
   const vbox = document.getElementById('views');
