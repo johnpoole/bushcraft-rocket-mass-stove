@@ -1,13 +1,14 @@
+<meta charset="utf-8">
 <title>Rocket Mass Stove Section</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 :root{--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;
---cob:#b98a5e;--refr:#8e4a32;--slab:#6f7671;--ember:#d4531c;}
+--cob:#b98a5e;--refr:#8e4a32;--slab:#6f7671;--ember:#d4531c;--log:#7a5c3e;}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;
---cob:#8f6a48;--refr:#8a4630;--slab:#5d6560;--ember:#ec6a32;}}
+--cob:#8f6a48;--refr:#8a4630;--slab:#5d6560;--ember:#ec6a32;--log:#6a4f35;}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;
---cob:#8f6a48;--refr:#8a4630;--slab:#5d6560;--ember:#ec6a32;}
+--cob:#8f6a48;--refr:#8a4630;--slab:#5d6560;--ember:#ec6a32;--log:#6a4f35;}
 body{background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
 .wrap{max-width:1080px;margin:0 auto;padding:28px 16px 48px}
 h1,h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em;text-wrap:balance;margin:0}
@@ -34,6 +35,8 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 .cob{fill:var(--cob);stroke:var(--ink);stroke-width:1}
 .refr{fill:var(--refr);stroke:var(--ink);stroke-width:1}
 .slab{fill:var(--slab);stroke:var(--ink);stroke-width:1}
+.log{fill:var(--log);stroke:var(--ink);stroke-width:1}
+.gap{fill:var(--panel);stroke:none}
 .insul{fill:url(#dots);stroke:var(--ink);stroke-width:1}
 .insul2{fill:url(#dots2);stroke:var(--ink);stroke-width:1}
 .stone{fill:url(#stones);stroke:var(--ink);stroke-width:1}
@@ -52,98 +55,129 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <div class="wrap">
 <div class="eyebrow">Bushcraft build · section drawing</div>
 <h1>Rocket mass stove, cut through the middle</h1>
-<p class="sub">All dimensions are in centimetres and measure the <strong>inside clear opening</strong>: the space the fire and gas travel through. Wall thickness goes outside these numbers, so size your formers to them. Heights are measured from the burn tunnel floor.</p>
+<p class="sub">All dimensions are in centimetres and measure the <strong>inside clear opening</strong>: the space the fire and gas travel through. Wall thickness goes outside these numbers, so size your formers to them. Heights are measured from the burn tunnel floor, which is level with the shelter floor.</p>
 
 <figure class="sheet"><div class="scroll">
-<svg viewBox="-50 10 1080 870" role="img" aria-label="Side section of a rocket mass stove: 10 by 10 cm feed tube 30 cm tall, 40 cm burn tunnel, 100 cm insulated riser inside a cob dome with 5 cm side gap and 5 to 8 cm top gap under a stone cooktop, 10 by 10 cm channel under 20 cm of bench mass running up to 3 to 4 m, and a chimney topping out at least 60 cm above the riser.">
+<svg viewBox="-50 10 1180 890" role="img" aria-label="Side section of the rocket mass stove: 10 by 10 cm feed tube 30 cm tall, 40 cm burn tunnel level with the floor on 10 cm of light clay over 10 cm of dry stone, 110 cm insulated riser inside a cob dome with a 5 cm side gap and a 6 cm gap under the stone cooktop, a 10 by 10 cm channel that climbs 10 cm into the bench under 20 cm of mass and runs about 3.9 m, and a chimney of stone and cob to 1 m then a clay-lined hollow log, topping out 125 cm above the riser.">
 <defs>
 <marker id="tick" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><line x1="2" y1="8" x2="8" y2="2" stroke="currentColor" stroke-width="1.4"/></marker>
 <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d4531c"/></marker>
 <pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#e9dfb8"/><circle cx="3" cy="3" r="1" fill="#b9a56a"/></pattern>
 <pattern id="stones" width="16" height="10" patternUnits="userSpaceOnUse"><rect width="16" height="10" fill="#9aa39c"/><ellipse cx="5" cy="4" rx="4" ry="2.6" fill="#7f8983"/><ellipse cx="13" cy="8" rx="3" ry="2" fill="#838d87"/></pattern>
 </defs>
-<rect class="stone" x="130.0" y="730.0" width="512.0" height="40.0"/>
-<rect class="stone" x="682.0" y="730.0" width="192.0" height="40.0"/>
-<rect class="refr" x="130.0" y="610.0" width="32.0" height="120.0"/>
-<rect class="slab" x="202.0" y="666.0" width="80.0" height="24.0"/>
-<rect class="cob" x="202.0" y="302.0" width="20.0" height="364.0"/>
-<rect class="insul" x="242.0" y="330.0" width="28.0" height="336.0"/>
-<rect class="refr" x="270.0" y="330.0" width="12.0" height="336.0"/>
-<rect class="refr" x="322.0" y="330.0" width="12.0" height="400.0"/>
-<rect class="insul" x="334.0" y="330.0" width="28.0" height="400.0"/>
-<rect class="cob" x="382.0" y="302.0" width="20.0" height="388.0"/>
-<rect class="slab" x="194.0" y="270.0" width="216.0" height="32.0"/>
-<rect class="cob" x="402.0" y="610.0" width="240.0" height="80.0"/>
-<rect class="cob" x="682.0" y="610.0" width="88.0" height="80.0"/>
-<rect class="cob" x="770.0" y="90.0" width="32.0" height="600.0"/>
-<rect class="cob" x="842.0" y="90.0" width="32.0" height="640.0"/>
-<polyline class="brk" points="636.0,778.0 648.0,762.0 636.0,746.0 648.0,730.0 636.0,714.0 648.0,698.0 636.0,682.0 648.0,666.0 636.0,650.0 648.0,634.0 636.0,618.0 648.0,602.0"/>
-<polyline class="brk" points="676.0,778.0 688.0,762.0 676.0,746.0 688.0,730.0 676.0,714.0 688.0,698.0 676.0,682.0 688.0,666.0 676.0,650.0 688.0,634.0 676.0,618.0 688.0,602.0"/>
-<polyline class="flow" marker-end="url(#arr)" points="182.0,550.0 182.0,710.0 302.0,710.0 302.0,316.0 372.0,316.0 372.0,710.0 638.0,710.0"/>
-<polyline class="flow" marker-end="url(#arr)" points="686.0,710.0 822.0,710.0 822.0,42.0"/>
-<text class="flowt" x="182.0" y="538.0" text-anchor="middle">sticks in</text>
-<text class="flowt" x="822.0" y="26.0" text-anchor="middle">exhaust out</text>
-<text class="cut" x="250.0" y="788.0" text-anchor="middle">A</text>
-<line class="ext" x1="130.0" y1="730.0" x2="34.0" y2="730.0"/>
-<line class="ext" x1="162.0" y1="610.0" x2="82.0" y2="610.0"/>
-<line class="ext" x1="242.0" y1="330.0" x2="34.0" y2="330.0"/>
-<line class="dim" x1="90.0" y1="730.0" x2="90.0" y2="610.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="84.0" y="670.0" text-anchor="middle" transform="rotate(-90 84.0 670.0)">30 feed tube</text>
-<line class="dim" x1="42.0" y1="730.0" x2="42.0" y2="330.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="36.0" y="530.0" text-anchor="middle" transform="rotate(-90 36.0 530.0)">100 riser height (80–120)</text>
-<line class="dim" x1="162.0" y1="586.0" x2="202.0" y2="586.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="182.0" y="580.0" text-anchor="middle">10</text>
-<line class="ext" x1="162.0" y1="730.0" x2="162.0" y2="810.0"/>
-<line class="ext" x1="322.0" y1="730.0" x2="322.0" y2="810.0"/>
-<line class="dim" x1="162.0" y1="798.0" x2="322.0" y2="798.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="242.0" y="813.0" text-anchor="middle">40 burn tunnel (30–40)</text>
-<line class="dim" x1="282.0" y1="430.0" x2="322.0" y2="430.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="302.0" y="424.0" text-anchor="middle">10</text>
-<line class="dim" x1="346.0" y1="330.0" x2="346.0" y2="302.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="340.0" y="316.0" text-anchor="middle" transform="rotate(-90 340.0 316.0)"></text>
-<polyline class="lead" points="346.0,316.0 450.0,218.0 458.0,218.0"/>
-<text class="note" x="462.0" y="222.0" text-anchor="start">5–8 gap riser top → cooktop</text>
-<line class="dim" x1="362.0" y1="482.0" x2="382.0" y2="482.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="372.0" y="476.0" text-anchor="middle"></text>
-<polyline class="lead" points="382.0,482.0 450.0,410.0 458.0,410.0"/>
-<text class="note" x="462.0" y="414.0" text-anchor="start">≈5 gap riser → dome wall</text>
-<line class="dim" x1="562.0" y1="690.0" x2="562.0" y2="610.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="577.0" y="650.0" text-anchor="middle" transform="rotate(-90 577.0 650.0)">20</text>
-<polyline class="lead" points="562.0,610.0 594.0,474.0 602.0,474.0"/>
-<text class="note" x="606.0" y="478.0" text-anchor="start">15–25 mass over channel</text>
-<polyline class="lead" points="466.0,702.0 498.0,562.0 506.0,562.0"/>
-<text class="note" x="510.0" y="566.0" text-anchor="start">10 × 10 channel</text>
-<line class="ext" x1="382.0" y1="730.0" x2="382.0" y2="858.0"/>
-<line class="ext" x1="842.0" y1="730.0" x2="842.0" y2="858.0"/>
-<line class="dim" x1="382.0" y1="846.0" x2="842.0" y2="846.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="612.0" y="861.0" text-anchor="middle">channel run: up to 3–4 m (shortened at break)</text>
-<line class="dim" x1="802.0" y1="66.0" x2="842.0" y2="66.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="790.0" y="70.0" text-anchor="end">10</text>
-<line class="ext" x1="362.0" y1="330.0" x2="906.0" y2="330.0"/>
-<line class="ext" x1="874.0" y1="90.0" x2="906.0" y2="90.0"/>
-<line class="dim" x1="898.0" y1="330.0" x2="898.0" y2="90.0" marker-start="url(#tick)" marker-end="url(#tick)"/>
-<text class="dimt" x="913.0" y="210.0" text-anchor="middle" transform="rotate(-90 913.0 210.0)">≥ 60 above riser top</text>
-<polyline class="lead" points="146.0,650.0 114.0,510.0 106.0,510.0"/>
-<text class="note" x="102.0" y="514.0" text-anchor="end">feed tube</text>
-<polyline class="lead" points="258.0,490.0 178.0,410.0 170.0,410.0"/>
-<text class="note" x="166.0" y="414.0" text-anchor="end">riser: 3 refractory + 7 insulation</text>
-<polyline class="lead" points="302.0,286.0 242.0,218.0 234.0,218.0"/>
-<text class="note" x="230.0" y="222.0" text-anchor="end">flat stone cooktop</text>
-<polyline class="lead" points="210.0,390.0 170.0,330.0 162.0,330.0"/>
-<text class="note" x="158.0" y="334.0" text-anchor="end">cob dome wall</text>
-<text class="note" x="514.0" y="754.0" text-anchor="middle">dry stone foundation, 10 deep</text>
-<polyline class="lead" points="622.0,650.0 610.0,518.0 602.0,518.0"/>
-<text class="note" x="598.0" y="522.0" text-anchor="end">cob + dense stone bench</text>
-<polyline class="lead" points="858.0,210.0 922.0,170.0 930.0,170.0"/>
-<text class="note" x="934.0" y="174.0" text-anchor="start">chimney</text>
-<text class="note" x="242.0" y="704.8" text-anchor="middle">burn tunnel</text>
+<!-- base under the core, below the floor -->
+<rect class="insul" x="126" y="730" width="280" height="40"/>
+<rect class="stone" x="126" y="770" width="280" height="40"/>
+<!-- bench and chimney foundation on the floor -->
+<polygon class="stone" points="402,730 442,690 642,690 642,730"/>
+<rect class="stone" x="682" y="690" width="160" height="40"/>
+<!-- feed tube, tunnel roof, riser, dome, cooktop -->
+<rect class="slab" x="90" y="724" width="40" height="6"/>
+<rect class="refr" x="130" y="610" width="32" height="120"/>
+<rect class="slab" x="202" y="666" width="80" height="24"/>
+<rect class="cob" x="202" y="266" width="20" height="400"/>
+<rect class="insul" x="242" y="290" width="28" height="376"/>
+<rect class="refr" x="270" y="290" width="12" height="376"/>
+<rect class="refr" x="322" y="290" width="12" height="440"/>
+<rect class="insul" x="334" y="290" width="28" height="440"/>
+<rect class="cob" x="382" y="266" width="20" height="424"/>
+<rect class="slab" x="194" y="234" width="216" height="32"/>
+<!-- bench: the channel climbs 10 out of the dome, then 20 of mass over it -->
+<polygon class="cob" points="402,570 642,570 642,650 442,650 402,690"/>
+<rect class="cob" x="682" y="570" width="88" height="80"/>
+<!-- chimney: stone and cob to 1 m, then a clay-lined hollow log -->
+<rect class="cob" x="770" y="330" width="32" height="320"/>
+<rect class="cob" x="842" y="330" width="32" height="320"/>
+<rect class="slab" x="842" y="650" width="32" height="40"/>
+<rect class="cob" x="842" y="690" width="32" height="40"/>
+<rect class="log" x="770" y="90" width="32" height="240"/>
+<rect class="log" x="842" y="90" width="32" height="240"/>
+<rect class="cob" x="798" y="90" width="4" height="240"/>
+<rect class="cob" x="842" y="90" width="4" height="240"/>
+<rect class="gap" x="760" y="150" width="124" height="40"/>
+<polyline class="brk" points="762,150 774,140 786,150 798,140 810,150 822,140 834,150 846,140 858,150 870,140 882,150"/>
+<polyline class="brk" points="762,190 774,180 786,190 798,180 810,190 822,180 834,190 846,180 858,190 870,180 882,190"/>
+<!-- bench break -->
+<polyline class="brk" points="636.0,778.0 648.0,762.0 636.0,746.0 648.0,730.0 636.0,714.0 648.0,698.0 636.0,682.0 648.0,666.0 636.0,650.0 648.0,634.0 636.0,618.0 648.0,602.0 636.0,586.0 648.0,570.0 636.0,556.0"/>
+<polyline class="brk" points="676.0,778.0 688.0,762.0 676.0,746.0 688.0,730.0 676.0,714.0 688.0,698.0 676.0,682.0 688.0,666.0 676.0,650.0 688.0,634.0 676.0,618.0 688.0,602.0 676.0,586.0 688.0,570.0 676.0,556.0"/>
+<!-- floor line -->
+<line class="ext" x1="20" y1="730" x2="1000" y2="730"/>
+<text class="note" x="990" y="724" text-anchor="end">floor</text>
+<!-- gas path -->
+<polyline class="flow" marker-end="url(#arr)" points="182,550 182,710 302,710 302,278 372,278 372,710 402,710 442,670 638,670"/>
+<polyline class="flow" marker-end="url(#arr)" points="686,670 822,670 822,42"/>
+<text class="flowt" x="182" y="538" text-anchor="middle">sticks in</text>
+<text class="flowt" x="822" y="26" text-anchor="middle">exhaust out</text>
+<text class="cut" x="250" y="834" text-anchor="middle">A</text>
+<!-- dimensions -->
+<line class="ext" x1="162" y1="610" x2="82" y2="610"/>
+<line class="ext" x1="242" y1="290" x2="34" y2="290"/>
+<line class="dim" x1="90" y1="730" x2="90" y2="610" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="84" y="670" text-anchor="middle" transform="rotate(-90 84 670)">30 feed tube</text>
+<line class="dim" x1="42" y1="730" x2="42" y2="290" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="36" y="510" text-anchor="middle" transform="rotate(-90 36 510)">110 riser height (80–120)</text>
+<line class="dim" x1="162" y1="586" x2="202" y2="586" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="182" y="580" text-anchor="middle">10</text>
+<line class="ext" x1="162" y1="810" x2="162" y2="850"/>
+<line class="ext" x1="322" y1="730" x2="322" y2="850"/>
+<line class="dim" x1="162" y1="838" x2="322" y2="838" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="242" y="853" text-anchor="middle">40 burn tunnel (30–40)</text>
+<line class="dim" x1="282" y1="430" x2="322" y2="430" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="302" y="424" text-anchor="middle">10</text>
+<line class="dim" x1="346" y1="290" x2="346" y2="266" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<polyline class="lead" points="346,278 450,210 458,210"/>
+<text class="note" x="462" y="214" text-anchor="start">6 gap riser top → cooktop</text>
+<line class="dim" x1="362" y1="482" x2="382" y2="482" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<polyline class="lead" points="382,482 450,410 458,410"/>
+<text class="note" x="462" y="414" text-anchor="start">5 gap riser → dome wall</text>
+<line class="dim" x1="562" y1="650" x2="562" y2="570" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="577" y="610" text-anchor="middle" transform="rotate(-90 577 610)">20</text>
+<polyline class="lead" points="562,570 594,454 602,454"/>
+<text class="note" x="606" y="458" text-anchor="start">20 mass over channel (15–25)</text>
+<polyline class="lead" points="480,662 498,530 506,530"/>
+<text class="note" x="510" y="534" text-anchor="start">10 × 10 channel, climbs 10 into the bench</text>
+<line class="ext" x1="382" y1="730" x2="382" y2="878"/>
+<line class="ext" x1="842" y1="730" x2="842" y2="878"/>
+<line class="dim" x1="382" y1="866" x2="842" y2="866" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="612" y="881" text-anchor="middle">channel run about 3.9 m with 2 bends (shortened at break)</text>
+<line class="dim" x1="802" y1="66" x2="842" y2="66" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="790" y="70" text-anchor="end">10</text>
+<line class="ext" x1="362" y1="290" x2="906" y2="290"/>
+<line class="ext" x1="874" y1="90" x2="906" y2="90"/>
+<line class="dim" x1="898" y1="290" x2="898" y2="90" marker-start="url(#tick)" marker-end="url(#tick)"/>
+<text class="dimt" x="913" y="190" text-anchor="middle" transform="rotate(-90 913 190)">125 above riser top</text>
+<!-- notes -->
+<polyline class="lead" points="146,650 114,510 106,510"/>
+<text class="note" x="102" y="514" text-anchor="end">feed tube</text>
+<polyline class="lead" points="110,726 70,690 62,690"/>
+<text class="note" x="58" y="694" text-anchor="end">hearth stone</text>
+<polyline class="lead" points="258,490 178,410 170,410"/>
+<text class="note" x="166" y="414" text-anchor="end">riser: 3 refractory + 8 insulation</text>
+<polyline class="lead" points="302,250 242,190 234,190"/>
+<text class="note" x="230" y="194" text-anchor="end">flat stone cooktop</text>
+<polyline class="lead" points="210,390 170,330 162,330"/>
+<text class="note" x="158" y="334" text-anchor="end">cob dome wall</text>
+<text class="note" x="266" y="755" text-anchor="middle">10 light clay</text>
+<text class="note" x="266" y="795" text-anchor="middle">10 dry stone, below the floor</text>
+<text class="note" x="560" y="716" text-anchor="middle">10 dry stone</text>
+<polyline class="lead" points="622,610 610,498 602,498"/>
+<text class="note" x="598" y="502" text-anchor="end">cob + dense stone bench</text>
+<polyline class="lead" points="874,250 930,230 936,230"/>
+<text class="note" x="940" y="234" text-anchor="start">clay-lined hollow log</text>
+<polyline class="lead" points="874,470 930,450 936,450"/>
+<text class="note" x="940" y="454" text-anchor="start">stone and cob to 1 m</text>
+<polyline class="lead" points="874,670 930,640 936,640"/>
+<text class="note" x="940" y="644" text-anchor="start">cleanout plug</text>
+<text class="note" x="940" y="110" text-anchor="start">top 2.35 m</text>
+<text class="note" x="940" y="126" text-anchor="start">above the floor</text>
+<text class="note" x="242" y="704.8" text-anchor="middle">burn tunnel</text>
 </svg></div>
-<figcaption>Side section, 1 : 25 approx. The dashed orange line is the gas path: down the feed tube, along the burn tunnel, up the riser, over the top, down the gap inside the dome, through the bench, and out the chimney. The bench is shortened at the break.</figcaption>
+<figcaption>Side section, 1 : 25 approx. The dashed orange line is the gas path: down the feed tube, along the burn tunnel, up the riser, over the top, down the gap inside the dome, through the bench, and out the chimney. The bench and the chimney are shortened at their breaks. The cleanout at the bottom of the dome sits in the face beside the feed tube, out of this cut.</figcaption>
 </figure>
 
 <div class="row">
 <figure class="sheet inset"><div class="scroll">
-<svg viewBox="0 0 330 310" role="img" aria-label="Cross-section A–A through the burn tunnel: 10 by 10 cm clear opening, 5 to 8 cm refractory side walls, 6 cm stone roof slab, on a dry stone foundation.">
+<svg viewBox="0 0 330 400" role="img" aria-label="Cross-section A–A through the burn tunnel: 10 by 10 cm clear opening, 5 to 8 cm refractory side walls, 6 cm stone roof slab, on 10 cm of light clay over 10 cm of dry stone below the floor.">
 <defs>
 <marker id="tick2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><line x1="2" y1="8" x2="8" y2="2" stroke="currentColor" stroke-width="1.4"/></marker>
 <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d4531c"/></marker>
@@ -153,7 +187,12 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <rect class="slab" x="60" y="60" width="198" height="54"/>
 <rect class="refr" x="60" y="114" width="54" height="90"/>
 <rect class="refr" x="204" y="114" width="54" height="90"/>
-<rect class="stone2" x="42" y="204" width="234" height="90"/>
+<rect class="insul2" x="42" y="204" width="234" height="90"/>
+<rect class="stone2" x="42" y="294" width="234" height="90"/>
+<text class="note" x="159" y="254" text-anchor="middle">10 light clay</text>
+<text class="note" x="159" y="344" text-anchor="middle">10 dry stone</text>
+<line class="ext" x1="10" y1="204" x2="320" y2="204"/>
+<text class="note" x="14" y="198" text-anchor="start">floor</text>
 <line class="dim" x1="114" y1="159" x2="204" y2="159" marker-start="url(#tick2)" marker-end="url(#tick2)"/>
 <text class="dimt" x="159" y="152.7" text-anchor="middle">10</text>
 <line class="dim" x1="96" y1="114" x2="96" y2="204" marker-start="url(#tick2)" marker-end="url(#tick2)"/>
@@ -177,7 +216,8 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <li><span class="sw" style="background:#e9dfb8;background-image:radial-gradient(#b9a56a 1px,transparent 1.5px);background-size:6px 6px"></span>Light clay insulation: clay slip + sawdust, grass or ash</li>
 <li><span class="sw" style="background:var(--cob)"></span>Cob: 1 clay to 2–3 sand, plus fibre; pack dense stone into the bench</li>
 <li><span class="sw" style="background:var(--slab)"></span>Flat stone slab (dry-land stone only)</li>
-<li><span class="sw" style="background:#9aa39c"></span>Dry stone foundation</li>
+<li><span class="sw" style="background:#9aa39c"></span>Dry stone, under the light clay base and the bench</li>
+<li><span class="sw" style="background:var(--log)"></span>Hollow log, lined inside with clay</li>
 <li><span class="sw" style="border:0;background:linear-gradient(90deg,var(--ember) 60%,transparent 60%) 0 50%/9px 2px repeat-x"></span>Fire and exhaust path</li>
 </ul>
 </div>
@@ -189,12 +229,14 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <tr><td>Feed tube, burn tunnel, riser, channel, chimney</td><td>10 × 10</td><td>Inside wall to inside wall. Never narrower anywhere along the run.</td></tr>
 <tr><td>Feed tube height</td><td>30</td><td>Tunnel floor to top of the feed opening.</td></tr>
 <tr><td>Burn tunnel length</td><td>40</td><td>30–40. Inside of the feed tube's back wall to inside of the riser's far wall.</td></tr>
-<tr><td>Riser height</td><td>100</td><td>80–120, and at least 2–3× the tunnel length. Tunnel floor to riser top lip.</td></tr>
-<tr><td>Riser top to cooktop</td><td>7</td><td>5–8 clear gap.</td></tr>
+<tr><td>Riser height</td><td>110</td><td>80–120, and at least twice the tunnel length. Tunnel floor to riser top lip.</td></tr>
+<tr><td>Riser insulation</td><td>8</td><td>8–10 of light clay around a 3 refractory wall.</td></tr>
+<tr><td>Riser top to cooktop</td><td>6</td><td>5–8 clear gap.</td></tr>
 <tr><td>Riser to dome wall</td><td>5</td><td>About 5 clear gap all round.</td></tr>
 <tr><td>Bench mass over channel</td><td>20</td><td>15–25, top of channel opening to bench surface.</td></tr>
-<tr><td>Channel run</td><td>—</td><td>Up to 3–4 m with as few sharp bends as possible.</td></tr>
-<tr><td>Chimney top</td><td>+60</td><td>At least 60 above the riser top lip, and clear of any shelter roof.</td></tr>
+<tr><td>Channel run</td><td>3.9 m</td><td>Up to 3–4 m with as few sharp bends as possible. Climbs 10 from the dome into the bench.</td></tr>
+<tr><td>Chimney top</td><td>+125</td><td>At least 60 above the riser top lip, and 60 above the roof beside it. 2.35 m above the floor: stone and cob to 1 m, then a clay-lined hollow log.</td></tr>
+<tr><td>Base under the stove</td><td>10 + 10</td><td>Light clay over dry stone, below the floor, so the tunnel floor is level with the shelter floor.</td></tr>
 </table></div>
 </figure>
 </div>

@@ -17,10 +17,10 @@
 
   const DEFAULTS = Object.freeze({
     feedSize: 10, tunnelSize: 10, riserSize: 10, channelSize: 10, chimneySize: 10,
-    feedHeight: 30, tunnelLength: 40, riserHeight: 100,
-    riserInsulation: 8, topGap: 7, sideGap: 5,
-    channelLength: 350, bends: 2, benchCover: 20,
-    chimneyAboveRiser: 60,
+    feedHeight: 30, tunnelLength: 40, riserHeight: 110,
+    riserInsulation: 8, topGap: 6, sideGap: 5,
+    channelLength: 390, bends: 2, benchCover: 20,
+    chimneyAboveRiser: 125,
     ambient: 10, fuel: 'dry', coldStart: false, burnHours: 2,
     riverStones: false, fibreInRefractory: false, cracksSealed: true, feedLid: false,
   });
