@@ -36,6 +36,7 @@
       skinningStump: { x: -2, z: 4.5 },
       snareLine: [[3.5, 1.5], [9, -2], [15, -5], [21, -3], [24, 3], [20, 8], [13, 7]],
       snares: 15,
+      spruceClearance: 1.0,
       // A creek runs into the lake east of camp. The weir sits just above its mouth, and the
       // gill net is set out from the mouth to catch fish moving along the shore toward it.
       creek: { x: -14, width: 1.4 },
@@ -154,6 +155,17 @@
     creekToShelter: Math.abs(C.creek.x - mid.x),
     snareLineLength: C.snareLine.slice(1).reduce((t, p, i) => t + Math.hypot(p[0] - C.snareLine[i][0], p[1] - C.snareLine[i][1]), 0),
   };
+
+  // Young spruce scattered along the snare line, kept clear of the shelter and its trees.
+  const jitter = (a, b) => Math.sin(a * 1.7 + Math.sin(b * 0.9)) * 0.5 + Math.sin(a * 0.43 + b * 1.3) * 0.35 + Math.sin(a * 3.1 - b * 2.3) * 0.15;
+  const clear = S.camp.spruceClearance;
+  const offShelter = (x, z) => x < -S.wall - clear || x > S.inside.x + S.wall + clear || z < -S.wall - clear || z > S.inside.z + S.wall + clear;
+  derived.camp.youngSpruce = [];
+  for (let i = 0; i < 26; i++) {
+    const p = C.snareLine[i % C.snareLine.length];
+    const x = p[0] + jitter(i, 4) * 2.4, z = p[1] + jitter(i, 8) * 2.4;
+    if (offShelter(x, z)) derived.camp.youngSpruce.push({ x, z, h: 1.2 + Math.abs(jitter(i, 6)) * 1.6 });
+  }
 
   derived.basin = {
     x: (S.counter.depth + S.counter.frontEnd) / 2,

@@ -118,6 +118,13 @@ test('the camp keeps food and fish waste away from the shelter and the fish work
   assert.ok(S.camp.snares >= 15 && C.snareLineLength >= 30, `snare line ${C.snareLineLength.toFixed(0)} m with ${S.camp.snares} snares`);
 });
 
+test('no young spruce grows in or against the shelter', () => {
+  const c = S.camp.spruceClearance, w = S.wall;
+  const inside = D.camp.youngSpruce.filter(({ x, z }) => x > -w - c && x < S.inside.x + w + c && z > -w - c && z < S.inside.z + w + c);
+  assert.deepEqual(inside, [], `young spruce within ${c} m of the shelter`);
+  assert.ok(D.camp.youngSpruce.length >= 15, `only ${D.camp.youngSpruce.length} young spruce along the snare line`);
+});
+
 test('the step stays clear of the cleanout, the feed tube, the bench and the counter', () => {
   const s = S.step, dome = D.cleanouts.find((c) => c.id === 'dome');
   assert.ok(s.x0 >= dome.x1 + 0.05, 'step covers the dome cleanout');

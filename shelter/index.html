@@ -803,9 +803,7 @@ try {
           break;
         }
       }
-      for (let i = 0; i < 26; i++) {
-        const p = pts[i % pts.length], x = p[0] + noise(i, 4) * 2.4, z = p[1] + noise(i, 8) * 2.4;
-        const h = 1.2 + Math.abs(noise(i, 6)) * 1.6;
+      for (const { x, z, h } of D.camp.youngSpruce) {
         const sp = new THREE.Mesh(new THREE.ConeGeometry(h * 0.28, h, 8), MAT.spruce);
         sp.position.set(x, gy(x, z) + h / 2, z);
         sp.castShadow = true;
