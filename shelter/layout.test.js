@@ -52,6 +52,37 @@ test('every place ash settles has a cleanout you can reach', () => {
   assert.ok(byId.chimney.x > S.inside.x + S.wall, 'chimney cleanout must be outside');
 });
 
+test('the log walls leave the door, vent and air inlet open and stop short of the trunks', () => {
+  const d = S.log.diameter;
+  const hits = (l, x0, x1) => l.axis === 'x' && l.a < x1 && l.b > x0;
+  const door = D.logs.filter((l) => l.wall === 'front' && l.y - d / 2 < S.door.height && hits(l, S.door.x0, S.door.x0 + S.door.width));
+  assert.deepEqual(door, [], 'a log crosses the door opening');
+  const back = D.logs.filter((l) => l.wall === 'back');
+  const topY = Math.max(...back.map((l) => l.y));
+  assert.equal(back.filter((l) => l.y === topY && hits(l, S.vent.x0, S.vent.x1)).length, 0, 'no vent in the top course of the back wall');
+  for (const l of D.logs) {
+    assert.ok(l.y + d / 2 <= D.roofLine(l.axis === 'z' ? l.b : l.fixed) + 1e-9, `a ${l.wall} log at ${l.y.toFixed(2)} m pokes above the roof line`);
+    for (const t of D.trees) {
+      const [ex, ez] = l.axis === 'x' ? [[l.a, l.fixed], [l.b, l.fixed]] : [[l.fixed, l.a], [l.fixed, l.b]];
+      for (const [x, z] of [ex, ez]) assert.ok(Math.hypot(x - t.x, z - t.z) >= S.tree.radius + S.log.trunkGap - 1e-9, `a ${l.wall} log end touches a trunk`);
+    }
+  }
+  assert.ok(D.logLength > 50 && D.logLength < 200, `wall logs ${D.logLength.toFixed(0)} m in all`);
+});
+
+test('nothing inside the shelter runs into a trunk', () => {
+  const rects = [
+    ['counter', D.counter.x0, D.counter.z0, D.counter.x1, D.counter.z1],
+    ['counter front leg', D.counter.x1, D.counter.frontZ0, D.counter.frontX1, D.counter.z1],
+    ['bench', D.core.x1, S.backGap, S.inside.x, S.backGap + S.bench.width],
+    ['seat', D.legX0, S.backGap + S.bench.width, S.inside.x, S.inside.z - 0.1],
+  ];
+  for (const [name, x0, z0, x1, z1] of rects) for (const t of D.trees) {
+    const dx = Math.max(x0 - t.x, 0, t.x - x1), dz = Math.max(z0 - t.z, 0, t.z - z1);
+    assert.ok(Math.hypot(dx, dz) >= S.tree.radius - 1e-9, `${name} runs into a trunk`);
+  }
+});
+
 test('the step stays clear of the cleanout, the feed tube, the bench and the counter', () => {
   const s = S.step, dome = D.cleanouts.find((c) => c.id === 'dome');
   assert.ok(s.x0 >= dome.x1 + 0.05, 'step covers the dome cleanout');

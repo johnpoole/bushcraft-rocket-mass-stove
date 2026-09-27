@@ -51,7 +51,7 @@ a{color:var(--ember)}
 <body>
 <div class="wrap">
 <h1>One-person shelter between three trees</h1>
-<p class="sub">A lean-to of poles, wattle and daub and a turf roof, framed on three living trees and one post, with the rocket mass stove inside. The stove's bench is the bed.</p>
+<p class="sub">A lean-to with log walls and a tarp roof under moss and dirt, framed on three living trees and one post, with the rocket mass stove inside. The stove's bench is the bed. Built with an axe, a saw, a knife and a tarp.</p>
 <div id="err" role="alert"></div>
 
 <div class="layout">
@@ -106,12 +106,12 @@ a{color:var(--ember)}
     <ol>
       <li>Clear to mineral soil. Cut a shallow ditch along the uphill side, behind the back wall, to turn rainwater around the shelter.</li>
       <li>Set the post at the fourth corner, one more halfway along the back, and one each side of the door. Lash a beam from the corner post to the north-west tree at 2.0 m, and a plate between the two south trees at 1.2 m. Pad the bark under each lashing with moss or bark and wrap it loosely, so the tree can sway and grow. Loosen the lashings every year.</li>
-      <li>Lay rafters every 40 cm from beam to plate. Cover them with bark sheets lapped like shingles, then 10–15 cm of turf, grass side up. Where the roof passes a trunk, leave a hand's width and close it with a loose bark collar.</li>
+      <li>Lay rafters every 40 cm from beam to plate. Stretch the tarp over them and tie it down at the edges. Cover it with 10 cm of moss and dirt to hold it in the wind and shield it from sparks and sun. Stop the tarp 30 cm short of the west edge, by the chimney, and cover that strip with bark and dirt. Where the roof passes a trunk, cut the tarp around it with a hand's width to spare and lay bark over the gap.</li>
       <li>Under the roof, in the post corner, dig out 20 cm for the stove base. Lay 10 cm of dry stone, then 10 cm of light clay, so the top is level with the floor. Run a gravel drain 30 cm deep from the stone layer out under the east wall and downhill. Build the stove on the base, then the bench, as in the <a href="../build-guide.html">build guide</a>, to the sizes in the table above. Build the chimney in stone and cob to 1 m, then stand a hollow log lined thick with clay on top, up to 2.35 m, and lash it to a post driven in beside it. The channel climbs 10 cm from the stove into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
       <li>Leave the cleanouts as you build: a flat stone plug at floor level in the face of the dome beside the feed tube, a removable stone in the bench top over each bend in the channel, and a plug at the foot of the chimney outside.</li>
-      <li>Lay a dry stone plinth 30 cm high under the walls. Drive stakes into the ground and weave hazel or willow rods between them. Stop the weave 5 cm short of each trunk.</li>
-      <li>Daub both sides of the wattle with cob. Daub it thick where it faces the stove. Fill the gap at each trunk with clay mixed with moss, which gives as the tree moves.</li>
-      <li>Leave an air inlet low in the front wall and a vent high in the back wall. Hang a hide or blanket in the door.</li>
+      <li>Lay one course of flat stones, 15 cm high, under each wall to keep the bottom log off the wet ground. At each end of each wall and each side of the door, drive a pair of stakes, one inside the wall line and one outside. Stack logs 15 cm thick between the stakes, hewing the top and bottom of each log flat with the axe so they sit tight. Stop the logs 5 cm short of each trunk. Lash each pair of stakes together at the top. You need about 85 m of log in all.</li>
+      <li>Stuff every gap between the logs with moss, and the gap at each trunk too, so the tree can sway. Smear clay over the moss only on the logs within 50 cm of the stove, and set the flue in stone and clay where it passes under the west wall, with a flat stone over it to carry the logs.</li>
+      <li>Leave a gap in the second log of the front wall as an air inlet, and a gap in the top log of the back wall as a vent. Hang a hide or blanket in the door.</li>
       <li>Drive four stakes for the counter and lay split log halves across them. Burn and scrape a log for the basin. Set a log round beside the stove as a step up to the cooktop.</li>
       <li>Dry everything, then fire the stove small at first as the guide says.</li>
     </ol>
@@ -124,7 +124,8 @@ a{color:var(--ember)}
       <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube. </li>
       <li>Lay a flat hearth stone in front of the feed tube to catch sparks and ash, and keep the floor around it clear.</li>
       <li>Look up before you build and after every storm. Pull down any dead branch over the shelter.</li>
-      <li>Trees sway in the wind. After a storm, check the lashings and the clay seals where the walls meet the trunks.</li>
+      <li>Trees sway in the wind. After a storm, check the lashings and repack the moss where the logs meet the trunks.</li>
+      <li>Keep the tarp away from the chimney. A spark melts a hole straight through it.</li>
       <li>Keep branches cut back at least 2 m above the chimney top. Sparks land in them otherwise.</li>
       <li>Check the clay lining inside the chimney log each season. If it has cracked or the wood has charred, reline it.</li>
     </ul>
@@ -174,6 +175,7 @@ try {
     ['Feed tube opening above floor', `${Math.round(D.feedTop * 100)} cm`],
     ['Prep counter', `${S.counter.depth.toFixed(2)} × ${(D.counter.z1 - D.counter.z0).toFixed(2)} m, ${Math.round(S.counter.height * 100)} cm high`],
     ['Water basin', `${Math.round(S.basin.length * 100)} × ${Math.round(S.basin.width * 100)} cm, ${Math.round(S.basin.height * 100)} cm deep`],
+    ['Wall logs', `${D.logs.length} lengths, ${Math.round(S.log.diameter * 100)} cm thick, about ${Math.round(D.logLength / 5) * 5} m in all`],
     ['Roof pitch', `${Math.round(Math.atan2(S.backHeight - S.frontHeight, S.inside.z + S.wall) * 180 / Math.PI)}°`],
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   document.getElementById('stove').innerHTML = [
@@ -228,7 +230,7 @@ try {
   const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.95, metalness: 0, ...extra });
   const MAT = {
     trunk: mat(0x5b4a3a), leaves: mat(0x4f6b3a), ditch: mat(0x4c4436), ground: mat(0x6f7d52), floor: mat(0x8a7d66), plinth: mat(0x8d918b),
-    daub: mat(0xb89a72), timber: mat(0x6b4a2b), bark: mat(0x5a4632), turf: mat(0x5d7a3a),
+    log: mat(0x7a5c3e), tarp: mat(0x3f5f4c), moss: mat(0x5f6e38), timber: mat(0x6b4a2b), bark: mat(0x5a4632),
     cob: mat(0xb98a5e), plaster: mat(0xcfb58c), refr: mat(0x8e4a32), slab: mat(0x6f7671),
     gravel: mat(0x9a948a), bedroll: mat(0x3f5a6e), pillow: mat(0xa9a18f), wood: mat(0x7a5a3a),
     hole: mat(0x1d1a17), water: new THREE.MeshStandardMaterial({ color: 0x3f7fa6, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
@@ -369,49 +371,63 @@ try {
     const run = zEave - zBackEave;
     const len = Math.hypot(run, roofY(zEave) - roofY(zBackEave));
     const ang = Math.atan2(roofY(zEave) - roofY(zBackEave), run);
-    const mk = (m, t, lift) => {
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(xR - xL, t, len), m);
+    const mkPart = (m, t, lift, x0, x1) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, t, len), m);
       mesh.rotation.x = -ang;
       const zc = (zBackEave + zEave) / 2;
-      mesh.position.set((xL + xR) / 2, roofY(zc) + 0.12 + lift, zc);
+      mesh.position.set((x0 + x1) / 2, roofY(zc) + 0.12 + lift, zc);
       mesh.castShadow = true; mesh.receiveShadow = true;
       groups.roof.add(mesh);
     };
-    mk(MAT.bark, 0.03, 0);
-    mk(MAT.turf, 0.12, 0.075);
-    groups.roof.add(label('turf roof on bark', 1.5, D.roofTop + 0.3, 1.4));
+    // Tarp stops short of the chimney side; bark covers that strip. Moss and dirt go over both.
+    const tarpEnd = xR - 0.3;
+    mkPart(MAT.tarp, 0.02, 0, xL, tarpEnd);
+    mkPart(MAT.bark, 0.03, 0, tarpEnd, xR);
+    mkPart(MAT.moss, 0.1, 0.06, xL, xR);
+    groups.roof.add(label('tarp under moss and dirt', 1.3, D.roofTop + 0.3, 1.4));
   }
 
   // ---------- walls ----------
-  const endWall = (x0) => {
-    const sh = new THREE.Shape();
-    sh.moveTo(0, S.plinth); sh.lineTo(frontZ + S.wall / 2, S.plinth);
-    sh.lineTo(frontZ + S.wall / 2, roofY(frontZ + S.wall / 2)); sh.lineTo(0, roofY(0));
-    sh.closePath();
-    const g = new THREE.ExtrudeGeometry(sh, { depth: S.wall, bevelEnabled: false });
-    g.rotateY(-Math.PI / 2);
-    const mesh = new THREE.Mesh(g, MAT.daub);
-    mesh.position.x = x0 + S.wall;
-    mesh.castShadow = true; mesh.receiveShadow = true;
-    groups.ends.add(mesh);
-    box(groups.ends, MAT.plinth, x0, 0, 0, x0 + S.wall, S.plinth, frontZ + S.wall / 2);
-  };
-  endWall(-S.wall);
-  endWall(S.inside.x);
-  box(groups.ends, MAT.plinth, -S.wall, 0, -S.wall, S.inside.x + S.wall, S.plinth, 0);
-  box(groups.ends, MAT.daub, -S.wall, S.plinth, -S.wall, S.inside.x + S.wall, S.backHeight, 0);
-  box(groups.ends, MAT.hole, 2.0, S.backHeight - 0.25, -S.wall - 0.005, 2.4, S.backHeight - 0.1, 0.005, false);
-  const fz0 = S.inside.z, fz1 = S.inside.z + S.wall;
+  {
+    const d = S.log.diameter, r = d / 2;
+    for (const l of D.logs) {
+      const g = { back: groups.ends, east: groups.ends, west: groups.ends, front: groups.front }[l.wall];
+      const a = l.axis === 'x' ? [l.a, l.y, l.fixed] : [l.fixed, l.y, l.a];
+      const b = l.axis === 'x' ? [l.b, l.y, l.fixed] : [l.fixed, l.y, l.b];
+      pole(g, MAT.log, a, b, r);
+    }
+    // Flat stones under each wall.
+    const w = S.wall, xi = S.inside.x, zi = S.inside.z;
+    box(groups.ends, MAT.plinth, -w, 0, -w, xi + w, S.plinth, 0);
+    box(groups.ends, MAT.plinth, -w, 0, 0, 0, S.plinth, zi);
+    box(groups.ends, MAT.plinth, xi, 0, 0, xi + w, S.plinth, zi);
+    box(groups.front, MAT.plinth, -w, 0, zi, S.door.x0, S.plinth, zi + w);
+    box(groups.front, MAT.plinth, S.door.x0 + S.door.width, 0, zi, xi + w, S.plinth, zi + w);
+    // Stake pairs at the free ends of each wall, lashed at the top.
+    const stakes = [];
+    const backLogs = D.logs.filter((l) => l.wall === 'back');
+    stakes.push(['x', Math.max(...backLogs.map((l) => l.b)), -w / 2, D.roofLine(-w / 2), groups.ends]);
+    const east = D.logs.filter((l) => l.wall === 'east'), west = D.logs.filter((l) => l.wall === 'west');
+    stakes.push(['z', Math.max(...east.map((l) => l.b)), -w / 2, S.frontHeight, groups.ends]);
+    stakes.push(['z', Math.min(...west.map((l) => l.a)), xi + w / 2, S.backHeight, groups.ends]);
+    stakes.push(['z', Math.max(...west.map((l) => l.b)), xi + w / 2, S.frontHeight, groups.ends]);
+    const front = D.logs.filter((l) => l.wall === 'front');
+    stakes.push(['x', Math.min(...front.map((l) => l.a)), zi + w / 2, S.frontHeight, groups.front]);
+    stakes.push(['x', Math.max(...front.map((l) => l.b)), zi + w / 2, S.frontHeight, groups.front]);
+    for (const [axis, at, fixed, top, g] of stakes) for (const side of [-1, 1]) {
+      const off = side * (r + 0.035);
+      const p = axis === 'x' ? [at, fixed + off] : [fixed + off, at];
+      pole(g, MAT.timber, [p[0], 0, p[1]], [p[0], top + 0.05, p[1]], 0.03);
+    }
+    // Clay over the moss on the logs beside the stove.
+    box(groups.ends, MAT.cob, -0.01, S.plinth, 0, 0.005, D.cooktopTop, D.core.z1 + 0.5, false);
+    box(groups.ends, MAT.cob, 0, S.plinth, -0.01, D.core.x1 + 0.5, D.cooktopTop, 0.005, false);
+  }
+  const fz1 = S.inside.z + S.wall;
   const dx0 = S.door.x0, dx1 = S.door.x0 + S.door.width;
-  box(groups.front, MAT.plinth, -S.wall, 0, fz0, dx0, S.plinth, fz1);
-  box(groups.front, MAT.plinth, dx1, 0, fz0, S.inside.x + S.wall, S.plinth, fz1);
-  box(groups.front, MAT.daub, -S.wall, S.plinth, fz0, dx0, S.frontHeight, fz1);
-  box(groups.front, MAT.daub, dx1, S.plinth, fz0, S.inside.x + S.wall, S.frontHeight, fz1);
-  box(groups.front, MAT.daub, dx0, S.door.height, fz0, dx1, S.frontHeight, fz1);
-  box(groups.front, MAT.hole, 0.15, 0.32, fz1 - 0.005, 0.35, 0.45, fz1 + 0.01, false);
   label('door', (dx0 + dx1) / 2, S.door.height + 0.3, fz1 + 0.1);
-  label('air inlet', 0.25, 0.55, fz1 + 0.1);
-  label('high vent', 2.2, S.backHeight + 0.1, -S.wall - 0.1);
+  label('air inlet', (S.airInlet.x0 + S.airInlet.x1) / 2, S.plinth + 1.5 * S.log.diameter + 0.25, fz1 + 0.1);
+  label('high vent', (S.vent.x0 + S.vent.x1) / 2, S.backHeight + 0.1, -S.wall - 0.1);
 
   // ---------- stove, bench, chimney ----------
   const f = S.foundation;
@@ -546,7 +562,7 @@ try {
   // ---------- views and toggles ----------
   const VIEWS = {
     Outside: [[7.5, 4.2, 9], [1.4, 1.0, 1.0]],
-    Inside: [[3.1, 2.6, 3.3], [0.7, 0.6, 0.9]],
+    Inside: [[2.6, 3.0, 2.9], [0.8, 0.5, 0.7]],
     'From above': [[1.6, 9.5, 3.6], [1.5, 0, 1.1]],
     'To the stream': [[-7, 7, 16], [1.5, -1, 12]],
   };

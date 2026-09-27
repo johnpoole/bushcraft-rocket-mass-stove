@@ -7,8 +7,12 @@
 
   const S = {
     inside: { x: 3.0, z: 2.1 },
-    wall: 0.2,
-    plinth: 0.3,
+    // Walls of 15 cm logs stacked between pairs of stakes on one course of flat stones.
+    wall: 0.15,
+    plinth: 0.15,
+    log: { diameter: 0.15, trunkGap: 0.05 },
+    vent: { x0: 2.0, x1: 2.4 },
+    airInlet: { x0: 0.15, x1: 0.35, course: 1 },
     backHeight: 2.0,
     frontHeight: 1.2,
     roofBuild: 0.2,
@@ -19,7 +23,7 @@
     foundation: 0.1,
     bench: { width: 0.7, height: 0.45, legWidth: 0.6 },
     // Stone and cob to 1 m, then a hollow log lined with clay, lashed to a post beside it.
-    chimney: { outer: 0.4, z: 1.3, roofClearance: 0.1, top: 2.35, masonryHeight: 1.0, logOuter: 0.28, braceGap: 0.3 },
+    chimney: { outer: 0.4, z: 1.25, roofClearance: 0.15, top: 2.35, masonryHeight: 1.0, logOuter: 0.28, braceGap: 0.3 },
     stream: { distance: 25, drop: 2.5 },
     // Chosen by searching the build guide's ranges with simulator/model.js: a tall riser keeps
     // more heat and starts better from cold; a 6 cm cooktop gap leaves room for soot.
@@ -35,7 +39,7 @@
     drainDepth: 0.3,
     // L-shaped counter in the south-east corner: one leg along the east wall for food prep,
     // one along the front wall holding the water basin. Room is left in front of the feed tube.
-    counter: { height: 0.8, depth: 0.45, feedClearance: 0.45, frontEnd: 0.85, top: 0.06 },
+    counter: { height: 0.8, depth: 0.45, feedClearance: 0.45, frontEnd: 0.85, top: 0.06, wallGap: 0.12 },
     basin: { length: 0.36, width: 0.3, height: 0.16 },
     tree: { radius: 0.18, lowestBranch: 5.0 },
     post: { radius: 0.07 },
@@ -90,8 +94,8 @@
     treeSpacing: { x: corners.treeNW.x - corners.treeSE.x, z: corners.treeSW.z - corners.treeNW.z },
     counter: {
       x0: 0, x1: S.counter.depth,
-      z0: feed.z + 0.11 + S.counter.feedClearance, z1: S.inside.z - 0.05,
-      frontX1: S.counter.frontEnd, frontZ0: S.inside.z - 0.05 - S.counter.depth,
+      z0: feed.z + 0.11 + S.counter.feedClearance, z1: S.inside.z - S.counter.wallGap,
+      frontX1: S.counter.frontEnd, frontZ0: S.inside.z - S.counter.wallGap - S.counter.depth,
     },
   };
   derived.base = {
@@ -113,6 +117,34 @@
     x: (S.counter.depth + S.counter.frontEnd) / 2,
     z: derived.counter.frontZ0 + S.counter.depth / 2,
   };
+  // Wall logs, course by course. Each wall runs between its corner supports and stops short of
+  // the trunks; the tops follow the roof line; the door, the vent and the air inlet are gaps.
+  const roofLine = (z) => S.backHeight + (S.frontHeight - S.backHeight) * (z + w2) / (S.inside.z + S.wall);
+  const d = S.log.diameter, trunkEnd = S.tree.radius + S.log.trunkGap;
+  const logs = [];
+  const courses = (top) => { const ys = []; for (let y = S.plinth + d / 2; y + d / 2 <= top + 1e-9; y += d) ys.push(y); return ys; };
+  const addRun = (wall, axis, a, b, fixed, y, gaps = []) => {
+    let pieces = [[a, b]];
+    for (const [g0, g1] of gaps) pieces = pieces.flatMap(([p0, p1]) => (g1 <= p0 || g0 >= p1 ? [[p0, p1]] : [[p0, g0], [g1, p1]]));
+    for (const [p0, p1] of pieces) if (p1 - p0 > 0.3) logs.push({ wall, axis, a: p0, b: p1, fixed, y });
+  };
+  const backTop = courses(roofLine(-w2));
+  backTop.forEach((y, i) => addRun('back', 'x', corners.post.x, corners.treeNW.x - trunkEnd, -w2, y,
+    i === backTop.length - 1 ? [[S.vent.x0, S.vent.x1]] : []));
+  courses(roofLine(S.inside.z + w2)).forEach((y, i) => addRun('front', 'x', corners.treeSE.x + trunkEnd, corners.treeSW.x - trunkEnd, S.inside.z + w2, y,
+    [...(y - d / 2 < S.door.height ? [[S.door.x0, S.door.x0 + S.door.width]] : []),
+     ...(i === S.airInlet.course ? [[S.airInlet.x0, S.airInlet.x1]] : [])]));
+  // End walls slope with the roof: each course stops where the roof line comes down to it.
+  const zUnder = (y) => (S.backHeight - (y + d / 2)) * (S.inside.z + S.wall) / (S.backHeight - S.frontHeight) - w2;
+  for (const y of courses(roofLine(-w2))) {
+    const zCap = zUnder(y);
+    addRun('east', 'z', corners.post.z, Math.min(corners.treeSE.z - trunkEnd, zCap), -w2, y);
+    addRun('west', 'z', corners.treeNW.z + trunkEnd, Math.min(corners.treeSW.z - trunkEnd, zCap), S.inside.x + w2, y);
+  }
+  derived.logs = logs;
+  derived.roofLine = roofLine;
+  derived.logLength = logs.reduce((t, l) => t + (l.b - l.a), 0);
+
   // Step height rounded to 5 cm so the cooktop sits near working height.
   derived.stepHeight = Math.round((derived.cooktopTop - S.step.workingHeight) * 20) / 20;
   derived.prepArea = (derived.counter.x1 - derived.counter.x0) * (derived.counter.z1 - derived.counter.z0);
