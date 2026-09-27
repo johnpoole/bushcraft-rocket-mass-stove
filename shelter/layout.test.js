@@ -111,6 +111,10 @@ test('the camp keeps food and fish waste away from the shelter and the fish work
   assert.ok(C.smokeRackToShore > 0 && C.smokeRackToShore <= 5, `smoke rack ${C.smokeRackToShore.toFixed(1)} m from the water`);
   assert.ok(C.winterCacheToShelter >= 8 && C.winterCacheToShelter <= 20, `winter cache ${C.winterCacheToShelter.toFixed(1)} m from the shelter`);
   assert.ok(C.shelterToShore >= 20, `shelter only ${C.shelterToShore.toFixed(1)} m from the water`);
+  assert.ok(C.weirToShelter <= 35, `weir ${C.weirToShelter.toFixed(1)} m from the shelter`);
+  assert.ok(C.creekToShelter >= 10, `creek only ${C.creekToShelter.toFixed(1)} m from the shelter`);
+  assert.ok(C.weirToCleaning >= 5, `cleaning rock ${C.weirToCleaning.toFixed(1)} m from the weir, guts would foul it`);
+  assert.ok(S.lake.shoreZ - S.camp.weir.z >= 1 && S.lake.shoreZ - S.camp.weir.z <= 5, 'weir should sit just above the creek mouth');
   assert.ok(S.camp.snares >= 15 && C.snareLineLength >= 30, `snare line ${C.snareLineLength.toFixed(0)} m with ${S.camp.snares} snares`);
 });
 

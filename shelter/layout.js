@@ -36,6 +36,11 @@
       skinningStump: { x: -2, z: 4.5 },
       snareLine: [[3.5, 1.5], [9, -2], [15, -5], [21, -3], [24, 3], [20, 8], [13, 7]],
       snares: 15,
+      // A creek runs into the lake east of camp. The weir sits just above its mouth, and the
+      // gill net is set out from the mouth to catch fish moving along the shore toward it.
+      creek: { x: -14, width: 1.4 },
+      weir: { z: 22.5, penRadius: 0.8 },
+      gillNet: { length: 12 },
     },
     // Chosen by searching the build guide's ranges with simulator/model.js: a tall riser keeps
     // more heat and starts better from cold; a 6 cm cooktop gap leaves room for soot.
@@ -144,6 +149,9 @@
     cleaningToShelter: dist(C.cleaningRock),
     cleaningToShore: Math.abs(S.lake.shoreZ - C.cleaningRock.z),
     shelterToShore: S.lake.shoreZ - (S.inside.z + S.wall),
+    weirToShelter: dist({ x: C.creek.x, z: C.weir.z }),
+    weirToCleaning: Math.hypot(C.creek.x - C.cleaningRock.x, C.weir.z - C.cleaningRock.z),
+    creekToShelter: Math.abs(C.creek.x - mid.x),
     snareLineLength: C.snareLine.slice(1).reduce((t, p, i) => t + Math.hypot(p[0] - C.snareLine[i][0], p[1] - C.snareLine[i][1]), 0),
   };
 
