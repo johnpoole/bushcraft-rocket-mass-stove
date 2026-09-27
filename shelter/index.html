@@ -58,6 +58,7 @@ a{color:var(--ember)}
 <div class="panel">
   <div class="viewer" id="viewer"></div>
   <div class="bar">
+    <div class="grp" id="stages-btns"></div>
     <div class="grp" id="views"></div>
     <div class="grp" id="toggles"></div>
   </div>
@@ -84,6 +85,12 @@ a{color:var(--ember)}
     <p style="margin:8px 0 0">The stove stands by the post, in the corner farthest from the trees. The bench runs along the back wall and turns along the west wall. The flue leaves through the west wall to a chimney between the two west trees, clear of the roof. <a href="../simulator/">Open the stove simulator</a></p>
   </section>
   <section>
+    <h2>Building it in stages</h2>
+    <p style="margin:0 0 6px"><strong>Stage one, the first week.</strong> Build the base, the core with its cooktop, and the chimney. Lay the channel along the bench route as a trench lined with stones, covered with flat stones and sealed with clay. The stove cooks and warms the shelter while it burns, but stores little heat, so sleep on a bed of boughs.</p>
+    <p style="margin:0 0 6px"><strong>Stage two, weeks two to four.</strong> Go on only if the clay is good and the weather is dry. Pack cob and dense stone over the duct one section at a time, until there is 20 cm over the channel. Leave the lift-out stones over the two bends. The bench then holds the heat through the night.</p>
+    <table id="stages"></table>
+  </section>
+  <section>
     <h2>Cooking and water</h2>
     <ul>
       <li>The cooktop is the flat stone on top of the dome. Flame from the riser strikes its underside, so it is hottest over the riser and cooler toward the edges. Boil or fry in the middle and slide a pot to the edge to simmer.</li>
@@ -107,7 +114,7 @@ a{color:var(--ember)}
       <li>Clear to mineral soil. Cut a shallow ditch along the uphill side, behind the back wall, to turn rainwater around the shelter.</li>
       <li>Set the post at the fourth corner, one more halfway along the back, and one each side of the door. Lash a beam from the corner post to the north-west tree at 2.0 m, and a plate between the two south trees at 1.2 m. Pad the bark under each lashing with moss or bark and wrap it loosely, so the tree can sway and grow. Loosen the lashings every year.</li>
       <li>Lay rafters every 40 cm from beam to plate. Stretch the tarp over them and tie it down at the edges. Cover it with 10 cm of moss and dirt to hold it in the wind and shield it from sparks and sun. Stop the tarp 30 cm short of the west edge, by the chimney, and cover that strip with bark and dirt. Where the roof passes a trunk, cut the tarp around it with a hand's width to spare and lay bark over the gap.</li>
-      <li>Under the roof, in the post corner, dig out 20 cm for the stove base. Lay 10 cm of dry stone, then 10 cm of light clay, so the top is level with the floor. Run a gravel drain 30 cm deep from the stone layer out under the east wall and downhill. Build the stove on the base, then the bench, as in the <a href="../build-guide.html">build guide</a>, to the sizes in the table above. Build the chimney in stone and cob to 1 m, then stand a hollow log lined thick with clay on top, up to 2.35 m, and lash it to a post driven in beside it. The channel climbs 10 cm from the stove into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
+      <li>Under the roof, in the post corner, dig out 20 cm for the stove base. Lay 10 cm of dry stone, then 10 cm of light clay, so the top is level with the floor. Run a gravel drain 30 cm deep from the stone layer out under the east wall and downhill. Build the stove on the base as in the <a href="../build-guide.html">build guide</a>, to the sizes in the table above. Lay the channel as a stone-lined duct under flat stones, and pack the bench over it later, as the stages above set out. Build the chimney in stone and cob to 1 m, then stand a hollow log lined thick with clay on top, up to 2.35 m, and lash it to a post driven in beside it. The channel climbs 10 cm from the stove into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
       <li>Leave the cleanouts as you build: a flat stone plug at floor level in the face of the dome beside the feed tube, a removable stone in the bench top over each bend in the channel, and a plug at the foot of the chimney outside.</li>
       <li>Lay one course of flat stones, 15 cm high, under each wall to keep the bottom log off the wet ground. At each end of each wall and each side of the door, drive a pair of stakes, one inside the wall line and one outside. Stack logs 15 cm thick between the stakes, hewing the top and bottom of each log flat with the axe so they sit tight. Stop the logs 5 cm short of each trunk. Lash each pair of stakes together at the top. You need about 85 m of log in all.</li>
       <li>Stuff every gap between the logs with moss, and the gap at each trunk too, so the tree can sway. Smear clay over the moss only on the logs within 50 cm of the stove, and set the flue in stone and clay where it passes under the west wall, with a flat stone over it to carry the logs.</li>
@@ -198,6 +205,18 @@ try {
     ['Problems found', probs.length ? probs.map((d) => d.title).join(', ') : 'none'],
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
 
+  const res1 = M.simulate({ ...M.DEFAULTS, ...Lay.stage1Changes });
+  const probs1 = M.diagnose(res1).filter((d) => d.id !== 'thinMass');
+  const V = D.volumes, t = (v) => `about ${v.toFixed(1)} m³, near ${(v * S.massDensity / 1000).toFixed(1)} t`;
+  document.getElementById('stages').innerHTML = [
+    ['Clay, sand and stone, stage one', t(V.stage1)],
+    ['Clay, sand and stone, stage two', t(V.stage2)],
+    ['Stage one fire', `${(res1.firePower / 1000).toFixed(1)} kW, exhaust ${Math.round(res1.temps.exhaust)}°C`],
+    ['Stage one heat stored', 'little, warm only while it burns'],
+    ['Stage two bench stays warm', `about ${Math.round(res.bench.warmHours)} h after ${M.DEFAULTS.burnHours} h of firing`],
+    ['Stage one problems found', probs1.length ? probs1.map((d) => d.title).join(', ') : 'none'],
+  ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
   // ---------- scene ----------
   const host = document.getElementById('viewer');
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -239,7 +258,10 @@ try {
   };
 
   const groups = {};
-  for (const k of ['site', 'trees', 'crowns', 'frame', 'roof', 'front', 'ends', 'stove', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
+  for (const k of ['site', 'trees', 'crowns', 'frame', 'roof', 'front', 'ends', 'stove', 'bench', 'duct', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
+  // Labels that belong to one stage only; they also hide with the other inside labels.
+  const benchLabels = new THREE.Group(), ductLabels = new THREE.Group();
+  groups.innerLabels.add(benchLabels, ductLabels);
 
   // Axis-aligned box from min and max corners in shelter coordinates.
   function box(g, material, x0, y0, z0, x1, y1, z1, shadow = true) {
@@ -445,10 +467,10 @@ try {
   box(groups.stove, MAT.hole, D.feed.x - 0.05, D.feedTop, D.feed.z - 0.05, D.feed.x + 0.05, D.feedTop + 0.005, D.feed.z + 0.05, false);
   for (const dx of [-0.025, 0.015]) pole(groups.stove, MAT.wood, [D.feed.x + dx, D.feedTop - 0.2, D.feed.z], [D.feed.x + dx * 1.6, D.feedTop + 0.35, D.feed.z + 0.03], 0.013);
   box(groups.stove, MAT.slab, D.feed.x - 0.22, 0, D.feed.z + 0.11, D.feed.x + 0.22, 0.03, D.feed.z + 0.5);
-  const benchA = box(groups.stove, benchMat, D.core.x1, f, S.backGap, S.inside.x, S.bench.height, S.backGap + S.bench.width);
-  const benchB = box(groups.stove, benchMat, D.legX0, f, S.backGap + S.bench.width, S.inside.x, S.bench.height, S.inside.z - 0.1);
-  box(groups.stove, MAT.bedroll, D.core.x1 + 0.12, S.bench.height, S.backGap + 0.08, S.inside.x - 0.1, S.bench.height + 0.08, S.backGap + S.bench.width - 0.08);
-  box(groups.stove, MAT.pillow, S.inside.x - 0.45, S.bench.height + 0.08, S.backGap + 0.14, S.inside.x - 0.14, S.bench.height + 0.16, S.backGap + S.bench.width - 0.14);
+  box(groups.bench, benchMat, D.core.x1, f, S.backGap, S.inside.x, S.bench.height, S.backGap + S.bench.width);
+  box(groups.bench, benchMat, D.legX0, f, S.backGap + S.bench.width, S.inside.x, S.bench.height, S.inside.z - 0.1);
+  box(groups.bench, MAT.bedroll, D.core.x1 + 0.12, S.bench.height, S.backGap + 0.08, S.inside.x - 0.1, S.bench.height + 0.08, S.backGap + S.bench.width - 0.08);
+  box(groups.bench, MAT.pillow, S.inside.x - 0.45, S.bench.height + 0.08, S.backGap + 0.14, S.inside.x - 0.14, S.bench.height + 0.16, S.backGap + S.bench.width - 0.14);
   const cx = D.chimneyX, cz = S.chimney.z, co = S.chimney.outer / 2;
   const mh = S.chimney.masonryHeight, lr = S.chimney.logOuter / 2;
   box(groups.stove, MAT.cob, cx - co, 0, cz - co, cx + co, mh, cz + co);
@@ -482,8 +504,8 @@ try {
       box(groups.stove, MAT.slab, c.x - 0.01, c.y0, c.z - 0.07, c.x + 0.03, c.y1, c.z + 0.07);
       label('cleanout', c.x + 0.25, c.y1 + 0.1, c.z);
     } else {
-      box(groups.stove, MAT.slab, c.x - 0.1, c.y, c.z - 0.1, c.x + 0.1, c.y + 0.025, c.z + 0.1);
-      label('cleanout under the stone', c.x, c.y + 0.3, c.z, true);
+      box(groups.bench, MAT.slab, c.x - 0.1, c.y, c.z - 0.1, c.x + 0.1, c.y + 0.025, c.z + 0.1);
+      benchLabels.add(label('cleanout under the stone', c.x, c.y + 0.3, c.z, true));
     }
   }
 
@@ -498,8 +520,28 @@ try {
   }
   label('feed tube', D.feed.x, D.feedTop + 0.45, D.feed.z + 0.1, true);
   label('hearth stone', D.feed.x + 0.1, 0.2, D.feed.z + 0.4, true);
-  label('sleeping bench', 1.8, S.bench.height + 0.35, S.backGap + S.bench.width / 2, true);
-  label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true);
+  benchLabels.add(label('sleeping bench', 1.8, S.bench.height + 0.35, S.backGap + S.bench.width / 2, true));
+  benchLabels.add(label('seat', D.legX0 + S.bench.legWidth / 2, S.bench.height + 0.3, 1.6, true));
+
+  // Stage one: the channel as a trench lined with stones and covered with flat stones.
+  {
+    const hw = S.stage1.ductWidth / 2, top = f + 0.1, cz0 = D.channelZ, cz1 = S.chimney.z, bx = D.bendX;
+    const runs = [
+      ['x', D.core.x1, bx + hw, cz0],
+      ['z', cz0 - hw, cz1 + hw, bx],
+      ['x', bx - hw, S.inside.x, cz1],
+    ];
+    for (const [axis, a, b, at] of runs) {
+      if (axis === 'x') {
+        box(groups.duct, MAT.slab, a, top, at - hw, b, top + 0.04, at + hw);
+        for (const side of [-1, 1]) box(groups.duct, MAT.plinth, a, f, at + side * (0.05 + 0.04) - 0.04, b, top, at + side * (0.05 + 0.04) + 0.04);
+      } else {
+        box(groups.duct, MAT.slab, at - hw, top, a, at + hw, top + 0.04, b);
+        for (const side of [-1, 1]) box(groups.duct, MAT.plinth, at + side * (0.05 + 0.04) - 0.04, f, a, at + side * (0.05 + 0.04) + 0.04, top, b);
+      }
+    }
+    ductLabels.add(label('duct under flat stones', 1.8, top + 0.35, cz0, true));
+  }
   label('chimney', cx, D.chimneyTop + 0.25, cz);
   label('clay-lined log', cx + 0.2, (mh + D.chimneyTop) / 2 + 0.2, cz + 0.2);
   label('stone and cob', cx + 0.2, mh * 0.5, cz + 0.25);
@@ -588,6 +630,21 @@ try {
     b.addEventListener('click', () => go(name));
     vbox.appendChild(b);
   }
+  const sbox = document.getElementById('stages-btns');
+  const stageButtons = [];
+  function setStage(n) {
+    groups.bench.visible = benchLabels.visible = n === 2;
+    groups.duct.visible = ductLabels.visible = n === 1;
+    stageButtons.forEach((b, i) => b.setAttribute('aria-pressed', String(i + 1 === n)));
+  }
+  for (const [n, name] of [[1, 'Stage one'], [2, 'Stage two']]) {
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = name;
+    b.addEventListener('click', () => setStage(n));
+    sbox.appendChild(b);
+    stageButtons.push(b);
+  }
+  setStage(2);
   const tbox = document.getElementById('toggles');
   const toggleButtons = {};
   function setToggle(name, on) {

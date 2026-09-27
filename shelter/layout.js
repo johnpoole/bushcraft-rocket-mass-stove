@@ -33,6 +33,10 @@
       riserInsulation: 8, topGap: 6, sideGap: 5, benchCover: 20,
     },
     domeWall: 0.08,
+    // Stage one lays the channel as a stone-lined duct under flat stones; stage two packs the
+    // bench mass over it.
+    stage1: { ductCover: 5, ductWidth: 0.3 },
+    massDensity: 1800,
     step: { x0: 0.72, x1: 1.12, z0: 0.82, z1: 1.22, workingHeight: 0.95 },
     // Buried base under the core: dry stone to drain, light clay on top to keep heat out of the ground.
     coreBase: { stone: 0.1, lightClay: 0.1 },
@@ -142,6 +146,19 @@
     addRun('west', 'z', corners.treeNW.z + trunkEnd, Math.min(corners.treeSW.z - trunkEnd, zCap), S.inside.x + w2, y);
   }
   derived.logs = logs;
+
+  // Clay, sand and stone for each stage, in cubic metres.
+  const domeH = derived.cooktopTop - 0.06 - coreBase;
+  const riserOuter = (st.riserSize + 2 * (3 + st.riserInsulation)) / 100;
+  const inner = dome - 2 * S.domeWall;
+  const flue = (st.riserSize / 100) ** 2;
+  const core = dome * dome * domeH - inner * inner * (domeH - S.domeWall)
+    + (riserOuter * riserOuter - flue) * st.riserHeight / 100 + 0.03;
+  const chimneyBase = (S.chimney.outer ** 2 - flue) * S.chimney.masonryHeight;
+  const benchVol = (S.inside.x - coreX1) * S.bench.width * (S.bench.height - S.foundation)
+    + S.bench.legWidth * (S.inside.z - 0.1 - S.backGap - S.bench.width) * (S.bench.height - S.foundation)
+    - flue * channelLength;
+  derived.volumes = { core, chimneyBase, bench: benchVol, stage1: core + chimneyBase, stage2: benchVol };
   derived.roofLine = roofLine;
   derived.logLength = logs.reduce((t, l) => t + (l.b - l.a), 0);
 
@@ -158,7 +175,9 @@
     chimneyAboveRiser: Math.round((chimneyTop - riserTop) * 100),
   };
 
-  const api = { S, derived, stoveChanges };
+  const stage1Changes = { ...stoveChanges, benchCover: S.stage1.ductCover };
+
+  const api = { S, derived, stoveChanges, stage1Changes };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ShelterLayout = api;
 })(this);

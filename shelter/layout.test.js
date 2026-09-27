@@ -1,13 +1,31 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const M = require('../simulator/model.js');
-const { S, derived: D, stoveChanges } = require('./layout.js');
+const { S, derived: D, stoveChanges, stage1Changes } = require('./layout.js');
 
 test('the stove in this layout draws well with no problems', () => {
   const res = M.simulate({ ...M.DEFAULTS, ...stoveChanges });
   assert.deepEqual(M.diagnose(res).map((d) => `${d.id}: ${d.text}`), []);
   assert.ok(res.airRatio >= 1.5, `air ratio ${res.airRatio}`);
   assert.ok(res.bench.warmHours >= 8, `bench warm ${res.bench.warmHours} h`);
+});
+
+test('stage one, with only a covered duct, already draws well and keeps the log chimney cool', () => {
+  const p = { ...M.DEFAULTS, ...stage1Changes };
+  const res = M.simulate(p);
+  const ids = M.diagnose(res).map((d) => d.id);
+  assert.deepEqual(ids.filter((id) => id !== 'thinMass'), [], `stage one problems: ${ids.join(', ')}`);
+  assert.ok(res.airRatio >= 1.5, `air ratio ${res.airRatio}`);
+  assert.ok(res.temps.exhaust <= 150, `exhaust ${res.temps.exhaust}°C too hot for the log chimney`);
+  const cold = M.simulate({ ...p, coldStart: true });
+  assert.ok(!cold.stalled && cold.airRatio >= 1.2, `cold start air ratio ${cold.airRatio}`);
+});
+
+test('stage one needs well under half the clay and stone of the finished stove', () => {
+  const V = D.volumes;
+  assert.ok(V.stage1 > 0 && V.stage2 > 0);
+  assert.ok(V.stage1 < 0.5 * (V.stage1 + V.stage2), `stage one ${V.stage1.toFixed(2)} m³ of ${(V.stage1 + V.stage2).toFixed(2)} m³`);
+  assert.ok(V.stage1 + V.stage2 > 0.8 && V.stage1 + V.stage2 < 2, `total ${(V.stage1 + V.stage2).toFixed(2)} m³`);
 });
 
 test('the chimney clears the riser and the roof beside it', () => {
