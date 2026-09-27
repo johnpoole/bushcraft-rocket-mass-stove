@@ -35,7 +35,8 @@ test('the chimney clears the riser and the roof beside it', () => {
 
 test('the chimney is stone and cob all the way up, with no wood in the flue', () => {
   assert.deepEqual(Object.keys(S.chimney).filter((k) => /log|brace|masonry/i.test(k)), [], 'chimney layout still has a log part');
-  assert.ok(D.volumes.chimneyBase >= (S.chimney.outer ** 2 - 0.01) * S.chimney.top - 1e-9, 'chimney volume does not reach the top');
+  const flue = (S.stove.riserSize / 100) ** 2;
+  assert.ok(D.volumes.chimneyBase >= (S.chimney.outer ** 2 - flue) * S.chimney.top - 1e-9, 'chimney volume does not reach the top');
 });
 
 test('the channel run is within the guide limit of 3–4 m plus the duct to the chimney and the climb out of the pit', () => {

@@ -48,7 +48,7 @@
     // more heat and starts better from cold; a 6 cm cooktop gap leaves room for soot.
     // The burn tunnel floor is level with the shelter floor, and a step brings the cooktop to working height.
     stove: {
-      riserHeight: 110, tunnelLength: 40, riserSize: 10, feedSize: 10, feedHeight: 30,
+      riserHeight: 110, tunnelLength: 40, riserSize: 11, feedSize: 11, feedHeight: 30,
       riserInsulation: 8, topGap: 6, sideGap: 5, benchCover: 20,
     },
     domeWall: 0.08,

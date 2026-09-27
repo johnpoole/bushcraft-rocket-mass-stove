@@ -16,7 +16,7 @@
   const MASS_DENSITY = 1800, MASS_C = 900;
 
   const DEFAULTS = Object.freeze({
-    feedSize: 10, tunnelSize: 10, riserSize: 10, channelSize: 10, chimneySize: 10,
+    feedSize: 11, tunnelSize: 11, riserSize: 11, channelSize: 11, chimneySize: 11,
     feedHeight: 30, tunnelLength: 40, riserHeight: 110,
     riserInsulation: 8, topGap: 6, sideGap: 5,
     channelLength: 390, bends: 2, benchCover: 20,

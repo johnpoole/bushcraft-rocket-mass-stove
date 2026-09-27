@@ -133,12 +133,12 @@ if (!M) throw new Error('model.js did not load: StoveModel is missing. Keep mode
 const PASSAGES = ['feedSize', 'tunnelSize', 'riserSize', 'channelSize', 'chimneySize'];
 const GROUPS = [
   { title: 'Passage sizes', open: true, items: [
-    { key: 'allSizes', label: 'Every passage', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: 10, the same all the way through', linkedOnly: true },
-    { key: 'feedSize', label: 'Feed tube', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: 10', unlinkedOnly: true },
-    { key: 'tunnelSize', label: 'Burn tunnel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
-    { key: 'riserSize', label: 'Heat riser', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
-    { key: 'channelSize', label: 'Bench channel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
-    { key: 'chimneySize', label: 'Chimney', min: 5, max: 20, step: 1, unit: 'cm square', guide: [10, 10], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'allSizes', label: 'Every passage', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: 11, the same all the way through', linkedOnly: true },
+    { key: 'feedSize', label: 'Feed tube', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: 11', unlinkedOnly: true },
+    { key: 'tunnelSize', label: 'Burn tunnel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'riserSize', label: 'Heat riser', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'channelSize', label: 'Bench channel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'chimneySize', label: 'Chimney', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
   ] },
   { title: 'Core', open: true, items: [
     { key: 'feedHeight', label: 'Feed tube height', min: 15, max: 80, step: 1, unit: 'cm', guide: [25, 35], hint: 'Guide: about 30' },
