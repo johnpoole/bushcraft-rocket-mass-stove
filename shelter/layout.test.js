@@ -27,11 +27,48 @@ test('the channel run is within the guide limit of 3–4 m plus the duct to the 
   assert.ok(flat >= 3 && flat <= 4.5, `level channel ${flat} m`);
 });
 
-test('the sunken core puts the cooktop at cooking height and keeps the pit dry', () => {
-  assert.ok(D.cooktopTop >= 0.85 && D.cooktopTop <= 1.0, `cooktop ${D.cooktopTop} m`);
-  assert.ok(D.feedTop >= 0.05, `feed tube opening ${D.feedTop} m above the floor`);
-  assert.ok(S.drainDepth > S.coreSink + 0.1, `drain ${S.drainDepth} m is not below the pit floor at ${S.coreSink} m`);
+test('the stove sits on an insulated base with no open pit, and the step brings the cooktop to working height', () => {
+  const work = D.cooktopTop - D.stepHeight;
+  assert.ok(work >= 0.9 && work <= 1.0, `cooktop ${work.toFixed(2)} m above the step`);
+  assert.ok(D.stepHeight >= 0 && D.stepHeight <= 0.35, `step ${D.stepHeight} m`);
+  assert.ok(D.feedTop >= 0.25, `feed tube opening only ${D.feedTop} m above the floor`);
+  assert.equal(D.coreBase, 0, 'the burn tunnel floor should be level with the shelter floor');
+  assert.ok(S.stove.riserHeight >= 2 * S.stove.tunnelLength, `riser ${S.stove.riserHeight} cm is under twice the tunnel ${S.stove.tunnelLength} cm`);
+  assert.ok(S.coreBase.lightClay >= 0.1, `light clay under the core ${S.coreBase.lightClay} m`);
+  assert.ok(S.drainDepth > -D.base.y0, `drain ${S.drainDepth} m is not below the base at ${-D.base.y0} m`);
   assert.ok(D.channelRise > 0, 'the channel must rise from the core toward the chimney');
+});
+
+test('every place ash settles has a cleanout you can reach', () => {
+  const byId = Object.fromEntries(D.cleanouts.map((c) => [c.id, c]));
+  assert.equal(D.cleanouts.length, stoveChanges.bends + 2);
+  const dome = byId.dome;
+  assert.ok(dome.y0 >= 0 && dome.y1 <= 0.2, 'dome cleanout must sit at floor level');
+  assert.ok(dome.x0 > D.feed.x + 0.11 && dome.x1 <= D.core.x1, 'dome cleanout blocked by the feed tube');
+  assert.ok(dome.x1 - dome.x0 >= 0.1, `dome cleanout only ${(dome.x1 - dome.x0).toFixed(2)} m wide`);
+  assert.ok(D.counter.z0 - dome.z >= 0.4, 'counter blocks the dome cleanout');
+  assert.deepEqual([byId.bend1.x, byId.bend1.z], [D.bendX, D.channelZ]);
+  assert.deepEqual([byId.bend2.x, byId.bend2.z], [D.bendX, S.chimney.z]);
+  assert.ok(byId.chimney.x > S.inside.x + S.wall, 'chimney cleanout must be outside');
+});
+
+test('the step stays clear of the cleanout, the feed tube, the bench and the counter', () => {
+  const s = S.step, dome = D.cleanouts.find((c) => c.id === 'dome');
+  assert.ok(s.x0 >= dome.x1 + 0.05, 'step covers the dome cleanout');
+  assert.ok(s.x0 >= D.feed.x + 0.22 + 0.05, 'step sits on the hearth stone in front of the feed tube');
+  assert.ok(s.z0 >= S.backGap + S.bench.width, 'step overlaps the bench');
+  assert.ok(s.x0 >= D.counter.x1, 'step overlaps the counter');
+  assert.ok(s.x0 - D.core.x1 <= 0.1, 'step too far from the cooktop to reach it');
+});
+
+test('the stove sizes stay inside the build guide ranges', () => {
+  const st = S.stove;
+  assert.ok(st.riserHeight >= 80 && st.riserHeight <= 120);
+  assert.ok(st.riserHeight >= 2 * st.tunnelLength);
+  assert.ok(st.tunnelLength >= 30 && st.tunnelLength <= 40);
+  assert.ok(st.topGap >= 5 && st.topGap <= 8);
+  assert.ok(st.benchCover >= 15 && st.benchCover <= 25);
+  assert.ok(st.riserInsulation >= 8 && st.riserInsulation <= 10);
 });
 
 test('there is room to sleep and to stand', () => {
@@ -66,7 +103,7 @@ test('the stove, pit and chimney keep clear of the trees', () => {
   const nearest = Math.min(...D.trees.map((t) => Math.hypot(t.x - D.riser.x, t.z - D.riser.z)));
   const toPost = Math.hypot(D.corners.post.x - D.riser.x, D.corners.post.z - D.riser.z);
   assert.ok(toPost < nearest, 'the stove should sit in the post corner, farthest from the trees');
-  assert.ok(D.pitToTree >= 1.0, `stove pit ${D.pitToTree.toFixed(2)} m from a trunk`);
+  assert.ok(D.baseToTree >= 1.0, `stove base ${D.baseToTree.toFixed(2)} m from a trunk`);
   assert.ok(D.chimneyToTree >= 0.6, `chimney ${D.chimneyToTree.toFixed(2)} m from a trunk`);
   assert.ok(S.tree.lowestBranch - D.chimneyTop >= 2, `branches ${S.tree.lowestBranch - D.chimneyTop} m above the chimney top`);
 });

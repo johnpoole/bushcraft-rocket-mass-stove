@@ -93,16 +93,26 @@ a{color:var(--ember)}
     </ul>
   </section>
   <section>
+    <h2>Cleaning out</h2>
+    <ul>
+      <li>Every few days, rake the ash out of the burn tunnel through the feed tube.</li>
+      <li>Every month or two, lift the plug at the bottom of the dome and rake out the fine ash that settles there.</li>
+      <li>Once a year, lift the stones over the two bends in the bench and the plug at the foot of the chimney, and rake out the ash and soot. Check the clay lining in the chimney log at the same time.</li>
+      <li>If the stove starts to smoke back or pull weakly, clean everything before you change anything else.</li>
+    </ul>
+  </section>
+  <section>
     <h2>Build order</h2>
     <ol>
       <li>Clear to mineral soil. Cut a shallow ditch along the uphill side, behind the back wall, to turn rainwater around the shelter.</li>
       <li>Set the post at the fourth corner, one more halfway along the back, and one each side of the door. Lash a beam from the corner post to the north-west tree at 2.0 m, and a plate between the two south trees at 1.2 m. Pad the bark under each lashing with moss or bark and wrap it loosely, so the tree can sway and grow. Loosen the lashings every year.</li>
       <li>Lay rafters every 40 cm from beam to plate. Cover them with bark sheets lapped like shingles, then 10–15 cm of turf, grass side up. Where the roof passes a trunk, leave a hand's width and close it with a loose bark collar.</li>
-      <li>Under the roof, dig a pit 30 cm deep for the stove core in the post corner and line it with stone. Dig a gravel-filled drain 50 cm deep from the bottom of the pit, out under the east wall and downhill. Build the stove in the pit, then the bench, as in the <a href="../build-guide.html">build guide</a>. Build the chimney in stone and cob to 1 m, then stand a hollow log lined thick with clay on top, up to 2.35 m, and lash it to a post driven in beside it. The channel climbs out of the pit into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
+      <li>Under the roof, in the post corner, dig out 20 cm for the stove base. Lay 10 cm of dry stone, then 10 cm of light clay, so the top is level with the floor. Run a gravel drain 30 cm deep from the stone layer out under the east wall and downhill. Build the stove on the base, then the bench, as in the <a href="../build-guide.html">build guide</a>, to the sizes in the table above. Build the chimney in stone and cob to 1 m, then stand a hollow log lined thick with clay on top, up to 2.35 m, and lash it to a post driven in beside it. The channel climbs 10 cm from the stove into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
+      <li>Leave the cleanouts as you build: a flat stone plug at floor level in the face of the dome beside the feed tube, a removable stone in the bench top over each bend in the channel, and a plug at the foot of the chimney outside.</li>
       <li>Lay a dry stone plinth 30 cm high under the walls. Drive stakes into the ground and weave hazel or willow rods between them. Stop the weave 5 cm short of each trunk.</li>
       <li>Daub both sides of the wattle with cob. Daub it thick where it faces the stove. Fill the gap at each trunk with clay mixed with moss, which gives as the tree moves.</li>
       <li>Leave an air inlet low in the front wall and a vent high in the back wall. Hang a hide or blanket in the door.</li>
-      <li>Drive four stakes for the counter and lay split log halves across them. Burn and scrape a log for the basin.</li>
+      <li>Drive four stakes for the counter and lay split log halves across them. Burn and scrape a log for the basin. Set a log round beside the stove as a step up to the cooktop.</li>
       <li>Dry everything, then fire the stove small at first as the guide says.</li>
     </ol>
   </section>
@@ -112,7 +122,7 @@ a{color:var(--ember)}
       <li>Keep the low air inlet and the high vent open whenever the stove burns. If you get a headache, dizziness or nausea, get outside.</li>
       <li>Let the fire burn out before you sleep. The bench holds the heat through the night.</li>
       <li>Keep bedding, clothes and the woodpile off the cooktop and away from the feed tube. </li>
-      <li>The feed tube opens just above the floor. Lay a flat hearth stone in front of it to catch sparks and ash, and keep the floor around it clear.</li>
+      <li>Lay a flat hearth stone in front of the feed tube to catch sparks and ash, and keep the floor around it clear.</li>
       <li>Look up before you build and after every storm. Pull down any dead branch over the shelter.</li>
       <li>Trees sway in the wind. After a storm, check the lashings and the clay seals where the walls meet the trunks.</li>
       <li>Keep branches cut back at least 2 m above the chimney top. Sparks land in them otherwise.</li>
@@ -158,14 +168,19 @@ try {
     ['Sleeping bench', `${D.sleepLength.toFixed(1)} × ${S.bench.width.toFixed(1)} m`],
     ['Seat along the west wall', `${(S.inside.z - S.backGap - S.bench.width - 0.1).toFixed(1)} × ${S.bench.legWidth.toFixed(1)} m`],
     ['Bench top above floor', `${Math.round(S.bench.height * 100)} cm`],
-    ['Stove pit', `${Math.round(S.coreSink * 100)} cm deep, ${D.pitToTree.toFixed(1)} m from the nearest trunk`],
+    ['Base under the stove', `${Math.round(S.coreBase.stone * 100)} cm dry stone, ${Math.round(S.coreBase.lightClay * 100)} cm light clay, ${D.baseToTree.toFixed(1)} m from the nearest trunk`],
     ['Cooktop above floor', `${Math.round(D.cooktopTop * 100)} cm`],
+    ['Step', `${Math.round(D.stepHeight * 100)} cm high, cooktop ${Math.round((D.cooktopTop - D.stepHeight) * 100)} cm above it`],
     ['Feed tube opening above floor', `${Math.round(D.feedTop * 100)} cm`],
     ['Prep counter', `${S.counter.depth.toFixed(2)} × ${(D.counter.z1 - D.counter.z0).toFixed(2)} m, ${Math.round(S.counter.height * 100)} cm high`],
     ['Water basin', `${Math.round(S.basin.length * 100)} × ${Math.round(S.basin.width * 100)} cm, ${Math.round(S.basin.height * 100)} cm deep`],
     ['Roof pitch', `${Math.round(Math.atan2(S.backHeight - S.frontHeight, S.inside.z + S.wall) * 180 / Math.PI)}°`],
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   document.getElementById('stove').innerHTML = [
+    ['Riser', `${S.stove.riserHeight} cm high, ${S.stove.riserInsulation} cm insulation`],
+    ['Burn tunnel, feed tube', `${S.stove.tunnelLength} cm long, ${S.stove.feedHeight} cm tall`],
+    ['Gap over the riser, around it', `${S.stove.topGap} cm, ${S.stove.sideGap} cm`],
+    ['Mass over the channel', `${S.stove.benchCover} cm`],
     ['Bench channel', `${m(D.channelLength)}, ${stoveChanges.bends} bends`],
     ['Chimney top above floor', `${D.chimneyTop.toFixed(2)} m`],
     ['Chimney above the riser top', `${stoveChanges.chimneyAboveRiser} cm`],
@@ -174,6 +189,8 @@ try {
     ['Chimney to the nearest trunk', m(D.chimneyToTree)],
     ['Lowest branches above the chimney top', m(S.tree.lowestBranch - D.chimneyTop)],
     ['Fire', `${(res.firePower / 1000).toFixed(1)} kW`],
+    ['Heat kept in the shelter', `${Math.round(res.heat.keptFraction * 100)}%`],
+    ['Cooktop centre', `about ${Math.round(res.temps.cooktop)}°C`],
     ['Exhaust', `${Math.round(res.temps.exhaust)}°C`],
     ['Bench stays warm', `about ${Math.round(res.bench.warmHours)} h after ${M.DEFAULTS.burnHours} h of firing`],
     ['Problems found', probs.length ? probs.map((d) => d.title).join(', ') : 'none'],
@@ -215,7 +232,7 @@ try {
     cob: mat(0xb98a5e), plaster: mat(0xcfb58c), refr: mat(0x8e4a32), slab: mat(0x6f7671),
     gravel: mat(0x9a948a), bedroll: mat(0x3f5a6e), pillow: mat(0xa9a18f), wood: mat(0x7a5a3a),
     hole: mat(0x1d1a17), water: new THREE.MeshStandardMaterial({ color: 0x3f7fa6, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
-    plank: mat(0x9b7b55), pot: mat(0x8a5a3c),
+    plank: mat(0x9b7b55), pot: mat(0x8a5a3c), lightClay: mat(0xe0d3a8),
     ember: new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 1.2 }),
   };
 
@@ -309,11 +326,11 @@ try {
   const floorMat = MAT.floor.clone();
   box(groups.site, floorMat, -S.wall, -0.03, 0, S.inside.x + S.wall, 0.001, S.inside.z + S.wall, false);
   {
-    // Pit drain: out under the east wall, then downhill.
-    const dz = D.pit.z0 + 0.25, dx = -S.wall - 0.75;
+    // Drain from the stove base: out under the east wall, then downhill.
+    const dz = D.base.z0 + 0.25, dx = -S.wall - 0.75;
     box(groups.site, MAT.gravel, dx - 0.15, -0.02, dz - 0.15, -S.wall, 0.02, dz + 0.15, false);
     for (let z = dz + 0.3; z < 7; z += 0.5) box(groups.site, MAT.gravel, dx - 0.15, groundY(dx, z) - 0.02, z - 0.26, dx + 0.15, groundY(dx, z) + 0.025, z + 0.26, false);
-    label('drain from the stove pit', dx - 0.2, 0.35, 3.0);
+    label('drain from the stove base', dx - 0.2, 0.35, 3.0);
     // Ditch on the uphill side, behind the back wall.
     box(groups.site, MAT.ditch, -S.wall - 0.8, -0.02, -S.wall - 0.75, S.inside.x + S.wall + 0.8, 0.012, -S.wall - 0.45, false);
     label('ditch', 1.5, 0.3, -S.wall - 0.6);
@@ -398,9 +415,11 @@ try {
 
   // ---------- stove, bench, chimney ----------
   const f = S.foundation;
-  const pb = D.coreBase - f, { x0: px0, x1: px1, z0: pz0, z1: pz1 } = D.pit;
-  box(groups.stove, MAT.plinth, px0, pb, pz0, px1, D.coreBase, pz1);
-  for (const [a, b, c, d] of [[px0, pz0, px0 + 0.04, pz1], [px1 - 0.04, pz0, px1, pz1], [px0, pz1 - 0.04, px1, pz1], [px0, pz0, px1, pz0 + 0.04]]) box(groups.stove, MAT.plinth, a, pb, b, c, 0, d);
+  {
+    const B = D.base;
+    box(groups.stove, MAT.plinth, B.x0, B.y0, B.z0, B.x1, B.y0 + S.coreBase.stone, B.z1);
+    box(groups.stove, MAT.lightClay, B.x0, B.y0 + S.coreBase.stone, B.z0, B.x1, B.y1, B.z1);
+  }
   box(groups.stove, MAT.plinth, D.core.x1, 0, D.core.z0 - 0.05, S.inside.x, f, D.core.z1 + 0.25);
   box(groups.stove, MAT.plinth, D.legX0, 0, D.core.z1, S.inside.x, f, S.inside.z - 0.05);
   const domeMat = MAT.cob.clone(), benchMat = MAT.plaster.clone();
@@ -436,7 +455,31 @@ try {
     for (const y of [mh + 0.3, D.chimneyTop - 0.3]) pole(groups.stove, MAT.bark, [cx, y, cz], [bx, y, cz], 0.02);
   }
   box(groups.stove, MAT.cob, S.inside.x + S.wall, 0, cz - 0.12, cx - co, 0.25, cz + 0.12);
-  label('stove', D.core.x0 + S.dome / 2, D.cooktopTop + 0.25, D.core.z0 + S.dome / 2, true);
+  label('stove', D.core.x0 + D.dome / 2, D.cooktopTop + 0.25, D.core.z0 + D.dome / 2, true);
+
+  // Cleanouts: stone plugs where ash settles.
+  for (const c of D.cleanouts) {
+    if (c.id === 'dome') {
+      box(groups.stove, MAT.slab, c.x0, c.y0, c.z - 0.01, c.x1, c.y1, c.z + 0.03);
+      label('cleanout', (c.x0 + c.x1) / 2 - 0.1, c.y1 + 0.4, c.z + 0.05, true);
+    } else if (c.id === 'chimney') {
+      box(groups.stove, MAT.slab, c.x - 0.01, c.y0, c.z - 0.07, c.x + 0.03, c.y1, c.z + 0.07);
+      label('cleanout', c.x + 0.25, c.y1 + 0.1, c.z);
+    } else {
+      box(groups.stove, MAT.slab, c.x - 0.1, c.y, c.z - 0.1, c.x + 0.1, c.y + 0.025, c.z + 0.1);
+      label('cleanout under the stone', c.x, c.y + 0.3, c.z, true);
+    }
+  }
+
+  // Step up to the cooktop: a log round.
+  if (D.stepHeight > 0) {
+    const st = S.step, r = Math.min(st.x1 - st.x0, st.z1 - st.z0) / 2;
+    const round = new THREE.Mesh(new THREE.CylinderGeometry(r, r, D.stepHeight, 20), MAT.plank);
+    round.position.set((st.x0 + st.x1) / 2, D.stepHeight / 2, (st.z0 + st.z1) / 2);
+    round.castShadow = true; round.receiveShadow = true;
+    groups.stove.add(round);
+    label('step', (st.x0 + st.x1) / 2, D.stepHeight + 0.2, (st.z0 + st.z1) / 2, true);
+  }
   label('feed tube', D.feed.x, D.feedTop + 0.45, D.feed.z + 0.1, true);
   label('hearth stone', D.feed.x + 0.1, 0.2, D.feed.z + 0.4, true);
   label('sleeping bench', 1.8, S.bench.height + 0.35, S.backGap + S.bench.width / 2, true);

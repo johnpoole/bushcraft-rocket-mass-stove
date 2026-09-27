@@ -17,15 +17,22 @@
     // Light clay between the back wall and the stove and bench.
     backGap: 0.1,
     foundation: 0.1,
-    dome: 0.58,
     bench: { width: 0.7, height: 0.45, legWidth: 0.6 },
     // Stone and cob to 1 m, then a hollow log lined with clay, lashed to a post beside it.
     chimney: { outer: 0.4, z: 1.3, roofClearance: 0.1, top: 2.35, masonryHeight: 1.0, logOuter: 0.28, braceGap: 0.3 },
     stream: { distance: 25, drop: 2.5 },
-    stove: { riserHeight: 100, tunnelLength: 40, riserSize: 10, feedSize: 10, feedHeight: 30 },
-    // The core stands in a stone-lined pit so the cooktop sits at cooking height.
-    coreSink: 0.3,
-    drainDepth: 0.5,
+    // Chosen by searching the build guide's ranges with simulator/model.js: a tall riser keeps
+    // more heat and starts better from cold; a 6 cm cooktop gap leaves room for soot.
+    // The burn tunnel floor is level with the shelter floor, and a step brings the cooktop to working height.
+    stove: {
+      riserHeight: 110, tunnelLength: 40, riserSize: 10, feedSize: 10, feedHeight: 30,
+      riserInsulation: 8, topGap: 6, sideGap: 5, benchCover: 20,
+    },
+    domeWall: 0.08,
+    step: { x0: 0.72, x1: 1.12, z0: 0.82, z1: 1.22, workingHeight: 0.95 },
+    // Buried base under the core: dry stone to drain, light clay on top to keep heat out of the ground.
+    coreBase: { stone: 0.1, lightClay: 0.1 },
+    drainDepth: 0.3,
     // L-shaped counter in the south-east corner: one leg along the east wall for food prep,
     // one along the front wall holding the water basin. Room is left in front of the feed tube.
     counter: { height: 0.8, depth: 0.45, feedClearance: 0.45, frontEnd: 0.85, top: 0.06 },
@@ -43,9 +50,11 @@
   };
   const trees = [corners.treeNW, corners.treeSW, corners.treeSE];
 
+  const st = S.stove;
+  const dome = (st.riserSize + 2 * (3 + st.riserInsulation) + 2 * st.sideGap) / 100 + 2 * S.domeWall;
   const coreX0 = S.backGap, coreZ0 = S.backGap;
-  const coreX1 = coreX0 + S.dome;
-  const riser = { x: coreX0 + S.dome / 2, z: coreZ0 + S.dome / 2 };
+  const coreX1 = coreX0 + dome;
+  const riser = { x: coreX0 + dome / 2, z: coreZ0 + dome / 2 };
   const feed = { x: riser.x, z: riser.z + (S.stove.tunnelLength - S.stove.riserSize / 2 - S.stove.feedSize / 2) / 100 };
   const channelZ = S.backGap + S.bench.width / 2;
   const legX0 = S.inside.x - S.bench.legWidth;
@@ -53,7 +62,7 @@
   const roofWestEdge = S.inside.x + S.wall + S.overhang.west;
   const chimneyX = roofWestEdge + S.chimney.roofClearance + S.chimney.outer / 2;
 
-  const coreBase = S.foundation - S.coreSink;
+  const coreBase = 0;
   const channelRise = S.foundation - coreBase;
   const channelLength = (bendX - coreX1) + (S.chimney.z - channelZ) + (chimneyX - bendX) + channelRise;
   const riserTop = coreBase + S.stove.riserHeight / 100;
@@ -70,13 +79,14 @@
 
   const derived = {
     corners, trees,
-    core: { x0: coreX0, z0: coreZ0, x1: coreX1, z1: coreZ0 + S.dome },
+    dome,
+    core: { x0: coreX0, z0: coreZ0, x1: coreX1, z1: coreZ0 + dome },
     riser, feed, channelZ, legX0, bendX, chimneyX, roofWestEdge, coreBase, channelRise,
     feedTop: coreBase + S.stove.feedHeight / 100,
     channelLength, riserTop, roofTop, chimneyTop,
     roofBesideChimney: roofAt(S.chimney.z),
     sleepLength: S.inside.x - coreX1,
-    cooktopTop: riserTop + 0.07 + 0.06,
+    cooktopTop: riserTop + st.topGap / 100 + 0.06,
     treeSpacing: { x: corners.treeNW.x - corners.treeSE.x, z: corners.treeSW.z - corners.treeNW.z },
     counter: {
       x0: 0, x1: S.counter.depth,
@@ -84,20 +94,35 @@
       frontX1: S.counter.frontEnd, frontZ0: S.inside.z - 0.05 - S.counter.depth,
     },
   };
-  derived.pit = { x0: coreX0 - 0.06, z0: coreZ0 - 0.06, x1: coreX1 + 0.04, z1: feed.z + 0.15 };
-  derived.pitToTree = trunkToRect(derived.pit.x0, derived.pit.z0, derived.pit.x1, derived.pit.z1);
+  derived.base = {
+    x0: coreX0 - 0.06, z0: coreZ0 - 0.06, x1: coreX1 + 0.04, z1: feed.z + 0.15,
+    y0: coreBase - S.coreBase.stone - S.coreBase.lightClay, y1: coreBase,
+  };
+  derived.baseToTree = trunkToRect(derived.base.x0, derived.base.z0, derived.base.x1, derived.base.z1);
   const co = S.chimney.outer / 2;
+  // Removable stone plugs where ash settles: the bottom of the dome, each bend in the
+  // bench channel, and the foot of the chimney.
+  derived.cleanouts = [
+    { id: 'dome', name: 'cleanout, bottom of the dome', x0: feed.x + 0.13, x1: coreX1 - 0.02, y0: coreBase, y1: coreBase + 0.12, z: coreZ0 + dome },
+    { id: 'bend1', name: 'cleanout, first bend', x: bendX, z: channelZ, y: S.bench.height },
+    { id: 'bend2', name: 'cleanout, second bend', x: bendX, z: S.chimney.z, y: S.bench.height },
+    { id: 'chimney', name: 'cleanout, foot of the chimney', x: chimneyX + co, z: S.chimney.z, y0: S.foundation, y1: S.foundation + 0.12 },
+  ];
   derived.chimneyToTree = trunkToRect(chimneyX - co, S.chimney.z - co, chimneyX + co, S.chimney.z + co);
   derived.basin = {
     x: (S.counter.depth + S.counter.frontEnd) / 2,
     z: derived.counter.frontZ0 + S.counter.depth / 2,
   };
+  // Step height rounded to 5 cm so the cooktop sits near working height.
+  derived.stepHeight = Math.round((derived.cooktopTop - S.step.workingHeight) * 20) / 20;
   derived.prepArea = (derived.counter.x1 - derived.counter.x0) * (derived.counter.z1 - derived.counter.z0);
 
   // Changes from the guide design in simulator/model.js that this layout makes.
   const stoveChanges = {
     channelLength: Math.round(channelLength * 100),
     bends: 2,
+    riserHeight: st.riserHeight, tunnelLength: st.tunnelLength, feedHeight: st.feedHeight,
+    riserInsulation: st.riserInsulation, topGap: st.topGap, sideGap: st.sideGap, benchCover: st.benchCover,
     chimneyAboveRiser: Math.round((chimneyTop - riserTop) * 100),
   };
 
