@@ -34,7 +34,7 @@ test('the build guide gives the same stove sizes as the shelter layout', () => {
 
 test('the instructions quote the stage volumes, the step, the bench warmth, the weir and the net from the design', () => {
   // These numbers used to be typed into the guide; now the procedures quote them from params.js.
-  const L = require('../procedures/lib.js');
+  const L = require('../engine/lib.js');
   const { load } = require('../procedures/index.js');
   const quoted = new Set(load().flatMap((p) => L.placeholders(p)));
   for (const k of ['volume.stage1', 'volume.stage2', 'stove.stepHeight', 'stove.warmHours', 'weir.pen', 'net.length']) {

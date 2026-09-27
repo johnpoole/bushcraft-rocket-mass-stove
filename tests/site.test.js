@@ -22,7 +22,7 @@ test('every page loads the menu from the right place', () => {
 });
 
 test('every link into the instructions names an instruction that exists', () => {
-  const L = require('../procedures/lib.js');
+  const L = require('../engine/lib.js');
   const reg = L.byId(require('../procedures/index.js').load());
   const pages = ['index.html', 'build-guide.html', 'survival-plan.html', 'shelter/index.html', 'rocket-mass-stove-section.html', 'simulator/index.html'];
   for (const page of pages) {

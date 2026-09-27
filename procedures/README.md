@@ -9,16 +9,17 @@ Open [index.html](index.html) (the **Instructions** page on the site) to read th
 
 ## Files
 
+The camp is one project for the engine in [`../engine`](../engine/README.md), which checks, runs and renders any project's procedures.
+
 | File | What it is |
 |---|---|
+| `project.js` | The camp as a project: its name, page text, top plan (`plan.season`), daylight calendar at 62.5° N and schedule milestones |
 | `catalog.js` | The kit and the shared tools and materials, with where each comes from |
-| `catalog.stove.js`, `catalog.shelter.js`, `catalog.food.js` | Tools and materials used by one domain |
+| `catalog.stove.js`, `catalog.shelter.js`, `catalog.food.js` | Tools and materials used by one domain, merged into `catalog.js` |
 | `params.js` | Design numbers, taken from `shelter/layout.js` and `simulator/model.js`, that procedures quote as `{name}` |
-| `lib.js` | Checks procedures, runs them on paper with a running stock, and works out everything a procedure needs |
-| `schedule.js` | Runs the season plan day by day against the daylight |
 | `index.js` | The list of procedure files |
 | `<id>.js` | One procedure each, named after its id |
-| `index.html` | Renders the procedures, with each call as a link, and the season schedule at `#schedule` |
+| `index.html` | Loads the engine and the camp; the engine renders each procedure with its calls as links, and the season schedule at `#schedule` |
 
 ## A procedure
 
@@ -54,9 +55,9 @@ Like a function call, with a memory of what already exists:
 - A call to a **make** procedure is skipped when its tool already exists. Tools are made once.
 - A call to a **gather** procedure runs until the stock covers what the caller needs; that amount is then held back from the caller's own sub-steps.
 - Every procedure takes the materials it needs from the stock when it finishes.
-- **Daily routines** are left out of the paper run; `schedule.js` runs them every day of their plan's window.
+- **Daily routines** are left out of the paper run; `engine/schedule.js` runs them every day of their plan's window.
 
-`schedule.js` then places each job on a day: routines first, then jobs in order, each starting only when what it needs exists and any `waitDays` have passed, within the daylight at 62.5° N.
+`engine/schedule.js` then places each job on a day: routines first, then jobs in order, each starting only when what it needs exists and any `waitDays` have passed, within the daylight at 62.5° N set in `project.js`.
 
 ### Design numbers
 
@@ -72,7 +73,7 @@ Never type a design size into a procedure. Write `{stove.riserHeight}` and add t
 
 ## Rules
 
-These are enforced by `tests/procedures.test.js`.
+These are enforced by `engine/check.js`, which `tests/procedures.test.js` runs on the camp.
 
 1. **Nothing is assumed.** A tool is one of the ten kit items or is made by a `make` procedure. A material is on the site as it stands (`source: 'site'`) or comes from a procedure.
 2. **Everything resolves.** Every call, skill, tool and material names something that exists.

@@ -1,6 +1,12 @@
 // Procedures treated like code: each one declares what it needs and what it produces,
 // and calls other procedures as steps. This file checks them and works out, for any
-// procedure, everything it and its callees need.
+// procedure, everything it and its callees need. It knows nothing about any one project.
+//
+// Where things come from, in a catalog entry's `source`:
+//   'kit'    a tool or material you have at the start; the project's KIT lists them
+//   'site'   a material free for the taking, as much as you need
+//   'bought' bought before it is needed, as much as you need, at `cost` each (per unit for materials)
+//   an id    made or gathered by that procedure
 (function (root) {
   'use strict';
 
@@ -76,18 +82,23 @@
     return e;
   }
 
-  // Every procedure's source must point back at a real procedure that produces it.
+  const badCost = (x) => !(typeof x.cost === 'number' && x.cost >= 0);
+
+  // Every catalog source must be the kit, the site, a purchase with a price, or a real
+  // procedure that lists the thing among what it produces.
   function validateCatalog(reg, cat) {
     const e = [];
     for (const t of cat.KIT) if (!cat.TOOLS[t] || cat.TOOLS[t].source !== 'kit') e.push(`kit item "${t}" is not a kit tool in the catalog`);
     for (const [id, t] of Object.entries(cat.TOOLS)) {
-      if (t.source === 'kit') { if (!cat.KIT.includes(id)) e.push(`tool "${id}" says kit but is not one of the ten items`); continue; }
+      if (t.source === 'kit') { if (!cat.KIT.includes(id)) e.push(`tool "${id}" says kit but is not in the kit list`); continue; }
+      if (t.source === 'bought') { if (badCost(t)) e.push(`tool "${id}" is bought but has no cost`); continue; }
       const p = reg.get(t.source);
       if (!p) e.push(`tool "${id}" is made by "${t.source}", which does not exist`);
       else if (!p.produces.tools.includes(id)) e.push(`tool "${id}": ${t.source} does not list it in produces.tools`);
     }
     for (const [id, m] of Object.entries(cat.MATERIALS)) {
       if (m.source === 'site') continue;
+      if (m.source === 'bought') { if (badCost(m)) e.push(`material "${id}" is bought but has no cost per ${m.unit}`); continue; }
       const p = reg.get(m.source);
       if (!p) e.push(`material "${id}" comes from "${m.source}", which does not exist`);
       else if (!p.produces.materials.some((x) => x.id === id)) e.push(`material "${id}": ${m.source} does not list it in produces.materials`);
@@ -130,10 +141,16 @@
       for (const m of p.requires.materials) used.set(m.id, (used.get(m.id) || 0) + m.qty);
       for (const m of p.produces.materials) produced.set(m.id, (produced.get(m.id) || 0) + m.qty);
     }
-    const carried = [...tools].filter((t) => cat.TOOLS[t] && cat.TOOLS[t].source === 'kit');
-    const toMake = [...tools].filter((t) => cat.TOOLS[t] && cat.TOOLS[t].source !== 'kit' && !made.has(t));
+    const src = (t) => cat.TOOLS[t] && cat.TOOLS[t].source;
+    const carried = [...tools].filter((t) => src(t) === 'kit');
+    const boughtTools = [...tools].filter((t) => src(t) === 'bought');
+    const toMake = [...tools].filter((t) => src(t) && src(t) !== 'kit' && src(t) !== 'bought' && !made.has(t));
     const inputs = [...used].filter(([m]) => !produced.has(m)).map(([m, qty]) => ({ id: m, qty }));
-    return { tools: [...tools], carried, made: [...made], toMake, skills: [...skills], inputs, produced: [...produced].map(([m, qty]) => ({ id: m, qty })) };
+    const boughtMaterials = inputs.filter((m) => cat.MATERIALS[m.id] && cat.MATERIALS[m.id].source === 'bought');
+    const cost = boughtTools.reduce((t, id) => t + cat.TOOLS[id].cost, 0)
+      + boughtMaterials.reduce((t, m) => t + m.qty * cat.MATERIALS[m.id].cost, 0);
+    return { tools: [...tools], carried, boughtTools, made: [...made], toMake, skills: [...skills], inputs, boughtMaterials, cost,
+      produced: [...produced].map(([m, qty]) => ({ id: m, qty })) };
   }
 
   // Run a plan on paper the way a person works: tools persist once made, and materials sit in
@@ -142,7 +159,8 @@
   // needs. Each procedure takes the materials it needs from the stock when it finishes.
   // Daily routines are left out (schedule.js runs them day by day) unless includeDaily is set.
   function run(id, reg, cat, opt = {}) {
-    const tools = new Set(Object.keys(cat.TOOLS).filter((t) => cat.TOOLS[t].source === 'kit'));
+    const tools = new Set(Object.keys(cat.TOOLS).filter((t) => cat.TOOLS[t].source === 'kit' || cat.TOOLS[t].source === 'bought'));
+    const bought = new Map();   // material id → quantity bought along the way
     const stock = new Map(opt.stock || []), reserved = new Map();
     const events = [], errors = [];
     const have = (m) => stock.get(m) || 0;
@@ -171,6 +189,7 @@
       for (const t of p.requires.tools) if (!tools.has(t)) errors.push(`${id}: "${pid}" needs the ${t}, but ${cat.TOOLS[t] ? cat.TOOLS[t].source : '?'} has not made it yet`);
       for (const m of p.requires.materials) {
         const src = cat.MATERIALS[m.id] && cat.MATERIALS[m.id].source;
+        if (src === 'bought') { bought.set(m.id, (bought.get(m.id) || 0) + m.qty); continue; }
         if (src === 'site' || (opt.supplied && opt.supplied.has(m.id))) continue;
         if (free(m.id) + 1e-9 < m.qty) errors.push(`${id}: "${pid}" needs ${m.qty} ${cat.MATERIALS[m.id].unit} of ${m.id} but only ${+Math.max(0, free(m.id)).toFixed(2)} is free in stock`);
         stock.set(m.id, have(m.id) - m.qty);
@@ -180,7 +199,7 @@
       events.push({ type: 'exit', id: pid, depth: stack.length });
     };
     exec(id, []);
-    return { events, errors, stock, tools };
+    return { events, errors, stock, tools, bought };
   }
 
   // Materials that daily routines inside a plan produce or use; schedule.js balances them day by day.

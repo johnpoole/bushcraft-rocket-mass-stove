@@ -44,23 +44,15 @@
     sand: { name: 'Coarse sand', unit: 'm³', source: 'gather.sand' },
   };
 
-  // Domain parts, each adding { TOOLS, MATERIALS }. In the browser each part file must be
-  // loaded before this one; in Node they are required here.
-  const PARTS = ['stove', 'shelter', 'food'];
-  for (const part of PARTS) {
-    const add = (typeof module !== 'undefined' && module.exports)
-      ? require(`./catalog.${part}.js`)
-      : (root.CATALOG_PARTS || {})[part];
-    if (!add) throw new Error(`catalog.${part}.js did not load`);
-    for (const [kind, into] of [['TOOLS', TOOLS], ['MATERIALS', MATERIALS]]) {
-      for (const [id, v] of Object.entries(add[kind] || {})) {
-        if (into[id]) throw new Error(`catalog.${part}.js redefines ${kind === 'TOOLS' ? 'tool' : 'material'} "${id}"`);
-        into[id] = v;
-      }
-    }
-  }
+  // Domain parts, each adding { TOOLS, MATERIALS }. In the browser each part file and
+  // engine/catalog.js must be loaded before this one; in Node they are required here.
+  const node = typeof module !== 'undefined' && module.exports;
+  const engine = node ? require('../engine/catalog.js') : root.ProcCatalog;
+  if (!engine) throw new Error('engine/catalog.js did not load before procedures/catalog.js');
+  const parts = {};
+  for (const part of ['stove', 'shelter', 'food']) parts[part] = node ? require(`./catalog.${part}.js`) : (root.CATALOG_PARTS || {})[part];
 
-  const api = { KIT, TOOLS, MATERIALS, PARTS };
-  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  const api = engine.assemble({ KIT, TOOLS, MATERIALS }, parts);
+  if (node) module.exports = api;
   else root.Catalog = api;
 })(this);

@@ -9,6 +9,8 @@ A rocket mass stove built from clay, sand, stone and sticks gathered on site.
 - [simulator/index.html](simulator/index.html): step through the build, change the stove and see what goes wrong
 - [shelter/index.html](shelter/index.html): a one-person shelter built around the stove between three trees and a post, in 3D
 - [survival-plan.html](survival-plan.html): a plan for a season on Great Slave Lake living on fish, snares and foraging
+- [engine/](engine/README.md): checks, runs, schedules and renders instructions written as procedures, for any job
+- [examples/raised-garden-bed/](examples/raised-garden-bed/): a second project for the engine, a cedar raised bed with bought materials and a weekend calendar
 
 ## Running the simulator
 

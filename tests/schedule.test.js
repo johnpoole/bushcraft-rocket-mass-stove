@@ -1,9 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const L = require('../procedures/lib.js');
+const L = require('../engine/lib.js');
 const C = require('../procedures/catalog.js');
-const S = require('../procedures/schedule.js');
+const S = require('../engine/schedule.js');
 const { load } = require('../procedures/index.js');
+const camp = require('../procedures/project.js');
 
 // A tiny made-up plan, so the engine can be checked against numbers worked out by hand.
 const P = (id, kind, extra = {}) => ({
@@ -17,7 +18,8 @@ const toy = (routineHours = 0, window = { from: 0 }) => L.byId([
   P('make.digging-stick', 'make', { produces: { tools: ['digging-stick'], materials: [] }, estimate: { hours: 4, waitDays: 2 } }),
   P('task.dig', 'task', { requires: { tools: ['digging-stick'], materials: [], skills: [] }, estimate: { hours: 12 } }),
 ]);
-const opts = { days: 20, maxWorkHours: 8, overheadHours: 0, minWorkHours: 0 };
+// Mid-September at 62.5° N gives more than 8 hours of light, so every day is capped at 8 working hours.
+const opts = { start: '2026-09-15', days: 20, hours: { type: 'daylight', latitude: 62.5, maxWorkHours: 8, overheadHours: 0, minWorkHours: 0 } };
 
 test('daylight at 62.5° N matches the almanac within a quarter hour', () => {
   assert.ok(Math.abs(S.daylight(258, 62.5) - 12.8) < 0.25);  // 15 September
@@ -49,7 +51,7 @@ test('nothing in a plan starts before its window opens, and jobs past their wind
 
 test('the season schedules every job the stock-aware run does, in an order its tools and materials allow', () => {
   const reg = L.byId(load());
-  const r = S.run('plan.season', reg, C, L);
+  const r = S.run('plan.season', reg, C, L, camp.calendar);
   const ran = L.run('plan.season', reg, C, { supplied: L.dailyMaterials('plan.season', reg) }).events
     .filter((e) => e.type === 'exit' && !['plan', 'skill'].includes(reg.get(e.id).kind));
   assert.equal(r.jobs.length, ran.length);
