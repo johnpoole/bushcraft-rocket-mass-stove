@@ -40,3 +40,9 @@ test('the build guide quotes the stage volumes, the step and the bench warmth fr
   const res = M.simulate({ ...M.DEFAULTS, ...stoveChanges });
   assert.ok(html.includes(`about ${Math.round(res.bench.warmHours)} hours`), `bench warmth ${Math.round(res.bench.warmHours)} hours missing`);
 });
+
+test('the build guide gives the weir and gill net the same sizes as the camp layout', () => {
+  const pen = (2 * S.camp.weir.penRadius).toFixed(1);
+  assert.ok(html.includes(`ring of stakes ${pen} m across`), `weir pen ${pen} m missing from the guide`);
+  assert.ok(html.includes(`${S.camp.gillNet.length} m gill net`), `gill net ${S.camp.gillNet.length} m missing from the guide`);
+});
