@@ -35,3 +35,26 @@ test('the earth skirt moves less soil than digging the floor down', () => {
 test('roof, skirt and snow bank together at least halve the heat loss', () => {
   assert.ok(ua({ roof: true, skirt: true, snow: true }) < 0.5 * base);
 });
+
+const OPEN = { roof: true, skirt: true };
+const BANKED = { roof: true, skirt: true, snow: true };
+
+test('one tarp laid over the moss is a cold vapour barrier, and frost builds in the roof', () => {
+  for (const m of [OPEN, BANKED]) assert.equal(H.roofCondensation(S, 'over-moss', m).condenses, true);
+});
+
+test('with the tarp cut in two, the inner piece stays above the dew point, before and after snow banking', () => {
+  for (const m of [OPEN, BANKED]) {
+    const c = H.roofCondensation(S, 'split', m);
+    assert.equal(c.condenses, false, `${c.barrier} at ${c.barrierTemp.toFixed(1)}°C, dew point ${c.dewPoint.toFixed(1)}°C`);
+  }
+});
+
+test('once snow banking stops the leaks, the vent must be opened wider or the inner tarp gets wet', () => {
+  assert.equal(H.roofCondensation(S, 'split', { ...BANKED, smallVent: true }).condenses, true);
+  assert.ok(H.moisture(S, BANKED).rh < 0.7, `humidity ${(H.moisture(S, BANKED).rh * 100).toFixed(0)}% with the vent opened`);
+});
+
+test('a drying bench puts more water in the air than the shelter can clear', () => {
+  assert.equal(H.moisture(S, { ...OPEN, benchDrying: true }).saturated, true);
+});

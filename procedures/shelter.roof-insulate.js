@@ -5,12 +5,13 @@
     "id": "shelter.roof-insulate",
     "kind": "task",
     "title": "Insulate the roof",
-    "purpose": "Lay 15 cm of dry moss under the tarp and soil on top, which halves the shelter's heat loss.",
+    "purpose": "Lay 15 cm of dry moss on the inner tarp piece, cover it with the outer piece left open at the top and bottom edges so the moss can breathe, and hold it down with soil. This halves the shelter's heat loss and keeps the moss dry.",
     "requires": {
       "tools": [
         "knife",
         "measuring-stick",
-        "bark-tray"
+        "bark-tray",
+        "tarp-outer"
       ],
       "materials": [
         {
@@ -42,18 +43,20 @@
       {
         "call": "dig.soil"
       },
-      "Untie the front half of the tarp and fold it back up the roof.",
-      "Spread dry moss over the boughs of the uncovered half, 15 cm deep after pressing it down lightly with your palms. Check the depth with the measuring stick every metre.",
-      "Fold the tarp back down over the moss and tie it again.",
-      "Do the same for the back half, working from the back wall.",
+      "Untie the outer tarp piece and roll it up to the back beam.",
+      "Spread dry moss over the inner piece, 15 cm deep after pressing it down lightly with your palms. Check the depth with the measuring stick every metre.",
       "Keep the moss 30 cm short of the west edge, beside the chimney. Cover that strip with bark and soil only.",
-      "Carry soil up in the bark tray and spread it 5–10 cm deep over the tarp, with moss or boughs on the steepest part to stop it sliding."
+      "Unroll the outer piece down over the moss, overlapping the sides by 20 cm and folding them down.",
+      "Leave the front (low) edge and the back (high) edge of the outer piece open: push a row of short spruce twigs under each edge so it stands 3–5 cm clear of the moss. Air moves in at the front and out at the back and carries off any moisture that gets past the inner piece.",
+      "Tie the outer piece to the roof poles at its sides and corners.",
+      "Carry soil up in the bark tray and spread it 5–10 cm deep over the outer piece, with moss or boughs on the steepest part to stop it sliding. Keep the soil off the open front and back edges."
     ],
     "checks": [
-      "Dry moss 15 cm deep everywhere under the tarp, measured with the stick.",
-      "No moss outside the tarp edges, and none within 30 cm of the chimney.",
+      "Dry moss 15 cm deep everywhere between the tarp pieces, measured with the stick.",
+      "No moss within 30 cm of the chimney.",
+      "The front and back edges of the outer piece stand clear of the moss, with daylight showing through the gap.",
       "Rafters sag less than 2 cm at mid-span under the finished roof, measured against a string pulled tight from end to end.",
-      "After the next rain, the moss under the tarp is still dry."
+      "After a cold night, the underside of the inner piece is dry to the touch from inside. If it is damp or frosted, open the vent wider."
     ],
     "safety": [
       "Keep the tarp and moss well away from the chimney: a spark melts through a tarp and dry moss burns fast."

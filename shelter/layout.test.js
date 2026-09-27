@@ -186,3 +186,11 @@ test('the trees stand at three corners in a right angle', () => {
   assert.equal(Math.abs(dot) < 1e-9, true, 'no right angle at the south-west tree');
   assert.ok(D.treeSpacing.x > S.inside.x && D.treeSpacing.z > S.inside.z);
 });
+
+test('the tarp cut in two covers the roof: the outer piece with laps on every edge, the inner nearly all the ceiling', () => {
+  const T = D.tarp;
+  assert.ok(T.outer.x >= T.outerNeeds.x - 1e-9 && T.outer.slope >= T.outerNeeds.slope - 0.02, `outer ${T.outer.x} × ${T.outer.slope} m, needs ${T.outerNeeds.x.toFixed(2)} × ${T.outerNeeds.slope.toFixed(2)} m`);
+  assert.ok(T.inner.x >= T.ceiling.x, 'inner piece narrower than the ceiling');
+  assert.ok(T.innerShort <= 0.35, `inner piece ${T.innerShort.toFixed(2)} m short of the ceiling slope; more than bark can lap`);
+  assert.ok(S.tarp.outerLength < S.tarp.length, 'the cut must leave two pieces');
+});

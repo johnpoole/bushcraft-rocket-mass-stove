@@ -1,6 +1,7 @@
 // Everything a procedure can name as a tool or a material.
 // A tool comes from the kit or is made by a procedure; a material comes from the site
 // as it stands or is produced by a procedure. Nothing else exists at day zero.
+// Shared entries live here; each domain adds its own in catalog.<domain>.js.
 (function (root) {
   'use strict';
 
@@ -14,7 +15,7 @@
     knife: { name: 'Fixed-blade knife', source: 'kit' },
     pot: { name: 'Cooking pot', source: 'kit' },
     'ferro-rod': { name: 'Ferro rod and striker', source: 'kit' },
-    tarp: { name: 'Tarp', source: 'kit' },
+    tarp: { name: 'Tarp, {tarp.width} × {tarp.length} m', source: 'kit' },
     'gill-net': { name: 'Gill net', source: 'kit' },
     'fishing-kit': { name: 'Fishing line and hooks', source: 'kit' },
     'snare-wire': { name: 'Snare wire', source: 'kit' },
@@ -23,6 +24,7 @@
     'digging-stick': { name: 'Digging stick', source: 'make.digging-stick' },
     'bark-tray': { name: 'Bark carrying tray', source: 'make.bark-tray' },
     'snow-paddle': { name: 'Snow paddle', source: 'make.snow-paddle' },
+    club: { name: 'Wooden club', source: 'make.club' },
   };
 
   const MATERIALS = {
@@ -34,9 +36,31 @@
     'dry-moss': { name: 'Dry moss', unit: 'm³', source: 'gather.moss' },
     soil: { name: 'Mineral soil', unit: 'm³', source: 'dig.soil' },
     snow: { name: 'Snow lying on the ground', unit: 'm³', source: 'site' },
+    water: { name: 'Lake or creek water', unit: 'litres', source: 'site' },
+    stakes: { name: 'Pointed stakes, 5–8 cm thick', unit: 'count', source: 'gather.stakes' },
+    stones: { name: 'Dense stones from dry ground', unit: 'm³', source: 'gather.stones' },
+    'flat-stones': { name: 'Flat stone slabs from dry ground', unit: 'count', source: 'gather.flat-stones' },
+    clay: { name: 'Clay subsoil, free of roots and stones', unit: 'm³', source: 'dig.clay' },
+    sand: { name: 'Coarse sand', unit: 'm³', source: 'gather.sand' },
   };
 
-  const api = { KIT, TOOLS, MATERIALS };
+  // Domain parts, each adding { TOOLS, MATERIALS }. In the browser each part file must be
+  // loaded before this one; in Node they are required here.
+  const PARTS = ['stove', 'shelter', 'food'];
+  for (const part of PARTS) {
+    const add = (typeof module !== 'undefined' && module.exports)
+      ? require(`./catalog.${part}.js`)
+      : (root.CATALOG_PARTS || {})[part];
+    if (!add) throw new Error(`catalog.${part}.js did not load`);
+    for (const [kind, into] of [['TOOLS', TOOLS], ['MATERIALS', MATERIALS]]) {
+      for (const [id, v] of Object.entries(add[kind] || {})) {
+        if (into[id]) throw new Error(`catalog.${part}.js redefines ${kind === 'TOOLS' ? 'tool' : 'material'} "${id}"`);
+        into[id] = v;
+      }
+    }
+  }
+
+  const api = { KIT, TOOLS, MATERIALS, PARTS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.Catalog = api;
 })(this);

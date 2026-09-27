@@ -64,6 +64,9 @@
     // one along the front wall holding the water basin. Room is left in front of the feed tube.
     counter: { height: 0.8, depth: 0.45, feedClearance: 0.45, frontEnd: 0.85, top: 0.06, wallGap: 0.12 },
     basin: { length: 0.36, width: 0.3, height: 0.16 },
+    // The kit tarp, cut in two: the outer piece sheds rain over the moss, the inner piece
+    // under the moss keeps the shelter's moisture out of it.
+    tarp: { width: 3.7, length: 4.9, outerLength: 2.8, lap: 0.2 },
     tree: { radius: 0.18, lowestBranch: 5.0 },
     post: { radius: 0.07 },
   };
@@ -210,6 +213,15 @@
     + S.bench.legWidth * (S.inside.z - 0.1 - S.backGap - S.bench.width) * (S.bench.height - S.foundation)
     - flue * channelLength;
   derived.volumes = { core, chimneyBase, bench: benchVol, stage1: core + chimneyBase, stage2: benchVol };
+  // Roof over the walls, and the tarp pieces that cover it.
+  const ceiling = { x: S.inside.x + 2 * S.wall, slope: Math.hypot(S.inside.z + S.wall, S.backHeight - S.frontHeight) };
+  derived.tarp = {
+    ceiling,
+    outer: { x: S.tarp.width, slope: S.tarp.outerLength },
+    inner: { x: S.tarp.width, slope: S.tarp.length - S.tarp.outerLength },
+    outerNeeds: { x: ceiling.x + 2 * S.tarp.lap, slope: ceiling.slope + 2 * S.tarp.lap },
+  };
+  derived.tarp.innerShort = Math.max(0, ceiling.slope - derived.tarp.inner.slope);
   derived.roofLine = roofLine;
   derived.logLength = logs.reduce((t, l) => t + (l.b - l.a), 0);
 

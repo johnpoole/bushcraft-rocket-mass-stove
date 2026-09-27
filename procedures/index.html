@@ -47,6 +47,9 @@ ol.steps>li{padding-left:4px}
 <script src="../simulator/model.js"></script>
 <script src="../shelter/layout.js"></script>
 <script src="params.js"></script>
+<script src="catalog.stove.js"></script>
+<script src="catalog.shelter.js"></script>
+<script src="catalog.food.js"></script>
 <script src="catalog.js"></script>
 <script src="lib.js"></script>
 <script src="index.js"></script>
@@ -77,13 +80,13 @@ ol.steps>li{padding-left:4px}
     const toolName = (t) => {
       const x = C.TOOLS[t];
       if (!x) return esc(t);
-      return x.source === 'kit' ? `${esc(x.name)} <span class="src">(kit)</span>` : `${esc(x.name)} <span class="src">(made: ${link(x.source)})</span>`;
+      return x.source === 'kit' ? `${T(x.name)} <span class="src">(kit)</span>` : `${T(x.name)} <span class="src">(made: ${link(x.source)})</span>`;
     };
     const matName = (m, withQty = true) => {
       const x = C.MATERIALS[m.id];
       const q = withQty ? `${+m.qty.toFixed(2)}${x.unit === 'count' ? ' ×' : ' ' + esc(x.unit)} ` : '';
       const src = x.source === 'site' ? 'on the site' : link(x.source);
-      return `${q}${esc(x.name.toLowerCase())} <span class="src">(${src})</span>`;
+      return `${q}${T(x.name.charAt(0).toLowerCase() + x.name.slice(1))} <span class="src">(${src})</span>`;
     };
     const ul = (items, empty = 'None') => items.length ? `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>` : `<p class="src">${empty}</p>`;
 
@@ -105,7 +108,7 @@ ol.steps>li{padding-left:4px}
         }).join('')}</div>
         <h2>The kit</h2>
         <p class="sub">The only things carried in. Every other tool is made on site.</p>
-        ${ul(C.KIT.map((t) => esc(C.TOOLS[t].name)))}`;
+        ${ul(C.KIT.map((t) => T(C.TOOLS[t].name)))}`;
     }
 
     function renderOne(p) {

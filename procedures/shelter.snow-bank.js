@@ -25,7 +25,8 @@
     },
     "preconditions": [
       "Snow has come to stay, usually in October.",
-      "The earth skirt is done."
+      "The earth skirt is done.",
+      "The bench is dry. A drying bench gives off more water than the shelter can clear once it is banked."
     ],
     "steps": [
       "Clear the door, the air inlet in the front wall, the vent in the back wall, and the chimney cleanout first. Mark each with a stick pushed into the snow beside it.",
@@ -34,13 +35,15 @@
       "Along the front wall, bank around the door and the air inlet but keep both open, with a clear space in front of each at least as wide as the opening.",
       "Keep a clear space of 50 cm all round the chimney and its cleanout. Snow against the warm masonry melts and refreezes into ice.",
       "Let snow lie on the roof up to 30 cm deep. Paddle off anything deeper, and anything within 50 cm of the chimney.",
+      "Open the vent in the back wall to about twice its size: remove the next section of log beside it. The snow bank stops the leaks that carried moisture out, and without a bigger vent the shelter air gets damp enough to frost the inner tarp.",
       "After every snowfall and every windy night: clear the door, the air inlet, the vent and the chimney top before you light the stove, then top up the bank."
     ],
     "checks": [
       "Bank at the roof edge on the back and end walls, 50 cm thick at the top.",
       "Door, air inlet, vent, chimney top and cleanout all open.",
       "Snow on the roof no deeper than 30 cm, measured with the stick.",
-      "Rafters sag no more than 2 cm at mid-span under the snow load."
+      "Rafters sag no more than 2 cm at mid-span under the snow load.",
+      "Each cold morning, the underside of the inner tarp piece is dry to the touch. If it is damp or frosted, open the vent further."
     ],
     "safety": [
       "A blocked air inlet, vent or chimney fills the shelter with carbon monoxide. Clear them before every firing.",

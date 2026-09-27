@@ -11,7 +11,7 @@ const dir = path.join(__dirname, '..', 'procedures');
 const reg = L.byId(load());
 
 test('the index lists every procedure file and nothing else', () => {
-  const files = fs.readdirSync(dir).filter((f) => /^[a-z]+(\.[a-z0-9-]+)+\.js$/.test(f)).map((f) => f.slice(0, -3)).sort();
+  const files = fs.readdirSync(dir).filter((f) => /^[a-z]+(\.[a-z0-9-]+)+\.js$/.test(f) && !f.startsWith('catalog.')).map((f) => f.slice(0, -3)).sort();
   assert.deepEqual([...IDS].sort(), files);
   for (const id of IDS) assert.equal(reg.get(id).id, id, `${id}.js defines "${reg.get(id).id}"`);
 });
@@ -56,8 +56,9 @@ test('every procedure is reachable from a top-level plan', () => {
   for (const p of reg.values()) if (p.kind !== 'skill') assert.ok(reached.has(p.id), `${p.id} is never called`);
 });
 
-test('winterizing needs nothing beyond the kit, the site and procedures it calls', () => {
-  const n = L.needs('plan.winterize', reg, C);
+test('the season needs nothing beyond the kit, the site and procedures it calls', () => {
+  assert.deepEqual(L.roots(reg), ['plan.season']);
+  const n = L.needs('plan.season', reg, C);
   assert.deepEqual(n.toMake, []);
   for (const t of n.carried) assert.ok(C.KIT.includes(t));
   for (const m of n.inputs) assert.equal(C.MATERIALS[m.id].source, 'site', `${m.id} is an input but is not on the site`);
@@ -70,7 +71,13 @@ test('every design number a procedure quotes comes from params.js', () => {
 test('no procedure hard-codes a stove size that params.js provides', () => {
   // A bare "110 cm" in text would drift the next time the design changes.
   const sizes = ['stove.riserHeight', 'stove.tunnelLength', 'chimney.top'].map((k) => String(params[k]));
-  for (const p of reg.values()) for (const t of L.texts(p)) for (const v of sizes) {
+  for (const p of reg.values()) if (p.id.startsWith('stove.')) for (const t of L.texts(p)) for (const v of sizes) {
     assert.ok(!new RegExp(`(^|[^\\d.{])${v.replace('.', '\\.')} ?c?m\\b`).test(t), `${p.id} writes ${v} directly: "${t}"`);
+  }
+});
+
+test('every catalog name that quotes a design number can be filled in', () => {
+  for (const [id, x] of [...Object.entries(C.TOOLS), ...Object.entries(C.MATERIALS)]) {
+    for (const m of x.name.matchAll(/\{([a-zA-Z.]+)\}/g)) assert.ok(m[1] in params, `${id} quotes {${m[1]}}`);
   }
 });

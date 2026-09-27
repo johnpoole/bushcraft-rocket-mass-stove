@@ -16,10 +16,17 @@
     doorU: 3.0,              // W/m²K, a hide or blanket hung in the doorway
     floorU: 0.4,             // W/m²K, into the ground under a dry floor
     ventACH: 0.5,            // air changes an hour through the inlet and vent, always open for the stove
+    ventACHBanked: 1.0,      // the vent opened to about twice the size once snow banking stops the leaks
     leakACH: 0.8,            // air changes an hour through gaps in the walls and at the ground line
     skirt: { height: 0.3, thickness: 0.4, leakCut: 0.3 },  // share of the leakage the earth skirt stops
     snowBank: { thickness: 0.5, roofDepth: 0.3, frontShare: 0.6, leakCut: 0.7 },
     dig: { depth: 0.3, extraR: 1.0 },   // path through soil for wall buried by digging the floor down
+    // Moisture, in litres of water a day put into the shelter air.
+    moisture: { person: 1.0, cooking: 0.5, drying: 0.3, benchDrying: 6 },
+    stoveAir: 33,            // m³ an hour drawn through the shelter by the stove while it burns
+    firingHours: 2,
+    indoor: 10, outdoor: -30, outdoorRH: 0.9,
+    roofFilmIn: 0.13, roofFilmOut: 0.04,
   });
 
   function geometry(S) {
@@ -69,7 +76,7 @@
     let leak = E.leakACH;
     if (measures.skirt) leak *= 1 - E.skirt.leakCut;
     if (snow) leak *= 1 - E.snowBank.leakCut;
-    const air = 0.33 * (E.ventACH + leak) * g.volume;
+    const air = 0.33 * ((snow ? E.ventACHBanked : E.ventACH) + leak) * g.volume;
     const total = walls + roof + door + floor + air;
     return { walls, roof, door, floor, air, total };
   }
@@ -83,6 +90,59 @@
     return v;
   }
 
+  // Water vapour held by saturated air, g/m³, and the dew point for a relative humidity.
+  const satDensity = (T) => 6.112 * Math.exp(17.67 * T / (T + 243.5)) * 100 * 2.1674 / (273.15 + T);
+  function dewPoint(T, rh) {
+    const g = Math.log(rh) + 17.67 * T / (243.5 + T);
+    return 243.5 * g / (17.67 - g);
+  }
+
+  // The roof from inside to outside, as layers of thermal resistance, with the tarp pieces
+  // marked. tarp: 'over-moss' is one tarp on top of the moss; 'split' is the tarp cut in two,
+  // one piece under the moss as a vapour barrier and one over it to shed rain.
+  function roofLayers(tarp, snow, E = ESTIMATES) {
+    const L = [{ name: 'inside air', R: E.roofFilmIn }, { name: 'spruce boughs', R: E.boughsR }];
+    if (tarp === 'split') L.push({ name: 'inner tarp', R: 0, barrier: true });
+    L.push({ name: 'dry moss', R: E.dryMoss.depth / E.dryMoss.k });
+    L.push({ name: tarp === 'split' ? 'outer tarp' : 'tarp', R: 0, barrier: tarp !== 'split', shed: true });
+    L.push({ name: 'soil', R: E.roofWet.depth / E.roofWet.k });
+    if (snow) L.push({ name: 'snow', R: E.snowBank.roofDepth / E.kSnow });
+    L.push({ name: 'outside air', R: E.roofFilmOut });
+    return L;
+  }
+
+  // Temperature at the face of each layer nearest the inside.
+  function layerTemps(layers, Tin, Tout) {
+    const total = layers.reduce((a, l) => a + l.R, 0);
+    let r = 0;
+    return layers.map((l) => { const t = Tin - (Tin - Tout) * r / total; r += l.R; return { ...l, T: t }; });
+  }
+
+  // Daily water balance of the shelter air: what goes in, how much the air changes carry
+  // out, and the humidity the air settles at. With the bench still drying, add its water.
+  function moisture(S, measures = {}, E = ESTIMATES) {
+    const g = geometry(S);
+    const src = E.moisture.person + E.moisture.cooking + E.moisture.drying + (measures.benchDrying ? E.moisture.benchDrying : 0);
+    let leak = E.leakACH;
+    if (measures.skirt) leak *= 1 - E.skirt.leakCut;
+    if (measures.snow) leak *= 1 - E.snowBank.leakCut;
+    const vent = measures.snow ? (measures.smallVent ? E.ventACH : E.ventACHBanked) : E.ventACH;
+    const airPerDay = (vent + leak) * g.volume * 24 + E.stoveAir * E.firingHours;   // m³
+    const vOut = satDensity(E.outdoor) * E.outdoorRH;
+    const vIn = vOut + src * 1000 / airPerDay;           // g/m³ where removal matches the sources
+    const rh = vIn / satDensity(E.indoor);
+    return { sources: src, airPerDay, rh, dewPoint: rh >= 1 ? E.indoor : dewPoint(E.indoor, rh), saturated: rh >= 1 };
+  }
+
+  // Does water condense on a vapour barrier in the roof? It does when the barrier is colder
+  // than the dew point of the shelter air.
+  function roofCondensation(S, tarp = 'split', measures = {}, E = ESTIMATES) {
+    const layers = layerTemps(roofLayers(tarp, !!measures.snow, E), E.indoor, E.outdoor);
+    const barrier = layers.find((l) => l.barrier);
+    const m = moisture(S, measures, E);
+    return { barrier: barrier.name, barrierTemp: barrier.T, dewPoint: m.dewPoint, rh: m.rh, condenses: barrier.T < m.dewPoint };
+  }
+
   const SCENARIOS = [
     ['As first built', {}],
     ['Layered roof', { roof: true }],
@@ -91,7 +151,7 @@
     ['Floor dug down 30 cm instead', { dig: true }],
   ];
 
-  const api = { ESTIMATES, geometry, conductance, soilMoved, SCENARIOS };
+  const api = { ESTIMATES, geometry, conductance, soilMoved, SCENARIOS, satDensity, dewPoint, roofLayers, layerTemps, moisture, roofCondensation };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ShelterHeat = api;
 })(this);

@@ -67,6 +67,12 @@
     if (!p.estimate || !(typeof p.estimate.hours === 'number' && p.estimate.hours >= 0)) e.push(`${at}: estimate.hours is missing`);
     if (p.estimate && p.estimate.waitDays !== undefined && !(typeof p.estimate.waitDays === 'number' && p.estimate.waitDays > 0)) e.push(`${at}: estimate.waitDays must be a number of days above 0`);
     if (p.repeat !== undefined && p.repeat !== 'daily') e.push(`${at}: repeat must be "daily" when given`);
+    if (p.estimate && p.estimate.afterDark !== undefined && typeof p.estimate.afterDark !== 'boolean') e.push(`${at}: estimate.afterDark must be true or false`);
+    if (p.window !== undefined) {
+      const w = p.window;
+      if (p.kind !== 'plan') e.push(`${at}: only a plan can have a window`);
+      if (!w || !(typeof w.from === 'number' && w.from >= 0) || (w.to !== undefined && !(typeof w.to === 'number' && w.to >= w.from))) e.push(`${at}: window must be { from, to } in days from the start, with to ≥ from`);
+    }
     return e;
   }
 
@@ -156,7 +162,16 @@
 
   // Totals over one run of a top-level plan: each produced material must cover its use.
   function balance(id, reg, cat) {
-    const made = new Map(), used = new Map();
+    const made = new Map(), used = new Map(), daily = new Set();
+    // Anything a daily routine touches is balanced day by day in schedule.js, not here.
+    for (const x of trace(id, reg)) {
+      if (x.type !== 'enter' || reg.get(x.id).repeat !== 'daily') continue;
+      for (const y of trace(x.id, reg)) if (y.type === 'exit') {
+        const q = reg.get(y.id);
+        q.produces.materials.forEach((m) => daily.add(m.id));
+        q.requires.materials.forEach((m) => daily.add(m.id));
+      }
+    }
     for (const x of trace(id, reg)) {
       if (x.type !== 'exit') continue;
       const p = reg.get(x.id);
@@ -165,7 +180,7 @@
     }
     const e = [];
     for (const [m, q] of used) {
-      if (cat.MATERIALS[m].source === 'site') continue;
+      if (cat.MATERIALS[m].source === 'site' || daily.has(m)) continue;
       const have = made.get(m) || 0;
       if (have + 1e-9 < q) e.push(`${id}: uses ${q} ${cat.MATERIALS[m].unit} of ${m} but only produces ${have}`);
     }
