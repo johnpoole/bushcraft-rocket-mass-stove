@@ -101,6 +101,19 @@ test('nothing inside the shelter runs into a trunk', () => {
   }
 });
 
+test('the camp keeps food and fish waste away from the shelter and the fish work at the water', () => {
+  const C = D.camp;
+  assert.ok(C.cacheToShelter >= 30 && C.cacheToShelter <= 60, `food cache ${C.cacheToShelter.toFixed(1)} m from the shelter`);
+  assert.ok(S.camp.cache.height >= 4, `food cache only ${S.camp.cache.height} m up`);
+  assert.ok(C.cacheToTrunk >= 1.5, `food cache ${C.cacheToTrunk.toFixed(2)} m from a trunk, a bear can reach it`);
+  assert.ok(C.cleaningToShore <= 1 && C.cleaningToShelter >= 20, `cleaning rock ${C.cleaningToShelter.toFixed(1)} m from the shelter, ${C.cleaningToShore.toFixed(1)} m from the water`);
+  assert.ok(C.smokeRackToShelter >= 10, `smoke rack ${C.smokeRackToShelter.toFixed(1)} m from the shelter`);
+  assert.ok(C.smokeRackToShore > 0 && C.smokeRackToShore <= 5, `smoke rack ${C.smokeRackToShore.toFixed(1)} m from the water`);
+  assert.ok(C.winterCacheToShelter >= 8 && C.winterCacheToShelter <= 20, `winter cache ${C.winterCacheToShelter.toFixed(1)} m from the shelter`);
+  assert.ok(C.shelterToShore >= 20, `shelter only ${C.shelterToShore.toFixed(1)} m from the water`);
+  assert.ok(S.camp.snares >= 15 && C.snareLineLength >= 30, `snare line ${C.snareLineLength.toFixed(0)} m with ${S.camp.snares} snares`);
+});
+
 test('the step stays clear of the cleanout, the feed tube, the bench and the counter', () => {
   const s = S.step, dome = D.cleanouts.find((c) => c.id === 'dome');
   assert.ok(s.x0 >= dome.x1 + 0.05, 'step covers the dome cleanout');

@@ -1,7 +1,7 @@
 // Dimensions of the one-person shelter built around the rocket mass stove.
 // Three living trees stand at the north-west, south-west and south-east corners and a
 // post at the north-east corner. Metres. x runs west from the inside of the east wall,
-// z runs south from the inside of the back wall toward the stream, y is up from the floor.
+// z runs south from the inside of the back wall toward the lake, y is up from the floor.
 (function (root) {
   'use strict';
 
@@ -24,7 +24,19 @@
     bench: { width: 0.7, height: 0.45, legWidth: 0.6 },
     // Stone and cob to 1 m, then a hollow log lined with clay, lashed to a post beside it.
     chimney: { outer: 0.4, z: 1.25, roofClearance: 0.15, top: 2.35, masonryHeight: 1.0, logOuter: 0.28, braceGap: 0.3 },
-    stream: { distance: 25, drop: 2.5 },
+    // The shore runs east to west, 25 m south of the shelter and 2.5 m below it.
+    lake: { shoreZ: 25, drop: 2.5 },
+    // Camp for fishing and snaring. Points are ground positions in metres.
+    camp: {
+      smokeRack: { x: 6, z: 21.5, width: 1.5, depth: 1.0, height: 1.5 },
+      cleaningRock: { x: -7, z: 24.6 },
+      netPoles: { x: 12, z: 23, span: 3 },
+      cache: { treeA: { x: -30, z: 10 }, treeB: { x: -26, z: 10 }, height: 4.0 },
+      winterCache: { x: -9, z: 7 },
+      skinningStump: { x: -2, z: 4.5 },
+      snareLine: [[3.5, 1.5], [9, -2], [15, -5], [21, -3], [24, 3], [20, 8], [13, 7]],
+      snares: 15,
+    },
     // Chosen by searching the build guide's ranges with simulator/model.js: a tall riser keeps
     // more heat and starts better from cold; a 6 cm cooktop gap leaves room for soot.
     // The burn tunnel floor is level with the shelter floor, and a step brings the cooktop to working height.
@@ -117,6 +129,24 @@
     { id: 'chimney', name: 'cleanout, foot of the chimney', x: chimneyX + co, z: S.chimney.z, y0: S.foundation, y1: S.foundation + 0.12 },
   ];
   derived.chimneyToTree = trunkToRect(chimneyX - co, S.chimney.z - co, chimneyX + co, S.chimney.z + co);
+  // Camp distances, measured from the middle of the shelter floor.
+  const mid = { x: S.inside.x / 2, z: S.inside.z / 2 };
+  const dist = (p) => Math.hypot(p.x - mid.x, p.z - mid.z);
+  const C = S.camp;
+  const cacheMid = { x: (C.cache.treeA.x + C.cache.treeB.x) / 2, z: (C.cache.treeA.z + C.cache.treeB.z) / 2 };
+  derived.camp = {
+    cacheMid,
+    cacheToShelter: dist(cacheMid),
+    cacheToTrunk: Math.hypot(C.cache.treeA.x - cacheMid.x, C.cache.treeA.z - cacheMid.z) - S.tree.radius,
+    winterCacheToShelter: dist(C.winterCache),
+    smokeRackToShelter: dist(C.smokeRack),
+    smokeRackToShore: S.lake.shoreZ - C.smokeRack.z,
+    cleaningToShelter: dist(C.cleaningRock),
+    cleaningToShore: Math.abs(S.lake.shoreZ - C.cleaningRock.z),
+    shelterToShore: S.lake.shoreZ - (S.inside.z + S.wall),
+    snareLineLength: C.snareLine.slice(1).reduce((t, p, i) => t + Math.hypot(p[0] - C.snareLine[i][0], p[1] - C.snareLine[i][1]), 0),
+  };
+
   derived.basin = {
     x: (S.counter.depth + S.counter.frontEnd) / 2,
     z: derived.counter.frontZ0 + S.counter.depth / 2,

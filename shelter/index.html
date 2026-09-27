@@ -71,8 +71,8 @@ a{color:var(--ember)}
     <ul>
       <li>Three healthy trees standing roughly in a right angle, about 3.2 m and 2.3 m apart, centre to centre. The front of the shelter faces south between two of them.</li>
       <li>Trees with high crowns and no dead limbs over the shelter. Branches must be at least 2 m above the chimney top.</li>
-      <li>Level ground at least 25 m from the stream and well above its high-water mark. Cold air and fog settle along the stream at night.</li>
-      <li>The stream gives clay from its banks, sand from its bed and water for mixing. Keep stones from the stream away from the fire. Use them for the drain and the path.</li>
+      <li>Level ground about 25 m back from the lake and well above its high-water line, with open water close for fishing and young spruce and willow nearby for hares.</li>
+      <li>The shore gives sand, stones and water for mixing. Dig clay from the banks of a stream running into the lake. Keep stones from the water away from the fire. Use them for the drain and the paths.</li>
     </ul>
   </section>
   <section>
@@ -95,8 +95,23 @@ a{color:var(--ember)}
     <ul>
       <li>The cooktop is the flat stone on top of the dome. Flame from the riser strikes its underside, so it is hottest over the riser and cooler toward the edges. Boil or fry in the middle and slide a pot to the edge to simmer.</li>
       <li>The counter is a split log laid flat side up on stakes driven into the floor, 80 cm high. One leg runs along the east wall for food prep. The other runs along the front wall and holds the water basin.</li>
-      <li>The basin is a length of log hollowed by laying hot coals on it and scraping out the char, over and over. Fill it from the stream and keep a pot of water at the edge of the cooktop for hot water.</li>
-      <li>Throw used water out well away from the stream, not into the drain.</li>
+      <li>The basin is a length of log hollowed by laying hot coals on it and scraping out the char, over and over. Fill it from the lake and keep a pot of water at the edge of the cooktop for hot water.</li>
+      <li>Throw used water out well away from the lake, not into the drain.</li>
+    </ul>
+  </section>
+  <section>
+    <h2>Camp for fishing and snares</h2>
+    <table id="camp"></table>
+    <ul>
+      <li><strong>Smoke rack:</strong> a frame of poles 1.5 m high above the shore, with a slow fire of green wood under it and a bark roof over the fish. The stove makes no smoke, so fish is smoked here.</li>
+      <li><strong>Cleaning rock:</strong> a flat rock at the water, well along the shore from camp, so blood and guts wash away and draw no bears to the shelter.</li>
+      <li><strong>Net poles:</strong> a crossbar on two poles at the shore for drying and mending the net.</li>
+      <li><strong>Food cache:</strong> a pole lashed between two trees, with food hung from its middle, out of reach from the ground and from both trunks.</li>
+      <li><strong>Winter cache:</strong> once everything stays frozen, fish and hares keep under a pile of stones on a log platform closer to camp.</li>
+      <li><strong>Snare line:</strong> a marked trail through young spruce and willow on the hare runs, with a stump near the shelter for skinning. Hides make mitten and hat liners.</li>
+      <li><strong>Ice gear:</strong> a long pole to carry across the ice and thread the net under it, a slotted wooden ladle for slush, and a gaff hook, all carved and kept by the door.</li>
+      <li><strong>Inside:</strong> pegs on the wall for the net, lines and snare wire, a drying line high under the rafters away from the cooktop for mittens and socks, and a flat stone by the door for boots.</li>
+      <li><strong>Paths:</strong> cleared paths to the shore, the snare line and the cache. Pack them when the snow comes.</li>
     </ul>
   </section>
   <section>
@@ -217,6 +232,16 @@ try {
     ['Stage one problems found', probs1.length ? probs1.map((d) => d.title).join(', ') : 'none'],
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
 
+  const Cd = D.camp;
+  document.getElementById('camp').innerHTML = [
+    ['Shelter to the water', m(Cd.shelterToShore)],
+    ['Food cache', `${Math.round(Cd.cacheToShelter)} m from the shelter, ${S.camp.cache.height} m up, ${Cd.cacheToTrunk.toFixed(1)} m from each trunk`],
+    ['Winter cache', `${Math.round(Cd.winterCacheToShelter)} m from the shelter`],
+    ['Smoke rack', `${Math.round(Cd.smokeRackToShelter)} m from the shelter, ${Cd.smokeRackToShore.toFixed(1)} m above the water`],
+    ['Cleaning rock', `at the water, ${Math.round(Cd.cleaningToShelter)} m from the shelter`],
+    ['Snare line', `${S.camp.snares} snares along ${Math.round(Cd.snareLineLength)} m of trail`],
+  ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
   // ---------- scene ----------
   const host = document.getElementById('viewer');
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -232,7 +257,7 @@ try {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xcdd8dc);
-  scene.fog = new THREE.Fog(0xcdd8dc, 30, 70);
+  scene.fog = new THREE.Fog(0xcdd8dc, 60, 130);
   const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -243,7 +268,7 @@ try {
   sun.position.set(-6, 12, 14);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  Object.assign(sun.shadow.camera, { left: -10, right: 12, top: 14, bottom: -8, near: 1, far: 60 });
+  Object.assign(sun.shadow.camera, { left: -14, right: 14, top: 16, bottom: -10, near: 1, far: 70 });
   scene.add(sun);
 
   const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.95, metalness: 0, ...extra });
@@ -253,12 +278,14 @@ try {
     cob: mat(0xb98a5e), plaster: mat(0xcfb58c), refr: mat(0x8e4a32), slab: mat(0x6f7671),
     gravel: mat(0x9a948a), bedroll: mat(0x3f5a6e), pillow: mat(0xa9a18f), wood: mat(0x7a5a3a),
     hole: mat(0x1d1a17), water: new THREE.MeshStandardMaterial({ color: 0x3f7fa6, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
-    plank: mat(0x9b7b55), pot: mat(0x8a5a3c), lightClay: mat(0xe0d3a8),
+    plank: mat(0x9b7b55), pot: mat(0x8a5a3c), path: mat(0x8c7a5c), fish: mat(0xc98a4e), spruce: mat(0x33502e),
+    wire: mat(0x9aa0a6, { metalness: 0.6, roughness: 0.4 }),
+    net: new THREE.MeshStandardMaterial({ color: 0x55605a, wireframe: true }), lightClay: mat(0xe0d3a8),
     ember: new THREE.MeshStandardMaterial({ color: 0xff7a2a, emissive: 0xff5a10, emissiveIntensity: 1.2 }),
   };
 
   const groups = {};
-  for (const k of ['site', 'trees', 'crowns', 'frame', 'roof', 'front', 'ends', 'stove', 'bench', 'duct', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
+  for (const k of ['site', 'camp', 'trees', 'crowns', 'frame', 'roof', 'front', 'ends', 'stove', 'bench', 'duct', 'inside', 'labels', 'innerLabels']) { groups[k] = new THREE.Group(); scene.add(groups[k]); }
   // Labels that belong to one stage only; they also hide with the other inside labels.
   const benchLabels = new THREE.Group(), ductLabels = new THREE.Group();
   groups.innerLabels.add(benchLabels, ductLabels);
@@ -303,24 +330,26 @@ try {
       const blob = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, 1), MAT.leaves);
       blob.position.set(x + Math.cos(a) * 1.1, base + rr * 0.8 + (i % 3) * 1.1, z + Math.sin(a) * 1.1);
       blob.castShadow = true;
-      (main ? groups.crowns : groups.trees).add(blob);
+      groups.crowns.add(blob);
     }
   }
 
-  // ---------- ground, trees, stream ----------
+  // ---------- ground, trees, lake ----------
   const noise = (x, y) => Math.sin(x * 1.7 + Math.sin(y * 0.9)) * 0.5 + Math.sin(x * 0.43 + y * 1.3) * 0.35 + Math.sin(x * 3.1 - y * 2.3) * 0.15;
-  const streamZ = (x) => S.stream.distance + Math.sin(x * 0.18) * 2.2;
+  // The shore bends away to the south beyond the camp.
+  const shoreZ = (x) => S.lake.shoreZ + 0.3 * Math.sin(x * 0.35) + Math.max(0, Math.abs(x - 1.5) - 16) * 0.35;
   const groundY = (x, z) => {
-    let y = z > 3 ? -((z - 3) / (S.stream.distance - 3)) * (S.stream.drop - 0.4) : z < -0.6 ? -(z + 0.6) * 0.05 : 0;
-    const dz = z - streamZ(x);
-    y -= 0.7 * Math.exp(-(dz * dz) / 3);
-    if (z > 3.5) y += 0.08 * noise(x * 0.6, z * 0.6);
-    return y;
+    const sz = shoreZ(x);
+    if (z < -0.6) return -(z + 0.6) * 0.05;
+    if (z <= 3) return 0;
+    if (z <= sz) return -((z - 3) / (sz - 3)) * S.lake.drop + (z > 3.5 && z < sz - 1 ? 0.08 * noise(x * 0.6, z * 0.6) : 0);
+    return -S.lake.drop - (z - sz) * 0.25;
   };
+  const waterY = -S.lake.drop + 0.05;
   {
-    const g = new THREE.PlaneGeometry(90, 70, 180, 140);
+    const g = new THREE.PlaneGeometry(90, 90, 180, 180);
     g.rotateX(-Math.PI / 2);
-    g.translate(1.5, 0, 25);
+    g.translate(1.5, 0, 35);
     const pos = g.attributes.position;
     for (let i = 0; i < pos.count; i++) pos.setY(i, groundY(pos.getX(i), pos.getZ(i)));
     g.computeVertexNormals();
@@ -328,19 +357,21 @@ try {
     mesh.receiveShadow = true;
     groups.site.add(mesh);
 
-    const w = new THREE.PlaneGeometry(90, 2.6, 180, 1);
+    const w = new THREE.PlaneGeometry(90, 60);
     w.rotateX(-Math.PI / 2);
-    const wp = w.attributes.position;
-    for (let i = 0; i < wp.count; i++) { const x = wp.getX(i) + 1.5; wp.setX(i, x); wp.setZ(i, wp.getZ(i) + streamZ(x)); wp.setY(i, groundY(x, streamZ(x)) + 0.45); }
-    w.computeVertexNormals();
-    groups.site.add(new THREE.Mesh(w, MAT.water));
-    for (let i = 0; i < 26; i++) {
-      const x = -12 + i * 1.1 + noise(i, 2) * 0.6, z = streamZ(x) + (i % 2 ? 1.4 : -1.4) + noise(i, 5) * 0.3;
-      const s = new THREE.Mesh(new THREE.DodecahedronGeometry(0.12 + 0.1 * Math.abs(noise(i, 9))), MAT.plinth);
-      s.position.set(x, groundY(x, z) + 0.05, z);
-      groups.site.add(s);
+    const water = new THREE.Mesh(w, MAT.water);
+    water.position.set(1.5, waterY, S.lake.shoreZ + 30);
+    groups.site.add(water);
+    // Granite boulders along the shore.
+    for (let i = 0; i < 40; i++) {
+      const x = -30 + i * 1.6 + noise(i, 2) * 0.7, z = shoreZ(x) + noise(i, 5) * 0.8 - 0.2;
+      const r = 0.15 + 0.25 * Math.abs(noise(i, 9));
+      const st = new THREE.Mesh(new THREE.DodecahedronGeometry(r), MAT.plinth);
+      st.position.set(x, groundY(x, z) + r * 0.3, z);
+      st.castShadow = true;
+      groups.site.add(st);
     }
-    label(`stream, ${S.stream.distance} m away and ${S.stream.drop} m lower`, 1.5, groundY(1.5, streamZ(1.5)) + 1.0, streamZ(1.5));
+    label(`lake, ${Math.round(D.camp.shelterToShore)} m away and ${S.lake.drop} m lower`, -2, waterY + 1.2, S.lake.shoreZ + 3);
 
     // Other trees around the site.
     for (const [x, z, h] of [[-5, -4, 11], [7, -3, 12], [-7, 3, 10], [9, 4, 11], [-3, -8, 12], [5, -9, 10], [12, -6, 11], [-10, -5, 9]]) tree(x, z, h, false);
@@ -591,6 +622,171 @@ try {
   }
   label('woodpile', -S.wall - 0.25, 0.9, 1.4);
 
+  // ---------- camp for fishing and snares ----------
+  {
+    const C = S.camp, g = groups.camp, gy = groundY;
+    const strip = (pts, w = 0.6) => {
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, z0] = pts[i - 1], [x1, z1] = pts[i];
+        const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / 0.5));
+        for (let k = 0; k < n; k++) {
+          const x = x0 + (x1 - x0) * (k + 0.5) / n, z = z0 + (z1 - z0) * (k + 0.5) / n;
+          const seg = new THREE.Mesh(new THREE.BoxGeometry(w, 0.02, 0.55), MAT.path);
+          seg.rotation.y = Math.atan2(x1 - x0, z1 - z0);
+          seg.position.set(x, gy(x, z) + 0.012, z);
+          seg.receiveShadow = true;
+          g.add(seg);
+        }
+      }
+    };
+    const door = [S.door.x0 + S.door.width / 2, S.inside.z + S.wall + 0.2];
+    const landing = [C.smokeRack.x - 0.5, S.lake.shoreZ - 0.7];
+    strip([door, [1.8, 8], [3.2, 15], [4.8, 20], landing]);
+    strip([landing, [0, S.lake.shoreZ - 0.6], [C.cleaningRock.x + 0.6, C.cleaningRock.z - 0.6]]);
+    strip([landing, [C.netPoles.x, C.netPoles.z + 0.3]]);
+    strip([door, C.snareLine[0], ...C.snareLine.slice(1)], 0.45);
+    strip([door, [-4, 5], [C.winterCache.x + 0.8, C.winterCache.z - 0.4], [-18, 9], [D.camp.cacheMid.x + 0.6, D.camp.cacheMid.z]]);
+
+    // Smoke rack with a slow fire under it.
+    {
+      const R = C.smokeRack, y0 = gy(R.x, R.z), hw = R.width / 2, hd = R.depth / 2;
+      for (const [dx, dz] of [[-hw, -hd], [hw, -hd], [-hw, hd], [hw, hd]]) pole(g, MAT.timber, [R.x + dx, y0, R.z + dz], [R.x + dx, y0 + R.height + 0.35, R.z + dz], 0.035);
+      for (const dz of [-hd, hd]) pole(g, MAT.timber, [R.x - hw, y0 + R.height, R.z + dz], [R.x + hw, y0 + R.height, R.z + dz], 0.03);
+      for (let i = 0; i < 5; i++) {
+        const x = R.x - hw + 0.2 + i * (R.width - 0.4) / 4;
+        pole(g, MAT.timber, [x, y0 + R.height, R.z - hd], [x, y0 + R.height, R.z + hd], 0.015);
+        for (const dz of [-0.2, 0.2]) box(g, MAT.fish, x - 0.05, y0 + R.height - 0.4, R.z + dz - 0.015, x + 0.05, y0 + R.height - 0.02, R.z + dz + 0.015);
+      }
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(R.width + 0.4, 0.03, R.depth + 0.5), MAT.bark);
+      roof.position.set(R.x, y0 + R.height + 0.38, R.z);
+      roof.rotation.x = 0.25;
+      roof.castShadow = true;
+      g.add(roof);
+      for (let i = 0; i < 8; i++) {
+        const a = i / 8 * Math.PI * 2;
+        const st = new THREE.Mesh(new THREE.DodecahedronGeometry(0.1), MAT.plinth);
+        st.position.set(R.x + Math.cos(a) * 0.35, y0 + 0.05, R.z + Math.sin(a) * 0.35);
+        g.add(st);
+      }
+      box(g, MAT.ember, R.x - 0.15, y0, R.z - 0.15, R.x + 0.15, y0 + 0.08, R.z + 0.15, false);
+      label('smoke rack', R.x, y0 + R.height + 0.8, R.z);
+    }
+    // Cleaning rock at the water.
+    {
+      const R = C.cleaningRock, y0 = gy(R.x, R.z);
+      const rock = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.7, 0.35, 9), MAT.plinth);
+      rock.position.set(R.x, y0 + 0.1, R.z);
+      rock.castShadow = true; rock.receiveShadow = true;
+      g.add(rock);
+      label('fish cleaning rock', R.x, y0 + 0.8, R.z);
+    }
+    // Net drying poles.
+    {
+      const N = C.netPoles, y0 = gy(N.x, N.z), x0 = N.x - N.span / 2, x1 = N.x + N.span / 2;
+      for (const x of [x0, x1]) pole(g, MAT.timber, [x, y0, N.z], [x, y0 + 1.9, N.z], 0.04);
+      pole(g, MAT.timber, [x0, y0 + 1.7, N.z], [x1, y0 + 1.7, N.z], 0.03);
+      const net = new THREE.Mesh(new THREE.PlaneGeometry(N.span - 0.2, 1.4, 24, 12), MAT.net);
+      net.position.set(N.x, y0 + 1.0, N.z);
+      g.add(net);
+      label('net drying poles', N.x, y0 + 2.3, N.z);
+    }
+    // Food cache hung from a pole between two trees.
+    {
+      const K = C.cache, M0 = D.camp.cacheMid;
+      tree(K.treeA.x, K.treeA.z, 12, true);
+      tree(K.treeB.x, K.treeB.z, 12, true);
+      const y0 = gy(M0.x, M0.z), top = y0 + K.height + 0.6;
+      pole(g, MAT.timber, [K.treeA.x, top, K.treeA.z], [K.treeB.x, top, K.treeB.z], 0.05);
+      pole(g, MAT.bark, [M0.x, top, M0.z], [M0.x, y0 + K.height + 0.35, M0.z], 0.008);
+      const bag = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.16, 0.5, 12), MAT.tarp);
+      bag.position.set(M0.x, y0 + K.height + 0.1, M0.z);
+      bag.castShadow = true;
+      g.add(bag);
+      label(`food cache, ${K.height} m up`, M0.x, y0 + K.height + 1.1, M0.z);
+    }
+    // Winter cache: frozen fish under stones on a log platform.
+    {
+      const W = C.winterCache, y0 = gy(W.x, W.z);
+      for (let i = 0; i < 4; i++) pole(g, MAT.wood, [W.x - 0.6, y0 + 0.08, W.z - 0.4 + i * 0.27], [W.x + 0.6, y0 + 0.08, W.z - 0.4 + i * 0.27], 0.07);
+      for (let i = 0; i < 14; i++) {
+        const st = new THREE.Mesh(new THREE.DodecahedronGeometry(0.14 + 0.06 * Math.abs(noise(i, 3))), MAT.plinth);
+        st.position.set(W.x + noise(i, 1) * 0.45, y0 + 0.25 + (i % 3) * 0.1, W.z + noise(i, 7) * 0.3);
+        st.castShadow = true;
+        g.add(st);
+      }
+      label('winter cache', W.x, y0 + 1.0, W.z);
+    }
+    // Skinning stump.
+    {
+      const T = C.skinningStump, y0 = gy(T.x, T.z);
+      const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.55, 14), MAT.trunk);
+      stump.position.set(T.x, y0 + 0.27, T.z);
+      stump.castShadow = true;
+      g.add(stump);
+      label('skinning stump', T.x, y0 + 0.9, T.z);
+    }
+    // Snare line: snares spaced along the trail, in young spruce.
+    {
+      const pts = C.snareLine;
+      const segs = pts.slice(1).map((p, i) => [pts[i], p, Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1])]);
+      const total = segs.reduce((t, sgm) => t + sgm[2], 0);
+      for (let k = 0; k < C.snares; k++) {
+        let d = total * (k + 0.5) / C.snares;
+        for (const [a, b, len] of segs) {
+          if (d > len) { d -= len; continue; }
+          const x = a[0] + (b[0] - a[0]) * d / len + 0.4, z = a[1] + (b[1] - a[1]) * d / len;
+          const y0 = gy(x, z);
+          pole(g, MAT.timber, [x, y0, z], [x, y0 + 0.45, z], 0.012);
+          const loop = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.005, 6, 16), MAT.wire);
+          loop.position.set(x + 0.08, y0 + 0.14, z);
+          loop.rotation.y = Math.atan2(b[0] - a[0], b[1] - a[1]) + Math.PI / 2;
+          g.add(loop);
+          break;
+        }
+      }
+      for (let i = 0; i < 26; i++) {
+        const p = pts[i % pts.length], x = p[0] + noise(i, 4) * 2.4, z = p[1] + noise(i, 8) * 2.4;
+        const h = 1.2 + Math.abs(noise(i, 6)) * 1.6;
+        const sp = new THREE.Mesh(new THREE.ConeGeometry(h * 0.28, h, 8), MAT.spruce);
+        sp.position.set(x, gy(x, z) + h / 2, z);
+        sp.castShadow = true;
+        g.add(sp);
+      }
+      const end = pts[Math.floor(pts.length / 2)];
+      label(`snare line, ${C.snares} snares`, end[0], gy(end[0], end[1]) + 2.4, end[1]);
+    }
+    // Ice gear leaning on the front wall beside the door.
+    {
+      const z = S.inside.z + S.wall + 0.08, x0 = S.door.x0 + S.door.width + 0.25;
+      pole(g, MAT.timber, [x0, 0, z + 0.25], [x0 + 0.3, 1.15, z], 0.025);
+      pole(g, MAT.timber, [x0 + 0.25, 0, z + 0.2], [x0 + 0.35, 0.9, z], 0.015);
+      box(g, MAT.plank, x0 + 0.3, 0.85, z - 0.02, x0 + 0.42, 0.92, z + 0.05);
+      pole(g, MAT.timber, [x0 + 0.5, 0, z + 0.2], [x0 + 0.6, 1.0, z], 0.018);
+      label('ice pole, slush ladle, gaff', x0 + 0.3, 1.45, z + 0.2);
+    }
+  }
+
+  // Inside: pegs for the net, lines and snare wire; a drying line; a boot stone.
+  {
+    const g = groups.stove;
+    for (const [z, item] of [[1.35, 'net'], [1.65, 'line'], [1.95, 'wire']]) {
+      pole(g, MAT.timber, [0.0, 1.45, z], [0.1, 1.47, z], 0.012);
+      const coil = new THREE.Mesh(new THREE.TorusGeometry(item === 'net' ? 0.13 : 0.07, item === 'net' ? 0.035 : 0.012, 8, 20), item === 'net' ? MAT.net : MAT.wire);
+      coil.rotation.y = Math.PI / 2;
+      coil.position.set(0.05, 1.45 - (item === 'net' ? 0.13 : 0.07), z);
+      g.add(coil);
+    }
+    label('pegs: net, line, snare wire', 0.1, 1.75, 1.65, true);
+    const ly = 1.5, lz = 1.0;
+    pole(g, MAT.bark, [0.9, ly, lz], [2.3, ly, lz], 0.006);
+    for (const x of [1.1, 1.35, 1.7, 1.95]) box(g, MAT.bedroll, x - 0.06, ly - 0.22, lz - 0.02, x + 0.06, ly, lz + 0.02);
+    label('drying line', 1.6, ly + 0.2, lz, true);
+    const bx = S.door.x0 + S.door.width + 0.05;
+    box(g, MAT.slab, bx, 0, S.inside.z - 0.35, bx + 0.4, 0.03, S.inside.z - 0.03);
+    for (const dx of [0.08, 0.24]) box(g, MAT.trunk, bx + dx, 0.03, S.inside.z - 0.3, bx + dx + 0.1, 0.2, S.inside.z - 0.06);
+    label('boots', bx + 0.2, 0.45, S.inside.z - 0.2, true);
+  }
+
   // ---------- smoke ----------
   const smoke = [];
   const smokeMat = new THREE.MeshBasicMaterial({ color: 0xdcdcd6, transparent: true, opacity: 0.2, depthWrite: false });
@@ -606,7 +802,8 @@ try {
     Outside: [[7.5, 4.2, 9], [1.4, 1.0, 1.0]],
     Inside: [[2.6, 3.0, 2.9], [0.8, 0.5, 0.7]],
     'From above': [[1.6, 9.5, 3.6], [1.5, 0, 1.1]],
-    'To the stream': [[-7, 7, 16], [1.5, -1, 12]],
+    'To the lake': [[-5, 5, 6], [3, -2, 22]],
+    'Whole camp': [[-3, 50, 44], [-3, -2, 8]],
   };
   const TOGGLES = [
     ['Tree crowns', ['crowns'], true],
@@ -621,7 +818,8 @@ try {
     const [p, t] = VIEWS[name];
     fly = { p0: camera.position.clone(), t0: controls.target.clone(), p1: new THREE.Vector3(...p), t1: new THREE.Vector3(...t), k: 0 };
     if (name === 'Inside') { setToggle('Roof', false); setToggle('Front wall', false); }
-    if (name === 'From above') { setToggle('Roof', false); setToggle('Tree crowns', false); }
+    if (name === 'From above' || name === 'Whole camp') setToggle('Tree crowns', false);
+    if (name === 'From above') setToggle('Roof', false);
   }
   const vbox = document.getElementById('views');
   for (const name of Object.keys(VIEWS)) {
