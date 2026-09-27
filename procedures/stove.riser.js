@@ -48,6 +48,15 @@
       "The riser basket is woven and has dried for two days."
     ],
     "steps": [
+      {
+        "call": "gather.riser-basket"
+      },
+      {
+        "call": "gather.birch-bark"
+      },
+      {
+        "call": "make.root-cordage"
+      },
       "Stand the basket on the tunnel walls over the open mouth, its inside lined up with the inside of the tunnel.",
       "Hang a stone on a length of fishing line as a plumb line and set the basket upright on two sides.",
       {

@@ -20,7 +20,7 @@
       "materials": [
         {
           "id": "birch-bark",
-          "qty": 4
+          "qty": 6
         }
       ]
     },
@@ -33,7 +33,7 @@
       "Stack the sheets flat under a stone so they do not curl."
     ],
     "checks": [
-      "Four sheets about 60 × 80 cm, flat and dry."
+      "Six sheets about 60 × 80 cm, flat and dry."
     ],
     "safety": [],
     "estimate": {

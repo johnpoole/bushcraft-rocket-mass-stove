@@ -35,14 +35,27 @@ test('no procedure calls itself, directly or through others', () => {
   for (const id of IDS) assert.doesNotThrow(() => L.trace(id, reg), id);
 });
 
-test('run on paper, every top-level plan makes each tool and material before it is needed', () => {
-  const tops = L.roots(reg);
-  assert.ok(tops.length > 0);
-  for (const id of tops) assert.deepEqual(L.availability(id, reg, C), [], id);
+test('run on paper with a running stock, the season makes every tool and has every material in stock when it is needed', () => {
+  const r = L.run('plan.season', reg, C, { supplied: L.dailyMaterials('plan.season', reg) });
+  assert.deepEqual(r.errors, []);
 });
 
-test('run on paper, every top-level plan produces at least as much of each material as it uses', () => {
-  for (const id of L.roots(reg)) assert.deepEqual(L.balance(id, reg, C), [], id);
+test('every procedure calls the gathering for each material it uses, so it reads like a self-contained function', () => {
+  const daily = L.dailyMaterials('plan.season', reg);
+  for (const p of reg.values()) {
+    const calls = new Set(L.callsOf(p));
+    for (const m of p.requires.materials) {
+      const src = C.MATERIALS[m.id].source;
+      if (src === 'site' || daily.has(m.id) || src === p.id) continue;
+      assert.ok(calls.has(src), `${p.id} uses ${m.id} but does not call ${src}`);
+    }
+  }
+});
+
+test('a tool is made only once in the season, however many procedures call its maker', () => {
+  const r = L.run('plan.season', reg, C, { supplied: L.dailyMaterials('plan.season', reg) });
+  const makes = r.events.filter((e) => e.type === 'exit' && reg.get(e.id).kind === 'make').map((e) => e.id);
+  assert.deepEqual(makes.filter((id, i) => makes.indexOf(id) !== i), []);
 });
 
 test('every skill a procedure relies on has its own procedure, and every skill is used', () => {

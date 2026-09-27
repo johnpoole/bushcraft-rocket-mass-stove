@@ -35,6 +35,9 @@
       "The dry stone pile is stocked, and clay and grass fibre are at the mixing place."
     ],
     "steps": [
+      {
+        "call": "gather.stones"
+      },
       "Mark the stove corner: the back-east corner, the one farthest from the three trees. The dome square starts {bench.backGap} cm out from the back wall and {bench.backGap} cm out from the east wall.",
       "Scrape off topsoil and leaf litter down to mineral soil over the whole stove and bench footprint and for 1 m in front of where the feed tube will be. Carry the spoil out in the bark tray.",
       "Under the stove core, dig a pit about 70 cm wide along the back wall and 80 cm out from it, as deep as {base.stone} cm of stone plus {base.lightClay} cm of light clay. Measure the depth below the shelter floor with the measuring stick.",

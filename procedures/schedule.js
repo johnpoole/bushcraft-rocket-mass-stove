@@ -8,7 +8,7 @@
     latitude: 62.5,       // °N, east arm of Great Slave Lake
     startDayOfYear: 258,  // 15 September
     days: 140,            // into early February
-    overheadHours: 1.5,   // eating, fetching water, tending yourself
+    overheadHours: 1.0,   // fetching water, washing, mending; cooking is counted in the routines
     maxWorkHours: 10,     // a long day's physical work on short rations
     minWorkHours: 3,
   });

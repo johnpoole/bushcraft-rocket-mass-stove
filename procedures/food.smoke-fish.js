@@ -55,6 +55,12 @@
       {
         "call": "gather.green-wood"
       },
+      {
+        "call": "gather.birch-bark"
+      },
+      {
+        "call": "make.root-cordage"
+      },
       "Split every fish open flat, backbone out, and slit the thick flesh every 3 cm down to the skin.",
       "Push two thin green sticks crosswise through the flesh of each fish, just under the skin, so it stays open flat.",
       {

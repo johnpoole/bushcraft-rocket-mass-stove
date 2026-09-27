@@ -41,6 +41,15 @@
     },
     "preconditions": [],
     "steps": [
+      {
+        "call": "gather.grass-fibre"
+      },
+      {
+        "call": "gather.birch-bark"
+      },
+      {
+        "call": "make.root-cordage"
+      },
       "Gather long dry grass into a tight bundle a little thicker than the former gauge.",
       "Wrap a sheet of birch bark round it, white side out, and tie it with root cordage every 10 cm.",
       "Press each side flat against a flat stone until it is square, and check it with the former gauge both ways.",

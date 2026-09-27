@@ -35,19 +35,9 @@
         "call": "make.block-mould"
       },
       {
-        "call": "dig.clay",
-        "times": 2,
-        "note": "about 0.2 m³: 0.02 m³ for each of ten batches"
-      },
-      {
         "call": "gather.sand",
         "times": 6,
         "note": "about 0.5 m³ for ten batches of mix, and 0.05 m³ for the drying bed and dusting"
-      },
-      {
-        "call": "gather.grass-fibre",
-        "times": 2,
-        "note": "five armloads for ten batches, chopped"
       },
       {
         "call": "gather.birch-bark",

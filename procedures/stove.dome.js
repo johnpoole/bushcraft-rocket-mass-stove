@@ -41,6 +41,9 @@
         "times": 4,
         "note": "one batch a day as the walls go up"
       },
+      {
+        "call": "gather.flat-stones"
+      },
       "Mark the dome square on the base, leaving a {stove.sideGap} cm gap between the outside of the riser and the inside of the dome wall on every side.",
       "Build the dome walls of cob {stove.domeWall} cm thick, about 20 cm higher each day, letting each day's work firm before the next.",
       "On the south side, bring the dome wall tight against the feed tube's refractory and seal the joint with cob, so no gas can pass between them.",

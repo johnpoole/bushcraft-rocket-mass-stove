@@ -59,6 +59,9 @@
       {
         "call": "gather.creek-stones"
       },
+      {
+        "call": "gather.poles"
+      },
       "Make the running line: join the root cordage end to end with sheet bends, trimmed short so they slide. You need a line 32 m long. Soak it.",
       "Make the ring: twist a green willow shoot 1 cm thick and 1 m long into a ring 8 cm across, wrapping the end around and around itself, and tie it with a turn of root cordage. A smooth ring lets the line run.",
       "Make the anchor (a killick): cut two sticks 60 cm long from a pole and lash them together in a cross. Lash a creek stone of about 10 kg, about the size of a large loaf, in the middle of the cross, with the cordage passing both ways over the stone. Tie the ring to the anchor with 1 m of root cordage.",

@@ -115,7 +115,7 @@ ol.steps>li{padding-left:4px}
       document.title = p.title;
       const n = L.needs(p.id, reg, C);
       const by = L.usedBy(p.id, reg);
-      const total = L.hours(p.id, reg);
+      const total = L.hours(p.id, reg, C);
       const r = p.requires;
       const steps = p.steps.map((s) => L.isCall(s)
         ? `<li><span class="call">${link(s.call)}</span>${s.times > 1 ? ` <span class="note">× ${s.times}</span>` : ''}${s.note ? ` <span class="note">— ${T(s.note)}</span>` : ''}</li>`

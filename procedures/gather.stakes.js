@@ -38,7 +38,8 @@
     ],
     "safety": [],
     "estimate": {
-      "hours": 1.5
+      "hours": 1,
+      "note": "About 5 minutes a stake."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

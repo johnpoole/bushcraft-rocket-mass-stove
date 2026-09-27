@@ -42,6 +42,15 @@
       "The base is finished and the light clay has firmed for a day."
     ],
     "steps": [
+      {
+        "call": "gather.stove-formers"
+      },
+      {
+        "call": "gather.flat-stones"
+      },
+      {
+        "call": "gather.fired-bricks"
+      },
       "On the light clay, mark the centre of the dome square: that is where the riser will stand. The tunnel runs from there straight out toward the room, south.",
       "Scrape a strip of light clay one slab thick along that line and bed the largest flat slab in it, so its top is level with the shelter floor.",
       "Lay the fired tiles on the slab in a thin bed of refractory mix, butted tight. The top of the tiles is the tunnel floor: measure every stove height from it.",

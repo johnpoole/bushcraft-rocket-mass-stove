@@ -38,6 +38,12 @@
     },
     "preconditions": [],
     "steps": [
+      {
+        "call": "gather.withies"
+      },
+      {
+        "call": "make.root-cordage"
+      },
       "On soft ground, mark a square the size of the former gauge on each side.",
       "Push eight uprights into the ground round it, one at each corner and one in the middle of each side, so the former gauge just fits between opposite ones.",
       "Weave the thin withies in and out round the uprights, pressing each row down onto the one below. Start each new withy beside where the last one ended.",

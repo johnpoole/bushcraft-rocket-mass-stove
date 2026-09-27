@@ -41,6 +41,12 @@
       "The mixing place: a bare, flat rock ledge at least 1.5 m across within about 20 m of the stove, swept clean. The east arm is mostly bare granite. Clay and sand are piled beside it under bark."
     ],
     "steps": [
+      {
+        "call": "dig.clay"
+      },
+      {
+        "call": "gather.grass-fibre"
+      },
       "Heap the chopped grass on the ledge.",
       "In the pot, break up clay in water and stir it with your hand into a slurry like thin cream. Make it a potful at a time.",
       "Pour each potful over the grass and toss it with your hands, until every strand is just coated.",

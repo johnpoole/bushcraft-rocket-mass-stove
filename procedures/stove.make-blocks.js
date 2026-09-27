@@ -49,6 +49,15 @@
       "The mould, the raw clay, sand and grass, and the drying bed are ready (stove.prepare-blocks)."
     ],
     "steps": [
+      {
+        "call": "dig.clay"
+      },
+      {
+        "call": "gather.sand"
+      },
+      {
+        "call": "gather.grass-fibre"
+      },
       "On the mixing ledge, tread about 0.02 m³ of clay (about ten potfuls) with twice to three times as much sand, at the ratio from your fire test, and as little water as it takes to work.",
       "Tread in half an armload of chopped dry grass, a good handful for every potful of clay. The grass stops the blocks cracking as they dry; blocks go in the bench, away from the flame, so fibre is fine here.",
       "Keep the mix stiff. A ball dropped from waist height should flatten on the bottom but not splatter or crack apart. Every litre you leave out is a litre you do not have to dry.",
@@ -68,7 +77,7 @@
       "Keep wet blocks out of direct flame: steam trapped in wet clay can burst it."
     ],
     "estimate": {
-      "hours": 3.5,
+      "hours": 2.5,
       "waitDays": 7,
       "note": "Estimate: about an hour to mix, two hours to mould 20 blocks, and half an hour turning and stacking them the next day. Drying takes about a week beside a fire, two or more in the open."
     }

@@ -57,6 +57,15 @@
         "call": "gather.dry-wood",
         "note": "if you have none left"
       },
+      {
+        "call": "gather.grass-fibre"
+      },
+      {
+        "call": "gather.flat-stones"
+      },
+      {
+        "call": "gather.birch-bark"
+      },
       "Choose a spot of bare rock or mineral soil at least 5 m from the shelter and from any tree.",
       "Lay one flat stone as the tunnel floor.",
       "Tie two quick formers from long dry grass with grass twists, a little over {stove.size} cm square: one {stove.tunnelLength} cm long for the tunnel and one {stove.feedHeight} cm long for the feed tube.",

@@ -31,6 +31,9 @@
     },
     "preconditions": [],
     "steps": [
+      {
+        "call": "gather.birch-bark"
+      },
       "Pick 13 stones from the shore, each about the size of an egg and about 150–250 g, about the weight of a large apple. Smooth, flat stones with a narrow waist are best.",
       "Cut a sheet of birch bark into pieces about 10 × 15 cm. Wrap each stone in one, like a parcel, so a tie holds it however it lies.",
       "Keep the wrapped stones wet in the shallows until you rig the net, so the bark stays soft."

@@ -43,6 +43,12 @@
         "times": 3,
         "note": "one batch at a time as it goes up"
       },
+      {
+        "call": "gather.stones"
+      },
+      {
+        "call": "gather.flat-stones"
+      },
       "Clear the chimney foot to mineral soil and lay a footing of large stones level with the duct floor.",
       "Build the chimney square, {chimney.outer} cm outside, with a flue {stove.size} × {stove.size} cm in the middle, of dry-land stones bedded in cob.",
       "At the foot, in the west face, leave a cleanout about {stove.size} cm wide and 12 cm high, bridged with a flat stone lintel.",

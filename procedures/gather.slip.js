@@ -35,6 +35,9 @@
       "Clay is piled at the mixing place."
     ],
     "steps": [
+      {
+        "call": "dig.clay"
+      },
       "Break two double handfuls of clay into the pot and cover them with water. Let them soak for an hour.",
       "Stir and squeeze with your hand until there are no lumps.",
       "Pick out any grit you feel."

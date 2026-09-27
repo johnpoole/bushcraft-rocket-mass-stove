@@ -42,6 +42,12 @@
       "The mixing place: a bare, flat rock ledge at least 1.5 m across within about 20 m of the stove, swept clean. The east arm is mostly bare granite. Clay and sand are piled beside it under bark."
     ],
     "steps": [
+      {
+        "call": "dig.clay"
+      },
+      {
+        "call": "gather.sand"
+      },
       "Measure the same clay and sand as for cob, with no fibre.",
       "Tread it together, adding water a potful at a time, a little wetter than for blocks.",
       "Mix only as much as you will lay today."

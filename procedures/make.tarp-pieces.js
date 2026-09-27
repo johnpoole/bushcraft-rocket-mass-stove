@@ -37,6 +37,9 @@
       "The night-one lean-to can come down: you need the whole tarp flat on the ground for an hour."
     ],
     "steps": [
+      {
+        "call": "gather.birch-bark"
+      },
       "Spread the tarp flat on clean, dry ground, shiny side up, with no stones or sticks under it.",
       "Measure {tarp.outerLength} m from one short end along both long edges with the measuring stick, and mark each point with charcoal from the fire.",
       "Lay a straight pole across the tarp between the two marks, and kneel on it to hold it still.",

@@ -38,7 +38,8 @@
     ],
     "safety": [],
     "estimate": {
-      "hours": 1.5
+      "hours": 1,
+      "note": "About 10 m an hour once you know where the long roots run."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

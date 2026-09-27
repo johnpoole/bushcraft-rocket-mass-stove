@@ -46,6 +46,15 @@
       "The mixing place: a bare, flat rock ledge at least 1.5 m across within about 20 m of the stove, swept clean. The east arm is mostly bare granite. Clay and sand are piled beside it under bark."
     ],
     "steps": [
+      {
+        "call": "dig.clay"
+      },
+      {
+        "call": "gather.sand"
+      },
+      {
+        "call": "gather.grass-fibre"
+      },
       "Use the sand-to-clay ratio from your fire test, between 2 and 3 parts sand to 1 of clay.",
       "Tread the clay and sand together on the ledge, with water from the pot, until it is one even colour.",
       "Scatter in half an armload of chopped dry grass, about a good handful for every potful of clay, and tread and fold it in.",

@@ -53,6 +53,12 @@
       {
         "call": "gather.slip"
       },
+      {
+        "call": "gather.grass-fibre"
+      },
+      {
+        "call": "gather.birch-bark"
+      },
       "Fire little and often: two or three short fires a day dry it faster than one long one, and heating wet clay slowly keeps it from cracking.",
       "Open the door and the vent during and after each firing, or the steam condenses on the tarp and soaks into your sleeping bag.",
       "Cover the wet sections with dry grass at night. A shelter fired every evening, with a warm duct under the bench, keeps them above freezing even when it freezes outside.",

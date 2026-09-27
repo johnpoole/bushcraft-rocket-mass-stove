@@ -136,34 +136,56 @@
     return { tools: [...tools], carried, made: [...made], toMake, skills: [...skills], inputs, produced: [...produced].map(([m, qty]) => ({ id: m, qty })) };
   }
 
-  // Walk a top-level procedure and check that every made tool and every produced material
-  // exists by the time something that needs it finishes.
-  function availability(id, reg, cat) {
-    const ev = trace(id, reg);
-    const done = new Map();
-    ev.forEach((x, i) => { if (x.type === 'exit' && !done.has(x.id)) done.set(x.id, i); });
-    const e = [];
-    ev.forEach((x, i) => {
-      if (x.type !== 'exit') return;
-      const p = reg.get(x.id);
-      for (const t of p.requires.tools) {
-        const src = cat.TOOLS[t] && cat.TOOLS[t].source;
-        if (!src || src === 'kit') continue;
-        if (!(done.get(src) < i)) e.push(`${id}: "${x.id}" needs the ${t}, but ${src} has not run before it`);
+  // Run a plan on paper the way a person works: tools persist once made, and materials sit in
+  // a stock. A call to a make procedure is skipped when its tools already exist; a call to a
+  // gather procedure runs, up to its times, only while the stock is short of what the caller
+  // needs. Each procedure takes the materials it needs from the stock when it finishes.
+  // Daily routines are left out (schedule.js runs them day by day) unless includeDaily is set.
+  function run(id, reg, cat, opt = {}) {
+    const tools = new Set(Object.keys(cat.TOOLS).filter((t) => cat.TOOLS[t].source === 'kit'));
+    const stock = new Map(opt.stock || []), reserved = new Map();
+    const events = [], errors = [];
+    const have = (m) => stock.get(m) || 0;
+    const free = (m) => have(m) - (reserved.get(m) || 0);
+    const skipDaily = !opt.includeDaily;
+    const exec = (pid, stack) => {
+      if (stack.includes(pid)) throw new Error(`cycle: ${[...stack, pid].join(' → ')}`);
+      const p = reg.get(pid);
+      const mine = new Map();   // materials this procedure has gathered for itself and holds back
+      events.push({ type: 'enter', id: pid, depth: stack.length });
+      for (const s of p.steps) {
+        if (!isCall(s)) continue;
+        const c = reg.get(s.call);
+        if (skipDaily && c.repeat === 'daily') continue;
+        if (c.kind === 'make' && c.produces.tools.length && c.produces.tools.every((t) => tools.has(t))) continue;
+        const wanted = c.kind === 'gather' ? p.requires.materials.filter((m) => c.produces.materials.some((x) => x.id === m.id) && !mine.has(m.id)) : [];
+        if (wanted.length) {
+          // Gather until this procedure's need is covered, then hold it back from its sub-steps.
+          for (let n = 0; n < 200 && wanted.some((m) => free(m.id) < m.qty - 1e-9); n++) exec(s.call, [...stack, pid]);
+          for (const m of wanted) { mine.set(m.id, m.qty); reserved.set(m.id, (reserved.get(m.id) || 0) + m.qty); }
+        } else {
+          for (let i = 0; i < (s.times || 1); i++) exec(s.call, [...stack, pid]);
+        }
       }
+      for (const [m, q] of mine) reserved.set(m, reserved.get(m) - q);
+      for (const t of p.requires.tools) if (!tools.has(t)) errors.push(`${id}: "${pid}" needs the ${t}, but ${cat.TOOLS[t] ? cat.TOOLS[t].source : '?'} has not made it yet`);
       for (const m of p.requires.materials) {
         const src = cat.MATERIALS[m.id] && cat.MATERIALS[m.id].source;
-        if (!src || src === 'site') continue;
-        if (!(done.get(src) < i)) e.push(`${id}: "${x.id}" needs ${m.id}, but ${src} has not run before it`);
+        if (src === 'site' || (opt.supplied && opt.supplied.has(m.id))) continue;
+        if (free(m.id) + 1e-9 < m.qty) errors.push(`${id}: "${pid}" needs ${m.qty} ${cat.MATERIALS[m.id].unit} of ${m.id} but only ${+Math.max(0, free(m.id)).toFixed(2)} is free in stock`);
+        stock.set(m.id, have(m.id) - m.qty);
       }
-    });
-    return e;
+      p.produces.tools.forEach((t) => tools.add(t));
+      for (const m of p.produces.materials) stock.set(m.id, have(m.id) + m.qty);
+      events.push({ type: 'exit', id: pid, depth: stack.length });
+    };
+    exec(id, []);
+    return { events, errors, stock, tools };
   }
 
-  // Totals over one run of a top-level plan: each produced material must cover its use.
-  function balance(id, reg, cat) {
-    const made = new Map(), used = new Map(), daily = new Set();
-    // Anything a daily routine touches is balanced day by day in schedule.js, not here.
+  // Materials that daily routines inside a plan produce or use; schedule.js balances them day by day.
+  function dailyMaterials(id, reg) {
+    const daily = new Set();
     for (const x of trace(id, reg)) {
       if (x.type !== 'enter' || reg.get(x.id).repeat !== 'daily') continue;
       for (const y of trace(x.id, reg)) if (y.type === 'exit') {
@@ -172,19 +194,7 @@
         q.requires.materials.forEach((m) => daily.add(m.id));
       }
     }
-    for (const x of trace(id, reg)) {
-      if (x.type !== 'exit') continue;
-      const p = reg.get(x.id);
-      for (const m of p.produces.materials) made.set(m.id, (made.get(m.id) || 0) + m.qty);
-      for (const m of p.requires.materials) used.set(m.id, (used.get(m.id) || 0) + m.qty);
-    }
-    const e = [];
-    for (const [m, q] of used) {
-      if (cat.MATERIALS[m].source === 'site' || daily.has(m)) continue;
-      const have = made.get(m) || 0;
-      if (have + 1e-9 < q) e.push(`${id}: uses ${q} ${cat.MATERIALS[m].unit} of ${m} but only produces ${have}`);
-    }
-    return e;
+    return daily;
   }
 
   // Fill {name} placeholders in a procedure's text from the design numbers in params.js.
@@ -200,9 +210,10 @@
   const roots = (reg) => [...reg.values()].filter((p) => p.kind !== 'skill' && ![...reg.values()].some((q) => callsOf(q).includes(p.id))).map((p) => p.id);
 
   // Hours of work in one run of a procedure and everything it calls.
-  const hours = (id, reg) => trace(id, reg).filter((x) => x.type === 'exit').reduce((t, x) => t + reg.get(x.id).estimate.hours, 0);
+  const hours = (id, reg, cat) => (cat ? run(id, reg, cat, { includeDaily: true, supplied: new Set(Object.keys(cat.MATERIALS)) }).events : trace(id, reg))
+    .filter((x) => x.type === 'exit').reduce((t, x) => t + reg.get(x.id).estimate.hours, 0);
 
-  const api = { KINDS, byId, validate, validateCatalog, trace, needs, availability, balance, usedBy, roots, hours, callsOf, isCall, render, placeholders, texts };
+  const api = { KINDS, byId, validate, validateCatalog, trace, run, dailyMaterials, needs, usedBy, roots, hours, callsOf, isCall, render, placeholders, texts };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ProcLib = api;
 })(this);

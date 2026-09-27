@@ -41,6 +41,12 @@
       {
         "call": "gather.cob"
       },
+      {
+        "call": "gather.stones"
+      },
+      {
+        "call": "gather.flat-stones"
+      },
       "Mark the route on the stone layer: west along the middle of the bench strip beside the back wall, a first bend about 30 cm short of the west wall, south along the middle of the seat, a second bend opposite where the chimney will stand, and west out through the opening in the west wall. It is about {channel.length} m with {channel.bends} bends.",
       "From the dome outlet, build a ramp of stones and cob so the channel floor climbs {channel.rise} cm onto the stone layer over the first 30 cm.",
       "Build the two side walls of stones bedded in cob, {stove.size} cm apart and {stove.size} cm high, checking with the size gauge every 30 cm.",

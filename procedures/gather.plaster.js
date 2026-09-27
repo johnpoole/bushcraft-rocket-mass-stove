@@ -46,6 +46,15 @@
       "The mixing place: a bare, flat rock ledge at least 1.5 m across within about 20 m of the stove, swept clean. The east arm is mostly bare granite. Clay and sand are piled beside it under bark."
     ],
     "steps": [
+      {
+        "call": "dig.clay"
+      },
+      {
+        "call": "gather.sand"
+      },
+      {
+        "call": "gather.grass-fibre"
+      },
       "Pick the finest sand: rub it between your palms and pick out anything bigger than a pea.",
       "Tread clay and sand together at about the cob ratio, a little wetter.",
       "Work in grass chopped to 2–3 cm.",

@@ -84,6 +84,18 @@
         "call": "gather.dry-wood",
         "note": "for the short drying fires"
       },
+      {
+        "call": "stove.make-blocks"
+      },
+      {
+        "call": "gather.stones"
+      },
+      {
+        "call": "gather.flat-stones"
+      },
+      {
+        "call": "gather.birch-bark"
+      },
       "The bench runs along the back wall from the dome to the west wall, {bench.width} cm deep, and turns as a seat along the west wall. It is {bench.height} cm high with {stove.benchCover} cm of mass over the channel.",
       "Split it into sections about 60 cm long; at least four, so you can lay a lift on one each day while the others dry. Build the section next to the dome last, or lay it with more stone and less mortar: the duct is hottest there and wet clay can crack.",
       "For each section, first lay a course of dry blocks along the front edge in mortar. The blocks hold the lift like a form and become the face of the bench.",
@@ -108,9 +120,9 @@
       "Ventilate during and after every drying fire."
     ],
     "estimate": {
-      "hours": 30,
+      "hours": 20,
       "waitDays": 12,
-      "note": "Estimate: about a lift a day for two weeks, plus the top course."
+      "note": "About 0.4 m³ a day of stone set in mortar, plus the block courses."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;
