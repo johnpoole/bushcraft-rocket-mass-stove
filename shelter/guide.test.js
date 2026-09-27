@@ -32,17 +32,18 @@ test('the build guide gives the same stove sizes as the shelter layout', () => {
   for (const [part, text] of want) assert.ok(sizeOf(part).includes(text), `guide row "${part}" says "${sizeOf(part)}", expected it to include "${text}"`);
 });
 
-test('the build guide quotes the stage volumes, the step and the bench warmth from the design', () => {
-  const V = D.volumes;
-  assert.ok(html.includes(`about ${V.stage1.toFixed(1)} m³`), `stage one volume ${V.stage1.toFixed(1)} m³ missing`);
-  assert.ok(html.includes(`about ${V.stage2.toFixed(1)} m³`), `stage two volume ${V.stage2.toFixed(1)} m³ missing`);
-  assert.ok(html.includes(`log round ${Math.round(D.stepHeight * 100)} cm high`), 'step height missing');
-  const res = M.simulate({ ...M.DEFAULTS, ...stoveChanges });
-  assert.ok(html.includes(`about ${Math.round(res.bench.warmHours)} hours`), `bench warmth ${Math.round(res.bench.warmHours)} hours missing`);
+test('the instructions quote the stage volumes, the step, the bench warmth, the weir and the net from the design', () => {
+  // These numbers used to be typed into the guide; now the procedures quote them from params.js.
+  const L = require('../procedures/lib.js');
+  const { load } = require('../procedures/index.js');
+  const quoted = new Set(load().flatMap((p) => L.placeholders(p)));
+  for (const k of ['volume.stage1', 'volume.stage2', 'stove.stepHeight', 'stove.warmHours', 'weir.pen', 'net.length']) {
+    assert.ok(quoted.has(k), `no instruction quotes {${k}}`);
+  }
 });
 
-test('the build guide gives the weir and gill net the same sizes as the camp layout', () => {
-  const pen = (2 * S.camp.weir.penRadius).toFixed(1);
-  assert.ok(html.includes(`ring of stakes ${pen} m across`), `weir pen ${pen} m missing from the guide`);
-  assert.ok(html.includes(`${S.camp.gillNet.length} m gill net`), `gill net ${S.camp.gillNet.length} m missing from the guide`);
+test('the build guide links to the stove instructions instead of repeating them', () => {
+  for (const id of ['plan.stove-stage-one', 'plan.stove-stage-two', 'stove.first-firing', 'stove.make-blocks', 'fish.build-weir']) {
+    assert.ok(html.includes(`procedures/#${id}`), `build-guide.html does not link to ${id}`);
+  }
 });

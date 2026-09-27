@@ -11,11 +11,14 @@ Open [index.html](index.html) (the **Instructions** page on the site) to read th
 
 | File | What it is |
 |---|---|
-| `catalog.js` | The kit, and every tool and material a procedure can name, with where each comes from |
-| `lib.js` | Checks procedures, runs them on paper, and works out everything a procedure needs |
+| `catalog.js` | The kit and the shared tools and materials, with where each comes from |
+| `catalog.stove.js`, `catalog.shelter.js`, `catalog.food.js` | Tools and materials used by one domain |
+| `params.js` | Design numbers, taken from `shelter/layout.js` and `simulator/model.js`, that procedures quote as `{name}` |
+| `lib.js` | Checks procedures, runs them on paper with a running stock, and works out everything a procedure needs |
+| `schedule.js` | Runs the season plan day by day against the daylight |
 | `index.js` | The list of procedure files |
 | `<id>.js` | One procedure each, named after its id |
-| `index.html` | Renders the procedures, with each call as a link |
+| `index.html` | Renders the procedures, with each call as a link, and the season schedule at `#schedule` |
 
 ## A procedure
 
@@ -38,9 +41,26 @@ Open [index.html](index.html) (the **Instructions** page on the site) to read th
   ],
   checks: ['How you know it is done: something you can see or measure.'],
   safety: ['What can hurt you, and how to avoid it.'],
-  estimate: { hours: 5, note: 'Estimates, not promises.' },
+  estimate: { hours: 5, waitDays: 3, afterDark: false, note: 'Estimates, not promises.' },
+  repeat: 'daily',                // only for daily routines
+  window: { from: 14, to: 50 },   // only for plans: days from 15 September
 }
 ```
+
+### How a plan runs
+
+Like a function call, with a memory of what already exists:
+
+- A call to a **make** procedure is skipped when its tool already exists. Tools are made once.
+- A call to a **gather** procedure runs until the stock covers what the caller needs; that amount is then held back from the caller's own sub-steps.
+- Every procedure takes the materials it needs from the stock when it finishes.
+- **Daily routines** are left out of the paper run; `schedule.js` runs them every day of their plan's window.
+
+`schedule.js` then places each job on a day: routines first, then jobs in order, each starting only when what it needs exists and any `waitDays` have passed, within the daylight at 62.5° N.
+
+### Design numbers
+
+Never type a design size into a procedure. Write `{stove.riserHeight}` and add the number to `params.js`, computed from the layout or the stove model. A test fails on any placeholder `params.js` cannot fill.
 
 ### Kinds
 
@@ -57,8 +77,8 @@ These are enforced by `tests/procedures.test.js`.
 1. **Nothing is assumed.** A tool is one of the ten kit items or is made by a `make` procedure. A material is on the site as it stands (`source: 'site'`) or comes from a procedure.
 2. **Everything resolves.** Every call, skill, tool and material names something that exists.
 3. **No cycles.** A procedure never calls itself, directly or through others.
-4. **Things exist before they are used.** Run on paper from any top-level plan, each made tool and produced material is finished before the procedure that needs it finishes.
-5. **Materials balance.** Over a top-level plan, each material is produced at least as much as it is used.
+4. **Things exist before they are used.** Run on paper from the season with a running stock, every tool is made and every material is in stock when a procedure needs it.
+5. **Self-contained.** Every procedure calls the gathering for each material it uses, the way a function calls what it depends on; the running stock stops that from being counted twice.
 6. **Everything is reachable.** Every procedure is called from some plan, and every skill is required by something.
 7. **Every job says when it is done.** Each non-skill procedure has at least one check.
 
@@ -76,3 +96,4 @@ These are enforced by `tests/procedures.test.js`.
 3. Add the id to `index.js`.
 4. Call it from the procedure that needs it.
 5. Run `node --test simulator/*.test.js shelter/*.test.js tests/*.test.js`.
+6. Check the season still schedules: open the Instructions page at `#schedule`.

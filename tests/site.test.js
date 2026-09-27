@@ -20,3 +20,15 @@ test('every page loads the menu from the right place', () => {
     assert.ok(html.includes(`<script src="${src}"></script>`), `${path.relative(root, file)} does not load ${src}`);
   }
 });
+
+test('every link into the instructions names an instruction that exists', () => {
+  const L = require('../procedures/lib.js');
+  const reg = L.byId(require('../procedures/index.js').load());
+  const pages = ['index.html', 'build-guide.html', 'survival-plan.html', 'shelter/index.html', 'rocket-mass-stove-section.html', 'simulator/index.html'];
+  for (const page of pages) {
+    const html = fs.readFileSync(path.join(root, page), 'utf8');
+    for (const m of html.matchAll(/procedures\/#([a-z0-9.-]+)/g)) {
+      assert.ok(m[1] === 'schedule' || reg.has(m[1]), `${page} links to procedures/#${m[1]}, which does not exist`);
+    }
+  }
+});
