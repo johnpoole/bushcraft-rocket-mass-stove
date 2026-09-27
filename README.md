@@ -6,6 +6,7 @@ A rocket mass stove built from clay, sand, stone and sticks gathered on site.
 - [rocket-mass-stove-section.html](rocket-mass-stove-section.html): dimensioned section drawing
 - [simulator/index.html](simulator/index.html): step through the build, change the stove and see what goes wrong
 - [shelter/index.html](shelter/index.html): a one-person shelter built around the stove between three trees and a post, in 3D
+- [survival-plan.html](survival-plan.html): a plan for a season on Great Slave Lake living on fish, snares and foraging
 
 ## Running the simulator
 
