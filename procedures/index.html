@@ -52,6 +52,7 @@ ol.steps>li{padding-left:4px}
 <script src="catalog.food.js"></script>
 <script src="catalog.js"></script>
 <script src="lib.js"></script>
+<script src="schedule.js"></script>
 <script src="index.js"></script>
 <script>
 (function () {
@@ -100,6 +101,7 @@ ol.steps>li{padding-left:4px}
       const groups = ['plan', 'task', 'make', 'gather', 'skill'];
       app.innerHTML = `
         <h1>Instructions</h1>
+        <p><a href="#schedule">Season schedule</a> · <a href="#plan.season">The season plan</a></p>
         <p class="sub">Every job in the camp, written like code. Each one lists the tools, materials and skills it needs, and calls other instructions as steps, the way a function calls functions. Only the ten kit items are assumed; everything else is made or gathered by an instruction here. Start from a plan.</p>
         ${problems.length ? `<div class="err">Problems in the instructions:\n${esc(problems.join('\n'))}</div>` : ''}
         <div class="list">${groups.map((k) => {
@@ -156,10 +158,45 @@ ol.steps>li{padding-left:4px}
         ${hasCalls ? `<h2>Call tree</h2><div class="tree">${esc(treeText(p.id))}</div>` : ''}`;
     }
 
+    function renderSchedule() {
+      document.title = 'Season Schedule';
+      const Sch = window.ProcSchedule;
+      const r = Sch.run('plan.season', reg, C, L);
+      const fmt = (d) => d === null ? '<strong>not done</strong>' : `${r.dateOf(d)} (day ${d})`;
+      const milestones = ['plan.first-days', 'shelter.frame', 'fish.build-weir', 'snare.set-line', 'shelter.walls', 'plan.stove-stage-one', 'stove.first-firing', 'plan.stove-stage-two', 'shelter.earth-skirt', 'shelter.snow-bank', 'fish.ice-net']
+        .filter((id) => reg.get(id)).map((id) => {
+          const due = r.jobs.filter((j) => j.id === id || j.parents.includes(id)).reduce((t, j) => Math.min(t, j.window.to), Infinity);
+          return `<tr><td>${link(id)}</td><td>${fmt(r.finish(id))}</td><td>${due === Infinity ? '–' : `${r.dateOf(due)} (day ${due})`}</td></tr>`;
+        }).join('');
+      const weeks = [];
+      for (let i = 0; i < r.days.length; i += 7) {
+        const w = r.days.slice(i, i + 7);
+        const sum = (f) => w.reduce((t, d) => t + f(d), 0);
+        const jobs = new Map();
+        w.forEach((d) => d.did.forEach((x) => jobs.set(x.id, (jobs.get(x.id) || 0) + x.hours)));
+        const top = [...jobs].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id]) => esc(reg.get(id).title)).join(', ');
+        weeks.push(`<tr><td>${w[0].date}</td><td>${(sum((d) => d.daylight) / w.length).toFixed(1)}</td><td>${sum((d) => d.work).toFixed(0)}</td><td>${sum((d) => d.routineHours).toFixed(0)}</td><td>${sum((d) => d.buildHours).toFixed(0)}</td><td>${top || '–'}</td></tr>`);
+      }
+      app.innerHTML = `
+        <p><a href="#">All instructions</a></p>
+        <h1>Season schedule</h1>
+        <p class="sub">The season plan run day by day: daylight at 62.5° N, daily routines first, then each building job in order, starting only when its tools and materials exist and any drying wait has passed. Hours are the instructions' own estimates, so this is a rough guide, not a promise.</p>
+        <div class="grid">
+          <div class="box"><h3>Building needed</h3><p><strong>${r.needed.toFixed(0)} h</strong></p></div>
+          <div class="box"><h3>Building done by ${r.dateOf(r.days.length - 1)}</h3><p><strong>${r.built.toFixed(0)} h</strong></p></div>
+          <div class="box"><h3>Routines over the daylight</h3><p><strong>${r.routineOverrun.toFixed(0)} h</strong></p></div>
+        </div>
+        ${r.unfinished.length ? `<p class="err">The plan does not fit: ${r.unfinished.length} jobs, about ${(r.needed - r.built).toFixed(0)} hours of building, are still undone at the end, and ${r.late.length} jobs finish after their phase ends. The daily routines alone take more than the working day on many days.</p>` : ''}
+        <h2>Milestones</h2>
+        <div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr><th align="left">Job</th><th align="left">Finished</th><th align="left">Due</th></tr>${milestones}</table></div>
+        <h2>Week by week</h2>
+        <div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums"><tr><th align="left">Week of</th><th align="left">Daylight h</th><th align="left">Work h</th><th align="left">Routines h</th><th align="left">Building h</th><th align="left">Main jobs</th></tr>${weeks.join('')}</table></div>`;
+    }
+
     function route() {
       const id = decodeURIComponent(location.hash.slice(1));
       const p = id && reg.get(id);
-      if (p) renderOne(p); else renderList();
+      if (id === 'schedule') renderSchedule(); else if (p) renderOne(p); else renderList();
       window.scrollTo(0, 0);
     }
     window.addEventListener('hashchange', route);

@@ -34,26 +34,31 @@
   // { from, to } in days from the start: its jobs cannot start before `from` and should be
   // finished by `to`; a routine (repeat: 'daily') called inside it runs every day of the window.
   function compile(rootId, reg, cat, L) {
-    const jobs = [], routines = [];
-    const lastMaker = new Map();   // tool or material id → index of the job that last produced it
-    const walk = (id, window, parents) => {
-      const p = reg.get(id);
-      const w = p.window ? { from: Math.max(window.from, p.window.from), to: p.window.to !== undefined ? p.window.to : window.to } : window;
-      if (p.repeat === 'daily') {
-        routines.push({ id, window: w, hours: L.hours(id, reg), afterDark: !!(p.estimate && p.estimate.afterDark) });
-        return;
-      }
-      for (const c of L.callsOf(p)) walk(c, w, [...parents, id]);
-      if (p.kind === 'plan' || p.kind === 'skill') return;
+    const merge = (w, p) => (p.window ? { from: Math.max(w.from, p.window.from), to: p.window.to !== undefined ? p.window.to : w.to } : w);
+    // Daily routines, with the window of the plans that call them.
+    const routines = [];
+    const findRoutines = (id, w) => {
+      const p = reg.get(id), ww = merge(w, p);
+      if (p.repeat === 'daily') { routines.push({ id, window: ww, hours: L.hours(id, reg, cat), afterDark: !!p.estimate.afterDark }); return; }
+      for (const c of L.callsOf(p)) findRoutines(c, ww);
+    };
+    findRoutines(rootId, { from: 0, to: Infinity });
+    // Build jobs: what actually runs once the stock is taken into account.
+    const r = L.run(rootId, reg, cat, { supplied: L.dailyMaterials(rootId, reg) });
+    const jobs = [], lastMaker = new Map(), stack = [];
+    for (const e of r.events) {
+      const p = reg.get(e.id);
+      if (e.type === 'enter') { stack.push({ id: e.id, window: merge(stack.length ? stack[stack.length - 1].window : { from: 0, to: Infinity }, p) }); continue; }
+      const frame = stack.pop();
+      if (p.kind === 'plan' || p.kind === 'skill') continue;
       const deps = new Set();
       for (const t of p.requires.tools) if (lastMaker.has(t)) deps.add(lastMaker.get(t));
       for (const m of p.requires.materials) if (lastMaker.has(m.id)) deps.add(lastMaker.get(m.id));
-      const job = { index: jobs.length, id, hours: p.estimate.hours, waitDays: p.estimate.waitDays || 0, deps: [...deps], window: w, parents: [...parents] };
+      const job = { index: jobs.length, id: e.id, hours: p.estimate.hours, waitDays: p.estimate.waitDays || 0, deps: [...deps], window: frame.window, parents: stack.map((f) => f.id) };
       jobs.push(job);
       for (const t of p.produces.tools) lastMaker.set(t, job.index);
       for (const m of p.produces.materials) lastMaker.set(m.id, job.index);
-    };
-    walk(rootId, { from: 0, to: Infinity }, []);
+    }
     return { jobs, routines };
   }
 
@@ -80,7 +85,7 @@
         if (left[i] <= 1e-9) done[i] = day;
       }
       while (cursor < jobs.length && done[cursor] !== null) cursor++;
-      days.push({ day, date: dateOf(day, opt), daylight: light, work, routines: active.map((r) => r.id), routineHours, buildHours: work - routineHours - free, idle: free, did });
+      days.push({ day, date: dateOf(day, opt), daylight: light, work, routines: active.map((r) => r.id), routineHours, buildHours: Math.max(0, work - routineHours) - free, idle: free, did });
     }
     const finish = (id) => {
       const idx = jobs.filter((j) => j.id === id || j.parents.includes(id)).map((j) => j.index);
@@ -90,7 +95,10 @@
     const late = jobs.filter((j) => j.window.to !== Infinity && (done[j.index] === null || done[j.index] > j.window.to))
       .map((j) => ({ id: j.id, due: j.window.to, finished: done[j.index] }));
     const unfinished = jobs.filter((j) => done[j.index] === null).map((j) => j.id);
-    return { options: opt, jobs, routines, done, days, finish, late, unfinished, dateOf: (d) => dateOf(d, opt) };
+    const needed = jobs.reduce((t, j) => t + j.hours, 0);
+    const built = days.reduce((t, d) => t + d.buildHours, 0);
+    const short = days.reduce((t, d) => t + Math.max(0, d.routineHours - d.work), 0);
+    return { options: opt, jobs, routines, done, days, finish, late, unfinished, needed, built, routineOverrun: short, dateOf: (d) => dateOf(d, opt) };
   }
 
   const api = { DEFAULTS, daylight, compile, run };
