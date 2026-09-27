@@ -32,8 +32,12 @@
         "call": "make.bark-tray"
       },
       {
-        "call": "shelter.roof",
-        "note": "build the roof this way from the start; do not retrofit it"
+        "call": "shelter.roof-cover",
+        "note": "in the first days"
+      },
+      {
+        "call": "shelter.roof-insulate",
+        "note": "once the moss is dry"
       },
       {
         "call": "shelter.earth-skirt",

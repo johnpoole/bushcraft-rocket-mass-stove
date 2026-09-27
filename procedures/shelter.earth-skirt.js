@@ -5,7 +5,7 @@
     "id": "shelter.earth-skirt",
     "kind": "task",
     "title": "Bank earth around the foot of the walls",
-    "purpose": "Close the draughts where the walls meet the ground with a low bank of earth, before the snow comes.",
+    "purpose": "Seal the draughts where the walls meet the ground with a low bank of earth, before the snow comes. It stops air leaking in under the bottom log; it adds little insulation.",
     "requires": {
       "tools": [
         "measuring-stick",

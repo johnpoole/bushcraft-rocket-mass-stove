@@ -5,6 +5,7 @@ const path = require('node:path');
 const L = require('../procedures/lib.js');
 const C = require('../procedures/catalog.js');
 const { IDS, load } = require('../procedures/index.js');
+const params = require('../procedures/params.js').load();
 
 const dir = path.join(__dirname, '..', 'procedures');
 const reg = L.byId(load());
@@ -60,4 +61,16 @@ test('winterizing needs nothing beyond the kit, the site and procedures it calls
   assert.deepEqual(n.toMake, []);
   for (const t of n.carried) assert.ok(C.KIT.includes(t));
   for (const m of n.inputs) assert.equal(C.MATERIALS[m.id].source, 'site', `${m.id} is an input but is not on the site`);
+});
+
+test('every design number a procedure quotes comes from params.js', () => {
+  for (const p of reg.values()) for (const k of L.placeholders(p)) assert.ok(k in params, `${p.id} quotes {${k}}, which params.js does not define`);
+});
+
+test('no procedure hard-codes a stove size that params.js provides', () => {
+  // A bare "110 cm" in text would drift the next time the design changes.
+  const sizes = ['stove.riserHeight', 'stove.tunnelLength', 'chimney.top'].map((k) => String(params[k]));
+  for (const p of reg.values()) for (const t of L.texts(p)) for (const v of sizes) {
+    assert.ok(!new RegExp(`(^|[^\\d.{])${v.replace('.', '\\.')} ?c?m\\b`).test(t), `${p.id} writes ${v} directly: "${t}"`);
+  }
 });

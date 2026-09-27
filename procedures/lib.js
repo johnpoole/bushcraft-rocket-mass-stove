@@ -65,6 +65,8 @@
     }
     if (!p.checks.length && p.kind !== 'skill') e.push(`${at}: needs at least one check that says when it is done`);
     if (!p.estimate || !(typeof p.estimate.hours === 'number' && p.estimate.hours >= 0)) e.push(`${at}: estimate.hours is missing`);
+    if (p.estimate && p.estimate.waitDays !== undefined && !(typeof p.estimate.waitDays === 'number' && p.estimate.waitDays > 0)) e.push(`${at}: estimate.waitDays must be a number of days above 0`);
+    if (p.repeat !== undefined && p.repeat !== 'daily') e.push(`${at}: repeat must be "daily" when given`);
     return e;
   }
 
@@ -170,13 +172,22 @@
     return e;
   }
 
+  // Fill {name} placeholders in a procedure's text from the design numbers in params.js.
+  const PLACEHOLDER = /\{([a-z][A-Za-z0-9]*(?:\.[A-Za-z0-9]+)+)\}/g;
+  const render = (text, params) => String(text).replace(PLACEHOLDER, (m, k) => (k in params ? String(params[k]) : m));
+  function texts(p) {
+    return [p.title, p.purpose, ...p.preconditions, ...p.checks, ...p.safety,
+      ...p.steps.map((s) => (isCall(s) ? s.note || '' : s)), (p.estimate && p.estimate.note) || ''];
+  }
+  const placeholders = (p) => texts(p).flatMap((t) => [...String(t).matchAll(PLACEHOLDER)].map((m) => m[1]));
+
   const usedBy = (id, reg) => [...reg.values()].filter((p) => callsOf(p).includes(id) || p.requires.skills.includes(id)).map((p) => p.id);
   const roots = (reg) => [...reg.values()].filter((p) => p.kind !== 'skill' && ![...reg.values()].some((q) => callsOf(q).includes(p.id))).map((p) => p.id);
 
   // Hours of work in one run of a procedure and everything it calls.
   const hours = (id, reg) => trace(id, reg).filter((x) => x.type === 'exit').reduce((t, x) => t + reg.get(x.id).estimate.hours, 0);
 
-  const api = { KINDS, byId, validate, validateCatalog, trace, needs, availability, balance, usedBy, roots, hours, callsOf, isCall };
+  const api = { KINDS, byId, validate, validateCatalog, trace, needs, availability, balance, usedBy, roots, hours, callsOf, isCall, render, placeholders, texts };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.ProcLib = api;
 })(this);

@@ -41,6 +41,7 @@
     "safety": [],
     "estimate": {
       "hours": 8,
+      "waitDays": 3,
       "note": "Plus about 3 dry days of drying, with turning in between."
     }
   };

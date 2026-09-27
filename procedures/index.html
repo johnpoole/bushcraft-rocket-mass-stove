@@ -44,6 +44,9 @@ ol.steps>li{padding-left:4px}
 <body>
 <script src="../nav.js"></script>
 <div class="wrap" id="app"><p class="sub">Loading the instructions…</p></div>
+<script src="../simulator/model.js"></script>
+<script src="../shelter/layout.js"></script>
+<script src="params.js"></script>
 <script src="catalog.js"></script>
 <script src="lib.js"></script>
 <script src="index.js"></script>
@@ -67,6 +70,8 @@ ol.steps>li{padding-left:4px}
   loadAll().then(() => {
     const L = window.ProcLib, C = window.Catalog;
     const reg = L.byId(window.PROCEDURES);
+    const params = window.ProcParams.build(window.ShelterLayout, window.StoveModel);
+    const T = (t) => esc(L.render(t, params));
     const problems = [...reg.values()].flatMap((p) => L.validate(p, reg, C)).concat(L.validateCatalog(reg, C));
     const link = (id) => reg.get(id) ? `<a href="#${esc(id)}">${esc(reg.get(id).title)}</a>` : `<code>${esc(id)}</code>`;
     const toolName = (t) => {
@@ -96,7 +101,7 @@ ol.steps>li{padding-left:4px}
         ${problems.length ? `<div class="err">Problems in the instructions:\n${esc(problems.join('\n'))}</div>` : ''}
         <div class="list">${groups.map((k) => {
           const ps = [...reg.values()].filter((p) => p.kind === k);
-          return ps.length ? `<div class="group"><h2>${KIND_NAMES[k]}${k === 'skill' ? 's' : k === 'plan' ? 's' : ''}</h2><ul>${ps.map((p) => `<li>${link(p.id)} <span class="src">— ${esc(p.purpose)}</span></li>`).join('')}</ul></div>` : '';
+          return ps.length ? `<div class="group"><h2>${KIND_NAMES[k]}${k === 'skill' ? 's' : k === 'plan' ? 's' : ''}</h2><ul>${ps.map((p) => `<li>${link(p.id)} <span class="src">— ${T(p.purpose)}</span></li>`).join('')}</ul></div>` : '';
         }).join('')}</div>
         <h2>The kit</h2>
         <p class="sub">The only things carried in. Every other tool is made on site.</p>
@@ -110,14 +115,14 @@ ol.steps>li{padding-left:4px}
       const total = L.hours(p.id, reg);
       const r = p.requires;
       const steps = p.steps.map((s) => L.isCall(s)
-        ? `<li><span class="call">${link(s.call)}</span>${s.times > 1 ? ` <span class="note">× ${s.times}</span>` : ''}${s.note ? ` <span class="note">— ${esc(s.note)}</span>` : ''}</li>`
-        : `<li>${esc(s)}</li>`).join('');
+        ? `<li><span class="call">${link(s.call)}</span>${s.times > 1 ? ` <span class="note">× ${s.times}</span>` : ''}${s.note ? ` <span class="note">— ${T(s.note)}</span>` : ''}</li>`
+        : `<li>${T(s)}</li>`).join('');
       const hasCalls = p.steps.some(L.isCall);
       app.innerHTML = `
         <p><a href="#">All instructions</a></p>
         <div class="head"><span class="chip">${KIND_NAMES[p.kind]}</span><span class="id">${esc(p.id)}</span></div>
-        <h1>${esc(p.title)}</h1>
-        <p class="sub">${esc(p.purpose)}</p>
+        <h1>${T(p.title)}</h1>
+        <p class="sub">${T(p.purpose)}</p>
         ${by.length ? `<p class="src">Called by: ${by.map(link).join(', ')}</p>` : ''}
 
         <h2>Needs for this instruction</h2>
@@ -138,13 +143,13 @@ ol.steps>li{padding-left:4px}
           <div class="box"><h3>Taken from the site</h3>${ul(n.inputs.map((m) => matName(m)), 'Nothing beyond what it gathers')}</div>
         </div>` : ''}
 
-        ${p.preconditions.length ? `<h2>Before you start</h2>${ul(p.preconditions.map(esc))}` : ''}
+        ${p.preconditions.length ? `<h2>Before you start</h2>${ul(p.preconditions.map(T))}` : ''}
         <h2>Steps</h2>
         <ol class="steps">${steps}</ol>
-        ${p.checks.length ? `<h2>Done when</h2>${ul(p.checks.map(esc))}` : ''}
-        ${p.safety.length ? `<h2>Safety</h2><ul class="safety">${p.safety.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+        ${p.checks.length ? `<h2>Done when</h2>${ul(p.checks.map(T))}` : ''}
+        ${p.safety.length ? `<h2>Safety</h2><ul class="safety">${p.safety.map((s) => `<li>${T(s)}</li>`).join('')}</ul>` : ''}
         <h2>Time</h2>
-        <p>About ${+p.estimate.hours.toFixed(1)} hours for this instruction's own steps${hasCalls ? `, about ${+total.toFixed(1)} hours including everything it calls` : ''}.${p.estimate.note ? ` ${esc(p.estimate.note)}` : ''} These are estimates.</p>
+        <p>About ${+p.estimate.hours.toFixed(1)} hours for this instruction's own steps${hasCalls ? `, about ${+total.toFixed(1)} hours including everything it calls` : ''}.${p.estimate.note ? ` ${T(p.estimate.note)}` : ''}${p.estimate.waitDays ? ` Then wait about ${p.estimate.waitDays} days before what follows can use it.` : ''}${p.repeat === 'daily' ? ' Done every day.' : ''} These are estimates.</p>
         ${hasCalls ? `<h2>Call tree</h2><div class="tree">${esc(treeText(p.id))}</div>` : ''}`;
     }
 
