@@ -7,7 +7,6 @@
     ['', 'Home'],
     ['build-guide.html', 'Build guide'],
     ['rocket-mass-stove-section.html', 'Section drawing'],
-    ['rocket-mass-bed.html', 'Mass bed'],
     ['simulator/', 'Simulator'],
     ['shelter/', 'Shelter'],
     ['survival-plan.html', 'Season plan'],

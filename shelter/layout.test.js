@@ -10,13 +10,12 @@ test('the stove in this layout draws well with no problems', () => {
   assert.ok(res.bench.warmHours >= 8, `bench warm ${res.bench.warmHours} h`);
 });
 
-test('stage one, with only a covered duct, already draws well and keeps the log chimney cool', () => {
+test('stage one, with only a covered duct, already draws well and starts from cold', () => {
   const p = { ...M.DEFAULTS, ...stage1Changes };
   const res = M.simulate(p);
   const ids = M.diagnose(res).map((d) => d.id);
   assert.deepEqual(ids.filter((id) => id !== 'thinMass'), [], `stage one problems: ${ids.join(', ')}`);
   assert.ok(res.airRatio >= 1.5, `air ratio ${res.airRatio}`);
-  assert.ok(res.temps.exhaust <= 150, `exhaust ${res.temps.exhaust}°C too hot for the log chimney`);
   const cold = M.simulate({ ...p, coldStart: true });
   assert.ok(!cold.stalled && cold.airRatio >= 1.2, `cold start air ratio ${cold.airRatio}`);
 });
@@ -34,10 +33,9 @@ test('the chimney clears the riser and the roof beside it', () => {
   assert.ok(D.chimneyX - S.chimney.outer / 2 > D.roofWestEdge, 'chimney touches the roof edge');
 });
 
-test('the log part of the chimney only carries cool exhaust', () => {
-  const res = M.simulate({ ...M.DEFAULTS, ...stoveChanges });
-  assert.ok(res.temps.exhaust <= 150, `exhaust ${res.temps.exhaust}°C is too hot for a clay-lined log`);
-  assert.ok(S.chimney.masonryHeight >= 0.8 && S.chimney.masonryHeight < S.chimney.top, `masonry ${S.chimney.masonryHeight} m`);
+test('the chimney is stone and cob all the way up, with no wood in the flue', () => {
+  assert.deepEqual(Object.keys(S.chimney).filter((k) => /log|brace|masonry/i.test(k)), [], 'chimney layout still has a log part');
+  assert.ok(D.volumes.chimneyBase >= (S.chimney.outer ** 2 - 0.01) * S.chimney.top - 1e-9, 'chimney volume does not reach the top');
 });
 
 test('the channel run is within the guide limit of 3–4 m plus the duct to the chimney and the climb out of the pit', () => {

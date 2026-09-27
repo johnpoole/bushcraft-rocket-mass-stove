@@ -5,7 +5,6 @@ A rocket mass stove built from clay, sand, stone and sticks gathered on site.
 - [index.html](index.html): home page linking the others; every page carries the same menu from [nav.js](nav.js)
 - [build-guide.html](build-guide.html): materials, mixes, sizing, build steps, first firing, running it, the fish weir, safety
 - [rocket-mass-stove-section.html](rocket-mass-stove-section.html): dimensioned section drawing
-- [rocket-mass-bed.html](rocket-mass-bed.html): a 15 cm, no-metal version that heats a single bed, with sizes, build order and safety
 - [simulator/index.html](simulator/index.html): step through the build, change the stove and see what goes wrong
 - [shelter/index.html](shelter/index.html): a one-person shelter built around the stove between three trees and a post, in 3D
 - [survival-plan.html](survival-plan.html): a plan for a season on Great Slave Lake living on fish, snares and foraging
@@ -23,5 +22,5 @@ Then open http://localhost:8000/simulator/.
 Tests for the stove model (Node 18 or later):
 
 ```
-node --test simulator/ shelter/ tests/
+node --test simulator/*.test.js shelter/*.test.js tests/*.test.js
 ```

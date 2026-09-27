@@ -22,8 +22,9 @@
     backGap: 0.1,
     foundation: 0.1,
     bench: { width: 0.7, height: 0.45, legWidth: 0.6 },
-    // Stone and cob to 1 m, then a hollow log lined with clay, lashed to a post beside it.
-    chimney: { outer: 0.4, z: 1.25, roofClearance: 0.15, top: 2.35, masonryHeight: 1.0, logOuter: 0.28, braceGap: 0.3 },
+    // Stone and cob all the way up. No wood anywhere in the flue: in stage one, with only a
+    // thin duct cover, the exhaust runs hotter than the finished bench lets it.
+    chimney: { outer: 0.4, z: 1.25, roofClearance: 0.15, top: 2.35 },
     // The shore runs east to west, 25 m south of the shelter and 2.5 m below it.
     lake: { shoreZ: 25, drop: 2.5 },
     // Camp for fishing and snaring. Points are ground positions in metres.
@@ -204,7 +205,7 @@
   const flue = (st.riserSize / 100) ** 2;
   const core = dome * dome * domeH - inner * inner * (domeH - S.domeWall)
     + (riserOuter * riserOuter - flue) * st.riserHeight / 100 + 0.03;
-  const chimneyBase = (S.chimney.outer ** 2 - flue) * S.chimney.masonryHeight;
+  const chimneyBase = (S.chimney.outer ** 2 - flue) * S.chimney.top;
   const benchVol = (S.inside.x - coreX1) * S.bench.width * (S.bench.height - S.foundation)
     + S.bench.legWidth * (S.inside.z - 0.1 - S.backGap - S.bench.width) * (S.bench.height - S.foundation)
     - flue * channelLength;

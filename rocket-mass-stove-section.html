@@ -59,7 +59,7 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <p class="sub">All dimensions are in centimetres and measure the <strong>inside clear opening</strong>: the space the fire and gas travel through. Wall thickness goes outside these numbers, so size your formers to them. Heights are measured from the burn tunnel floor, which is level with the shelter floor.</p>
 
 <figure class="sheet"><div class="scroll">
-<svg viewBox="-50 10 1180 890" role="img" aria-label="Side section of the rocket mass stove: 10 by 10 cm feed tube 30 cm tall, 40 cm burn tunnel level with the floor on 10 cm of light clay over 10 cm of dry stone, 110 cm insulated riser inside a cob dome with a 5 cm side gap and a 6 cm gap under the stone cooktop, a 10 by 10 cm channel that climbs 10 cm into the bench under 20 cm of mass and runs about 3.9 m, and a chimney of stone and cob to 1 m then a clay-lined hollow log, topping out 125 cm above the riser.">
+<svg viewBox="-50 10 1180 890" role="img" aria-label="Side section of the rocket mass stove: 10 by 10 cm feed tube 30 cm tall, 40 cm burn tunnel level with the floor on 10 cm of light clay over 10 cm of dry stone, 110 cm insulated riser inside a cob dome with a 5 cm side gap and a 6 cm gap under the stone cooktop, a 10 by 10 cm channel that climbs 10 cm into the bench under 20 cm of mass and runs about 3.9 m, and a chimney of stone and cob all the way up, topping out 125 cm above the riser.">
 <defs>
 <marker id="tick" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="9" markerHeight="9" orient="auto"><line x1="2" y1="8" x2="8" y2="2" stroke="currentColor" stroke-width="1.4"/></marker>
 <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#d4531c"/></marker>
@@ -86,15 +86,13 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <!-- bench: the channel climbs 10 out of the dome, then 20 of mass over it -->
 <polygon class="cob" points="402,570 642,570 642,650 442,650 402,690"/>
 <rect class="cob" x="682" y="570" width="88" height="80"/>
-<!-- chimney: stone and cob to 1 m, then a clay-lined hollow log -->
+<!-- chimney: stone and cob all the way up -->
 <rect class="cob" x="770" y="330" width="32" height="320"/>
 <rect class="cob" x="842" y="330" width="32" height="320"/>
 <rect class="slab" x="842" y="650" width="32" height="40"/>
 <rect class="cob" x="842" y="690" width="32" height="40"/>
-<rect class="log" x="770" y="90" width="32" height="240"/>
-<rect class="log" x="842" y="90" width="32" height="240"/>
-<rect class="cob" x="798" y="90" width="4" height="240"/>
-<rect class="cob" x="842" y="90" width="4" height="240"/>
+<rect class="cob" x="770" y="90" width="32" height="240"/>
+<rect class="cob" x="842" y="90" width="32" height="240"/>
 <rect class="gap" x="760" y="150" width="124" height="40"/>
 <polyline class="brk" points="762,150 774,140 786,150 798,140 810,150 822,140 834,150 846,140 858,150 870,140 882,150"/>
 <polyline class="brk" points="762,190 774,180 786,190 798,180 810,190 822,180 834,190 846,180 858,190 870,180 882,190"/>
@@ -163,10 +161,8 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <text class="note" x="560" y="716" text-anchor="middle">10 dry stone</text>
 <polyline class="lead" points="622,610 610,498 602,498"/>
 <text class="note" x="598" y="502" text-anchor="end">cob + dense stone bench</text>
-<polyline class="lead" points="874,250 930,230 936,230"/>
-<text class="note" x="940" y="234" text-anchor="start">clay-lined hollow log</text>
 <polyline class="lead" points="874,470 930,450 936,450"/>
-<text class="note" x="940" y="454" text-anchor="start">stone and cob to 1 m</text>
+<text class="note" x="940" y="454" text-anchor="start">stone and cob all the way up</text>
 <polyline class="lead" points="874,670 930,640 936,640"/>
 <text class="note" x="940" y="644" text-anchor="start">cleanout plug</text>
 <text class="note" x="940" y="110" text-anchor="start">top 2.35 m</text>
@@ -218,7 +214,6 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <li><span class="sw" style="background:var(--cob)"></span>Cob: 1 clay to 2–3 sand, plus fibre; pack dense stone into the bench</li>
 <li><span class="sw" style="background:var(--slab)"></span>Flat stone slab (dry-land stone only)</li>
 <li><span class="sw" style="background:#9aa39c"></span>Dry stone, under the light clay base and the bench</li>
-<li><span class="sw" style="background:var(--log)"></span>Hollow log, lined inside with clay</li>
 <li><span class="sw" style="border:0;background:linear-gradient(90deg,var(--ember) 60%,transparent 60%) 0 50%/9px 2px repeat-x"></span>Fire and exhaust path</li>
 </ul>
 </div>
@@ -236,7 +231,7 @@ td:nth-child(2){white-space:nowrap;font-weight:600}
 <tr><td>Riser to dome wall</td><td>5</td><td>About 5 clear gap all round.</td></tr>
 <tr><td>Bench mass over channel</td><td>20</td><td>15–25, top of channel opening to bench surface.</td></tr>
 <tr><td>Channel run</td><td>3.9 m</td><td>Up to 3–4 m with as few sharp bends as possible. Climbs 10 from the dome into the bench.</td></tr>
-<tr><td>Chimney top</td><td>+125</td><td>At least 60 above the riser top lip, and 60 above the roof beside it. 2.35 m above the floor: stone and cob to 1 m, then a clay-lined hollow log.</td></tr>
+<tr><td>Chimney top</td><td>+125</td><td>At least 60 above the riser top lip, and 60 above the roof beside it. 2.35 m above the floor, stone and cob all the way up. No wood in the flue.</td></tr>
 <tr><td>Base under the stove</td><td>10 + 10</td><td>Light clay over dry stone, below the floor, so the tunnel floor is level with the shelter floor.</td></tr>
 </table></div>
 </figure>

@@ -27,7 +27,7 @@ test('the build guide gives the same stove sizes as the shelter layout', () => {
     ['Bench channel', `about ${D.channelLength.toFixed(1)} m, ${stoveChanges.bends} bends`],
     ['Mass over the channel', `${st.benchCover} cm`],
     ['Chimney', `top ${S.chimney.top} m`],
-    ['Chimney', `to ${S.chimney.masonryHeight} m`],
+    ['Chimney', 'stone and cob all the way up'],
   ];
   for (const [part, text] of want) assert.ok(sizeOf(part).includes(text), `guide row "${part}" says "${sizeOf(part)}", expected it to include "${text}"`);
 });
