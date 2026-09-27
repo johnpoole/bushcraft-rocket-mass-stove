@@ -87,6 +87,11 @@ a{color:var(--ember)}
     <p style="margin:8px 0 0">The stove stands by the post, in the corner farthest from the trees. The bench runs along the back wall and turns along the west wall. The flue leaves through the west wall to a chimney between the two west trees, clear of the roof. <a href="../simulator/">Open the stove simulator</a></p>
   </section>
   <section>
+    <h2>Keeping the heat in</h2>
+    <table id="heat"></table>
+    <p style="margin:8px 0 0">Rough estimates from <code>heat.js</code>, with 10°C inside and −30°C outside. The roof leaks the most as first built, so layering it saves the most. Digging the floor down saves little and moves the most soil. All the steps are in <a href="../procedures/#plan.winterize">Winterize the shelter</a>.</p>
+  </section>
+  <section>
     <h2>Building it in stages</h2>
     <p style="margin:0 0 6px"><strong>Stage one, the first week.</strong> Build the base, the core with its cooktop, and the chimney. Lay the channel along the bench route as a trench lined with stones, covered with flat stones and sealed with clay. The stove cooks and warms the shelter while it burns, but stores little heat, so sleep on a bed of boughs.</p>
     <p style="margin:0 0 6px"><strong>Stage two, weeks two to four.</strong> Go on only if the clay is good. Build it mostly of stone and pre-dried clay blocks in thin clay mortar, in thin lifts dried by short fires, so it dries in one to three weeks. Pack cob and dense stone over the duct one section at a time, until there is 20 cm over the channel. Leave the lift-out stones over the two bends. The bench then holds the heat through the night.</p>
@@ -132,7 +137,7 @@ a{color:var(--ember)}
     <ol>
       <li>Clear to mineral soil. Cut a shallow ditch along the uphill side, behind the back wall, to turn rainwater around the shelter.</li>
       <li>Set the post at the fourth corner, one more halfway along the back, and one each side of the door. Lash a beam from the corner post to the north-west tree at 2.0 m, and a plate between the two south trees at 1.2 m. Pad the bark under each lashing with moss or bark and wrap it loosely, so the tree can sway and grow. Loosen the lashings every year.</li>
-      <li>Lay rafters every 40 cm from beam to plate. Stretch the tarp over them and tie it down at the edges. Cover it with 10 cm of moss and dirt to hold it in the wind and shield it from sparks and sun. Stop the tarp 30 cm short of the west edge, by the chimney, and cover that strip with bark and dirt. Where the roof passes a trunk, cut the tarp around it with a hand's width to spare and lay bark over the gap.</li>
+      <li>Lay rafters every 40 cm from beam to plate. Then build the roof in layers, as in <a href="../procedures/#shelter.roof">Build the layered roof</a>: a mat of poles, spruce boughs and 15 cm of dry moss, all under the tarp, with soil on top to hold it down. Stop the boughs and moss 30 cm short of the west edge, by the chimney. Where the roof passes a trunk, cut the tarp around it with a hand's width to spare and lay bark over the gap.</li>
       <li>Under the roof, in the post corner, dig out 20 cm for the stove base. Lay 10 cm of dry stone, then 10 cm of light clay, so the top is level with the floor. Run a gravel drain 30 cm deep from the stone layer out under the east wall and downhill. Build the stove on the base as in the <a href="../build-guide.html">build guide</a>, to the sizes in the table above. Lay the channel as a stone-lined duct under flat stones, and pack the bench over it later, as the stages above set out. Build the chimney in stone and cob all the way up to 2.35 m, with flat stones laid through the cob every few courses. Keep wood out of the flue. The channel climbs 10 cm from the stove into the bench. Leave 10 cm of light clay between the back wall and the stove and bench.</li>
       <li>Leave the cleanouts as you build: a flat stone plug at floor level in the face of the dome beside the feed tube, a removable stone in the bench top over each bend in the channel, and a plug at the foot of the chimney outside.</li>
       <li>Lay one course of flat stones, 15 cm high, under each wall to keep the bottom log off the wet ground. At each end of each wall and each side of the door, drive a pair of stakes, one inside the wall line and one outside. Stack logs 15 cm thick between the stakes, hewing the top and bottom of each log flat with the axe so they sit tight. Stop the logs 5 cm short of each trunk. Lash each pair of stakes together at the top. You need about 85 m of log in all.</li>
@@ -140,6 +145,8 @@ a{color:var(--ember)}
       <li>Leave a gap in the second log of the front wall as an air inlet, and a gap in the top log of the back wall as a vent. Hang a hide or blanket in the door.</li>
       <li>Drive four stakes for the counter and lay split log halves across them. Burn and scrape a log for the basin. Set a log round beside the stove as a step up to the cooktop.</li>
       <li>Dry everything, then fire the stove small at first as the guide says.</li>
+      <li>In October, before the ground freezes, <a href="../procedures/#shelter.earth-skirt">bank earth around the foot of the walls</a>.</li>
+      <li>Once snow comes to stay, <a href="../procedures/#shelter.snow-bank">bank snow against the walls and roof</a>, and clear the door, air inlet, vent and chimney after every snowfall.</li>
     </ol>
   </section>
   <section>
@@ -162,6 +169,7 @@ a{color:var(--ember)}
 
 <script src="../simulator/model.js"></script>
 <script src="layout.js"></script>
+<script src="heat.js"></script>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -223,6 +231,16 @@ try {
     ['Bench stays warm', `about ${Math.round(res.bench.warmHours)} h after ${M.DEFAULTS.burnHours} h of firing`],
     ['Problems found', probs.length ? probs.map((d) => d.title).join(', ') : 'none'],
   ].map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+
+  {
+    const Hm = window.ShelterHeat;
+    if (!Hm) throw new Error('heat.js did not load: ShelterHeat is missing.');
+    const dT = 40, stoveDay = res.firePower * res.heat.keptFraction * M.DEFAULTS.burnHours / 1000;
+    document.getElementById('heat').innerHTML = '<tr><th>Shelter</th><th>Heat loss</th><th>Per day</th><th>Soil moved</th></tr>' + Hm.SCENARIOS.map(([name, m]) => {
+      const c = Hm.conductance(S, m).total;
+      return `<tr><td>${name}</td><td>${(c * dT / 1000).toFixed(1)} kW</td><td>${Math.round(c * dT * 24 / 1000)} kWh</td><td>${Hm.soilMoved(S, m) ? Hm.soilMoved(S, m).toFixed(1) + ' m³' : '–'}</td></tr>`;
+    }).join('') + `<tr><td>Heat from ${M.DEFAULTS.burnHours} h of firing</td><td></td><td>${Math.round(stoveDay)} kWh</td><td></td></tr>`;
+  }
 
   const res1 = M.simulate({ ...M.DEFAULTS, ...Lay.stage1Changes });
   const probs1 = M.diagnose(res1).filter((d) => d.id !== 'thinMass');

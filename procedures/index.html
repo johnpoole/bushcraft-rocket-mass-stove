@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Camp Instructions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{color-scheme:light;--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;--ember:#d4531c;--chip:#e3e7e2;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--chip:#26302e;}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--chip:#26302e;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:28px 16px 48px}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:2.2rem;font-weight:700;line-height:1.05}
+h2{font-size:1.35rem;font-weight:600;margin:28px 0 8px;padding-top:10px;border-top:1px solid var(--line)}
+h3{font-size:1.1rem;font-weight:600;margin:14px 0 4px}
+p{margin:8px 0}
+ul,ol{margin:6px 0;padding-left:22px}
+li{margin:4px 0}
+a{color:var(--ember)}
+code,.id{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.85em}
+.sub{color:var(--muted);max-width:68ch}
+.chip{display:inline-block;background:var(--chip);border-radius:3px;padding:1px 8px;font:600 .75rem "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);vertical-align:middle}
+.head{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:baseline;margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:10px}
+.box{border:1px solid var(--line);background:var(--panel);border-radius:4px;padding:10px 14px}
+.box h3{margin-top:0}
+.box ul{padding-left:18px}
+.src{color:var(--muted);font-size:.85rem}
+ol.steps>li{padding-left:4px}
+.call{font-weight:600}
+.call::before{content:"▸ ";color:var(--ember)}
+.note{color:var(--muted);font-weight:400}
+.tree{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.82rem;line-height:1.5;background:var(--panel);border:1px solid var(--line);padding:10px 14px;overflow-x:auto;white-space:pre}
+.list .group{margin-top:18px}
+.list li{margin:2px 0}
+.err{border-left:4px solid var(--ember);background:var(--panel);padding:10px 14px;white-space:pre-wrap}
+.safety li::marker{color:var(--ember)}
+</style>
+</head>
+<body>
+<script src="../nav.js"></script>
+<div class="wrap" id="app"><p class="sub">Loading the instructions…</p></div>
+<script src="catalog.js"></script>
+<script src="lib.js"></script>
+<script src="index.js"></script>
+<script>
+(function () {
+  'use strict';
+  const app = document.getElementById('app');
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const KIND_NAMES = { plan: 'Plan', task: 'Task', make: 'Make a tool', gather: 'Gather', skill: 'Skill' };
+
+  function loadAll() {
+    return Promise.all(window.PROCEDURE_IDS.map((id) => new Promise((ok, fail) => {
+      const s = document.createElement('script');
+      s.src = `${id}.js`;
+      s.onload = ok;
+      s.onerror = () => fail(new Error(`procedures/${id}.js did not load`));
+      document.body.appendChild(s);
+    })));
+  }
+
+  loadAll().then(() => {
+    const L = window.ProcLib, C = window.Catalog;
+    const reg = L.byId(window.PROCEDURES);
+    const problems = [...reg.values()].flatMap((p) => L.validate(p, reg, C)).concat(L.validateCatalog(reg, C));
+    const link = (id) => reg.get(id) ? `<a href="#${esc(id)}">${esc(reg.get(id).title)}</a>` : `<code>${esc(id)}</code>`;
+    const toolName = (t) => {
+      const x = C.TOOLS[t];
+      if (!x) return esc(t);
+      return x.source === 'kit' ? `${esc(x.name)} <span class="src">(kit)</span>` : `${esc(x.name)} <span class="src">(made: ${link(x.source)})</span>`;
+    };
+    const matName = (m, withQty = true) => {
+      const x = C.MATERIALS[m.id];
+      const q = withQty ? `${+m.qty.toFixed(2)}${x.unit === 'count' ? ' ×' : ' ' + esc(x.unit)} ` : '';
+      const src = x.source === 'site' ? 'on the site' : link(x.source);
+      return `${q}${esc(x.name.toLowerCase())} <span class="src">(${src})</span>`;
+    };
+    const ul = (items, empty = 'None') => items.length ? `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>` : `<p class="src">${empty}</p>`;
+
+    function treeText(id) {
+      return L.trace(id, reg).filter((e) => e.type === 'enter')
+        .map((e) => `${'   '.repeat(e.depth)}${e.depth ? '└─ ' : ''}${reg.get(e.id).title}`).join('\n');
+    }
+
+    function renderList() {
+      document.title = 'Camp Instructions';
+      const groups = ['plan', 'task', 'make', 'gather', 'skill'];
+      app.innerHTML = `
+        <h1>Instructions</h1>
+        <p class="sub">Every job in the camp, written like code. Each one lists the tools, materials and skills it needs, and calls other instructions as steps, the way a function calls functions. Only the ten kit items are assumed; everything else is made or gathered by an instruction here. Start from a plan.</p>
+        ${problems.length ? `<div class="err">Problems in the instructions:\n${esc(problems.join('\n'))}</div>` : ''}
+        <div class="list">${groups.map((k) => {
+          const ps = [...reg.values()].filter((p) => p.kind === k);
+          return ps.length ? `<div class="group"><h2>${KIND_NAMES[k]}${k === 'skill' ? 's' : k === 'plan' ? 's' : ''}</h2><ul>${ps.map((p) => `<li>${link(p.id)} <span class="src">— ${esc(p.purpose)}</span></li>`).join('')}</ul></div>` : '';
+        }).join('')}</div>
+        <h2>The kit</h2>
+        <p class="sub">The only things carried in. Every other tool is made on site.</p>
+        ${ul(C.KIT.map((t) => esc(C.TOOLS[t].name)))}`;
+    }
+
+    function renderOne(p) {
+      document.title = p.title;
+      const n = L.needs(p.id, reg, C);
+      const by = L.usedBy(p.id, reg);
+      const total = L.hours(p.id, reg);
+      const r = p.requires;
+      const steps = p.steps.map((s) => L.isCall(s)
+        ? `<li><span class="call">${link(s.call)}</span>${s.times > 1 ? ` <span class="note">× ${s.times}</span>` : ''}${s.note ? ` <span class="note">— ${esc(s.note)}</span>` : ''}</li>`
+        : `<li>${esc(s)}</li>`).join('');
+      const hasCalls = p.steps.some(L.isCall);
+      app.innerHTML = `
+        <p><a href="#">All instructions</a></p>
+        <div class="head"><span class="chip">${KIND_NAMES[p.kind]}</span><span class="id">${esc(p.id)}</span></div>
+        <h1>${esc(p.title)}</h1>
+        <p class="sub">${esc(p.purpose)}</p>
+        ${by.length ? `<p class="src">Called by: ${by.map(link).join(', ')}</p>` : ''}
+
+        <h2>Needs for this instruction</h2>
+        <div class="grid">
+          <div class="box"><h3>Tools</h3>${ul(r.tools.map(toolName), 'Bare hands')}</div>
+          <div class="box"><h3>Materials</h3>${ul(r.materials.map((m) => matName(m)))}</div>
+          <div class="box"><h3>Skills</h3>${ul(r.skills.map(link))}</div>
+        </div>
+        ${p.produces.tools.length || p.produces.materials.length ? `<h3>Produces</h3>${ul([...p.produces.tools.map(toolName), ...p.produces.materials.map((m) => matName(m))])}` : ''}
+
+        ${hasCalls ? `
+        <h2>Everything needed, including what it calls</h2>
+        <div class="grid">
+          <div class="box"><h3>Carried in</h3>${ul(n.carried.map(toolName), 'Nothing from the kit')}</div>
+          <div class="box"><h3>Must already be made</h3>${ul(n.toMake.map(toolName))}</div>
+          <div class="box"><h3>Made along the way</h3>${ul(n.made.map(toolName))}</div>
+          <div class="box"><h3>Skills</h3>${ul(n.skills.map(link))}</div>
+          <div class="box"><h3>Taken from the site</h3>${ul(n.inputs.map((m) => matName(m)), 'Nothing beyond what it gathers')}</div>
+        </div>` : ''}
+
+        ${p.preconditions.length ? `<h2>Before you start</h2>${ul(p.preconditions.map(esc))}` : ''}
+        <h2>Steps</h2>
+        <ol class="steps">${steps}</ol>
+        ${p.checks.length ? `<h2>Done when</h2>${ul(p.checks.map(esc))}` : ''}
+        ${p.safety.length ? `<h2>Safety</h2><ul class="safety">${p.safety.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+        <h2>Time</h2>
+        <p>About ${+p.estimate.hours.toFixed(1)} hours for this instruction's own steps${hasCalls ? `, about ${+total.toFixed(1)} hours including everything it calls` : ''}.${p.estimate.note ? ` ${esc(p.estimate.note)}` : ''} These are estimates.</p>
+        ${hasCalls ? `<h2>Call tree</h2><div class="tree">${esc(treeText(p.id))}</div>` : ''}`;
+    }
+
+    function route() {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const p = id && reg.get(id);
+      if (p) renderOne(p); else renderList();
+      window.scrollTo(0, 0);
+    }
+    window.addEventListener('hashchange', route);
+    route();
+  }).catch((e) => {
+    app.innerHTML = `<div class="err">The instructions did not load: ${esc(e.message)}</div>`;
+  });
+})();
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@
 
   const PAGES = [
     ['', 'Home'],
+    ['procedures/', 'Instructions'],
     ['build-guide.html', 'Build guide'],
     ['rocket-mass-stove-section.html', 'Section drawing'],
     ['simulator/', 'Simulator'],
