@@ -11,7 +11,8 @@
         "snare-wire",
         "knife",
         "club",
-        "pot"
+        "pot",
+        "snare-line"
       ],
       "materials": [],
       "skills": [

@@ -39,13 +39,21 @@
     const routines = [];
     const findRoutines = (id, w) => {
       const p = reg.get(id), ww = merge(w, p);
-      if (p.repeat === 'daily') { routines.push({ id, window: ww, hours: L.hours(id, reg, cat), afterDark: !!p.estimate.afterDark }); return; }
+      if (p.repeat === 'daily') {
+        // Each step of a routine counts only once the made tools it needs exist: no weir checks before the weir.
+        const madeTools = (cid) => [...new Set(L.trace(cid, reg).filter((e) => e.type === 'exit')
+          .flatMap((e) => reg.get(e.id).requires.tools).filter((t) => cat.TOOLS[t] && cat.TOOLS[t].source !== 'kit'))];
+        const parts = [{ hours: p.estimate.hours, needs: [] }, ...p.steps.filter(L.isCall).flatMap((st) =>
+          Array(st.times || 1).fill({ hours: L.hours(st.call, reg, cat), needs: madeTools(st.call) }))];
+        routines.push({ id, window: ww, parts, hours: parts.reduce((t, x) => t + x.hours, 0), afterDark: !!p.estimate.afterDark });
+        return;
+      }
       for (const c of L.callsOf(p)) findRoutines(c, ww);
     };
     findRoutines(rootId, { from: 0, to: Infinity });
     // Build jobs: what actually runs once the stock is taken into account.
     const r = L.run(rootId, reg, cat, { supplied: L.dailyMaterials(rootId, reg) });
-    const jobs = [], lastMaker = new Map(), stack = [];
+    const jobs = [], lastMaker = new Map(), toolMaker = new Map(), stack = [];
     for (const e of r.events) {
       const p = reg.get(e.id);
       if (e.type === 'enter') { stack.push({ id: e.id, window: merge(stack.length ? stack[stack.length - 1].window : { from: 0, to: Infinity }, p) }); continue; }
@@ -56,15 +64,18 @@
       for (const m of p.requires.materials) if (lastMaker.has(m.id)) deps.add(lastMaker.get(m.id));
       const job = { index: jobs.length, id: e.id, hours: p.estimate.hours, waitDays: p.estimate.waitDays || 0, deps: [...deps], window: frame.window, parents: stack.map((f) => f.id) };
       jobs.push(job);
-      for (const t of p.produces.tools) lastMaker.set(t, job.index);
+      for (const t of p.produces.tools) { lastMaker.set(t, job.index); if (!toolMaker.has(t)) toolMaker.set(t, job.index); }
       for (const m of p.produces.materials) lastMaker.set(m.id, job.index);
     }
-    return { jobs, routines };
+    return { jobs, routines, toolMaker };
   }
 
   function run(rootId, reg, cat, L, options = {}) {
     const opt = { ...DEFAULTS, ...options };
-    const { jobs, routines } = compile(rootId, reg, cat, L);
+    const { jobs, routines, toolMaker } = compile(rootId, reg, cat, L);
+    // A tool made by a job counts from the day after that job finishes; one no job makes is taken as there.
+    const toolReady = (t, day) => !toolMaker.has(t) || (done[toolMaker.get(t)] !== null && done[toolMaker.get(t)] < day);
+    const routineHoursOn = (r, day) => r.parts.filter((x) => x.needs.every((t) => toolReady(t, day))).reduce((a, x) => a + x.hours, 0);
     const left = jobs.map((j) => j.hours);
     const done = jobs.map(() => null);   // day finished
     const days = [];
@@ -73,7 +84,7 @@
       const light = daylight(opt.startDayOfYear + day, opt.latitude);
       const work = Math.max(opt.minWorkHours, Math.min(opt.maxWorkHours, light - opt.overheadHours));
       const active = routines.filter((r) => day >= r.window.from && day <= r.window.to);
-      const routineHours = active.filter((r) => !r.afterDark).reduce((t, r) => t + r.hours, 0);
+      const routineHours = active.filter((r) => !r.afterDark).reduce((t, r) => t + routineHoursOn(r, day), 0);
       let free = Math.max(0, work - routineHours);
       const did = [];
       const ready = (j) => day >= j.window.from && j.deps.every((d) => done[d] !== null && day > done[d] + jobs[d].waitDays - (jobs[d].waitDays ? 0 : 1));

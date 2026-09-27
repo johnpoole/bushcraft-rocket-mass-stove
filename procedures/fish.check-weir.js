@@ -10,7 +10,8 @@
       "tools": [
         "knife",
         "club",
-        "axe"
+        "axe",
+        "fish-weir"
       ],
       "materials": [],
       "skills": [

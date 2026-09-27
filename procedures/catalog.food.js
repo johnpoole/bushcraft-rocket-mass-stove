@@ -3,6 +3,8 @@
   'use strict';
 
   const TOOLS = {
+    'fish-weir': { name: 'The fish weir across the creek, fishing', source: 'fish.build-weir' },
+    'snare-line': { name: 'The snare line, set', source: 'snare.set-line' },
     'net-poles': { name: 'Net poles: a crossbar on two tripods at the shore', source: 'make.net-poles' },
     'smoke-rack': { name: 'Smoke rack: a two-tier pole frame with a bark roof over a fire pit', source: 'make.smoke-rack' },
     'cache-pole': { name: 'Cache pole, 5 m long, 10–12 cm thick', source: 'make.cache-pole' },

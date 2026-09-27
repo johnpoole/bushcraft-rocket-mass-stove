@@ -22,7 +22,9 @@
       ]
     },
     "produces": {
-      "tools": [],
+      "tools": [
+        "snare-line"
+      ],
       "materials": []
     },
     "preconditions": [],

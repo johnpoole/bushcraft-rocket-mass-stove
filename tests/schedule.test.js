@@ -59,3 +59,15 @@ test('the season schedules every job the stock-aware run does, in an order its t
   }
   assert.ok(r.built <= r.days.reduce((t, d) => t + d.work, 0));
 });
+
+test('a routine step counts only once the tool it needs exists: no weir checks before the weir', () => {
+  const reg = L.byId([
+    P('plan.toy', 'plan', { window: { from: 0 }, steps: [{ call: 'task.chores' }, { call: 'make.digging-stick' }] }),
+    P('task.chores', 'task', { repeat: 'daily', steps: [{ call: 'task.check' }] }),
+    P('task.check', 'task', { requires: { tools: ['digging-stick'], materials: [], skills: [] }, estimate: { hours: 3 } }),
+    P('make.digging-stick', 'make', { produces: { tools: ['digging-stick'], materials: [] }, estimate: { hours: 4 } }),
+  ]);
+  const r = S.run('plan.toy', reg, C, L, opts);
+  assert.equal(r.days[0].routineHours, 0, 'the stick is made on day 0, so nothing to check yet');
+  assert.equal(r.days[1].routineHours, 3);
+});

@@ -31,7 +31,9 @@
       ]
     },
     "produces": {
-      "tools": [],
+      "tools": [
+        "fish-weir"
+      ],
       "materials": []
     },
     "preconditions": [
@@ -59,11 +61,7 @@
       "Check the tops of the stakes: at least 30 cm above the water everywhere, so fish cannot jump over. Drive in any stake that stands too low beside a taller one, or add one.",
       "Weave branches between the stakes of both arms and the pen, in and out, starting at the bottom. Push each row down onto the one below with your foot.",
       "Pile creek stones along the bottom of the fence and the pen, on the upstream side, so fish cannot slip under.",
-      "Watch the first fish come up the creek: they follow the fence to its point, pass through the gap, and circle inside the pen without finding the way out.",
-      {
-        "call": "fish.check-weir",
-        "note": "that evening"
-      }
+      "Watch the first fish come up the creek: they follow the fence to its point, pass through the gap, and circle inside the pen without finding the way out."
     ],
     "checks": [
       "Both arms run bank to bank with the stakes at least 30 cm above the water.",
