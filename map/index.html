@@ -79,6 +79,9 @@ ol.picks .t { font-weight: 600; } ol.picks .d { color: var(--muted); font-size: 
 .locbox .locact { margin-top: 4px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .locbox button, .locbox input { font: 13px var(--body); padding: 3px 8px; border: 1px solid #c9cfc4; border-radius: 4px; background: #f3f4ef; color: #1f2a22; }
 .locbox .locform { display: flex; gap: 6px; margin: 4px 0; } .locbox .locform input { flex: 1; min-width: 0; background: #fff; font-size: 16px; }
+.compass { background: rgba(255,255,255,.95); color: #1f2a22; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.3); padding: 6px 8px; font: 12px/1.35 var(--body); width: 160px; text-align: center; }
+.compass svg { display: block; margin: 0 auto 4px; } .compass .cmuted, .compass .cnote { color: #5d6a60; } .compass .cnote { color: #9a5b12; margin-top: 3px; }
+.compass .csel { display: block; margin-top: 4px; } .compass select { font: 13px var(--body); padding: 2px 4px; }
 </style>
 </head>
 <body>
@@ -467,11 +470,13 @@ layersCtl.addOverlay(routeLayer, "Walk-in to pick 2 (orange)");
   const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b[1] - a[1]) * r) * Math.cos(b[0] * r), x = Math.cos(a[0] * r) * Math.sin(b[0] * r) - Math.sin(a[0] * r) * Math.cos(b[0] * r) * Math.cos((b[1] - a[1]) * r); return (Math.atan2(y, x) / r + 360) % 360; };
   const fmt = km => km < 1 ? Math.round(km * 1000) + " m" : km.toFixed(km < 10 ? 2 : 1) + " km";
   function show(ll, accuracy, live) {
+    window.myPos = ll;
     dot.setLatLng(ll).addTo(map);
     if (accuracy) acc.setLatLng(ll).setRadius(accuracy).addTo(map); else acc.remove();
     let best = null;
     SITES.picks.forEach((p, i) => { const d = haversineKm(ll, [p.lat, p.lon]); if (!best || d < best.d) best = { i, p, d }; });
     const b = Math.round(bearing(ll, [best.p.lat, best.p.lon]));
+    if (window.compassRedraw) window.compassRedraw();
     line.setLatLngs([ll, [best.p.lat, best.p.lon]]).addTo(map);
     box.hidden = false;
     box.innerHTML = `<div class="lochead">${live ? "You are here" : "Pasted point"}${accuracy ? ` <span>±${Math.round(accuracy)} m</span>` : ""}</div>` +
@@ -523,6 +528,82 @@ layersCtl.addOverlay(routeLayer, "Walk-in to pick 2 (orange)");
           ` <span style="opacity:.6">(code ${err.code}${err.message ? ": " + err.message.replace(/</g, "&lt;") : ""})</span>`); },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
   });
+})();
+
+// Compass: the phone's heading turns the dial, and the orange arrow points at the chosen pick from where you are.
+// Phones report magnetic north; declination near Bragg Creek is about 13° east (2026), added to get true north.
+(() => {
+  const DECL = 13;
+  let heading = null, target = 1, on = false;
+  const panel = L.DomUtil.create("div", "compass"); panel.hidden = true;
+  L.DomEvent.disableClickPropagation(panel); L.DomEvent.disableScrollPropagation(panel);
+  panel.innerHTML = `<svg viewBox="-60 -60 120 120" width="100" height="100" aria-hidden="true">
+      <circle r="56" fill="#fff" stroke="#c9cfc4" stroke-width="2"/>
+      <g class="dial">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="0" y1="-56" x2="0" y2="${a % 90 ? -50 : -46}" stroke="#5d6a60" stroke-width="2" transform="rotate(${a})"/>`).join("")}
+        <text y="-34" text-anchor="middle" font-size="14" font-weight="700" fill="#c62828">N</text>
+        <text x="36" y="5" text-anchor="middle" font-size="11" fill="#5d6a60" transform="rotate(90 36 0) rotate(-90 36 0)">E</text>
+        <text y="44" text-anchor="middle" font-size="11" fill="#5d6a60">S</text>
+        <text x="-36" y="5" text-anchor="middle" font-size="11" fill="#5d6a60">W</text>
+        <path d="M0,-30 L6,0 L0,6 L-6,0 Z" fill="#c62828"/><path d="M0,30 L6,0 L0,-6 L-6,0 Z" fill="#9aa69c"/></g>
+      <g class="to"><path d="M0,-52 L9,-30 L3,-30 L3,-10 L-3,-10 L-3,-30 L-9,-30 Z" fill="#e8590c" stroke="#fff" stroke-width="1.5"/></g>
+      <path d="M0,-60 L5,-52 L-5,-52 Z" fill="#1f2a22"/>
+    </svg>
+    <div class="cread"></div>
+    <label class="csel">Point to <select>${SITES.picks.map((p, i) => `<option value="${i}">pick ${i + 1}</option>`).join("")}</select></label>
+    <div class="cnote"></div>`;
+  const sel = panel.querySelector("select"); sel.value = String(target);
+  sel.onchange = () => { target = +sel.value; draw(); };
+  const dial = panel.querySelector(".dial"), to = panel.querySelector(".to"), read = panel.querySelector(".cread"), note = panel.querySelector(".cnote");
+  const dirs = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"], name = a => dirs[Math.round(((a % 360) + 360) % 360 / 45) % 8];
+  const bearing = (a, b) => { const r = Math.PI / 180, y = Math.sin((b[1] - a[1]) * r) * Math.cos(b[0] * r), x = Math.cos(a[0] * r) * Math.sin(b[0] * r) - Math.sin(a[0] * r) * Math.cos(b[0] * r) * Math.cos((b[1] - a[1]) * r); return (Math.atan2(y, x) / r + 360) % 360; };
+  const fmt = km => km < 1 ? Math.round(km * 1000) + " m" : km.toFixed(2) + " km";
+  function draw() {
+    const p = SITES.picks[target], here = window.myPos;
+    const brg = here ? bearing(here, [p.lat, p.lon]) : null;
+    const h = heading == null ? 0 : heading;
+    dial.setAttribute("transform", `rotate(${-h})`);
+    to.style.display = brg == null ? "none" : "";
+    if (brg != null) to.setAttribute("transform", `rotate(${brg - h})`);
+    let t = heading == null ? "Hold the phone flat. Waiting for the compass…" : `Facing <strong>${Math.round(heading)}° ${name(heading)}</strong>`;
+    if (brg != null) {
+      const turn = ((brg - h + 540) % 360) - 180;
+      t += `<br>Pick ${target + 1}: ${fmt(haversineKm(here, [p.lat, p.lon]))} at ${Math.round(brg)}° ${name(brg)}` +
+        (heading == null ? "" : Math.abs(turn) < 10 ? " · <strong>straight ahead</strong>" : ` · turn ${turn < 0 ? "left" : "right"} ${Math.abs(Math.round(turn))}°`);
+    } else t += `<br><span class="cmuted">Tap the location button to get the arrow to pick ${target + 1}.</span>`;
+    read.innerHTML = t;
+  }
+  function onOrient(e) {
+    let hd = null;
+    if (typeof e.webkitCompassHeading === "number" && !isNaN(e.webkitCompassHeading)) hd = e.webkitCompassHeading;   // iPhone: magnetic, clockwise
+    else if (e.absolute && e.alpha != null) hd = 360 - e.alpha;                                                       // Android: absolute alpha is counter-clockwise
+    if (hd == null) return;
+    const so = (screen.orientation && screen.orientation.angle) || window.orientation || 0;
+    heading = (hd + so + DECL + 360) % 360;
+    draw();
+  }
+  async function start() {
+    note.textContent = "";
+    if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+      try { if (await DeviceOrientationEvent.requestPermission() !== "granted") { note.textContent = "Compass permission was refused. Allow Motion & Orientation for this site in Safari settings, then reload."; } }
+      catch (err) { note.textContent = "The compass needs permission. Tap the compass button again."; }
+    }
+    window.addEventListener("deviceorientationabsolute", onOrient);
+    window.addEventListener("deviceorientation", onOrient);
+    setTimeout(() => { if (on && heading == null) note.textContent = "No compass reading. This device or browser may not have one, or it may be blocked. The orange arrow still shows the bearing with north up."; draw(); }, 4000);
+  }
+  function stop() { window.removeEventListener("deviceorientationabsolute", onOrient); window.removeEventListener("deviceorientation", onOrient); heading = null; }
+  const btn = L.DomUtil.create("button", "locbtn"); btn.type = "button"; btn.title = "Compass"; btn.setAttribute("aria-label", "Compass");
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4l3 8h-6z" fill="#c62828"/><path d="M12 20l3-8H9z" fill="currentColor"/></svg>';
+  L.DomEvent.disableClickPropagation(btn);
+  btn.addEventListener("click", () => {
+    on = !on; btn.classList.toggle("on", on); panel.hidden = !on;
+    if (on) { start(); draw(); } else stop();
+  });
+  const Ctl = L.Control.extend({ onAdd() { const d = L.DomUtil.create("div", "leaflet-bar locctl"); d.appendChild(btn); return d; } });
+  new Ctl({ position: "topleft" }).addTo(map);
+  const PCtl = L.Control.extend({ onAdd() { return panel; } });
+  new PCtl({ position: "topright" }).addTo(map);
+  window.compassRedraw = () => { if (on) draw(); };
 })();
 </script>
 </body>
