@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c2221">
+<title>Pick 2 Shelter</title>
+<style>
+:root{color-scheme:light;--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;--ember:#d4531c;--danger:#b3261e;--ok:#2f7d4f;--warn-bg:#fbeee6}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--danger:#ef6b62;--ok:#5cbf85;--warn-bg:#2a1f1a}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--danger:#ef6b62;--ok:#5cbf85;--warn-bg:#2a1f1a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 80px}
+h1{font:700 1.7rem/1.1 "Arial Narrow",system-ui,sans-serif;margin:4px 0 6px}
+h2{font:700 1.15rem/1.2 system-ui,sans-serif;margin:0}
+.sub{color:var(--muted);margin:0 0 12px}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:.95rem;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin:0 0 12px}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.rules{background:var(--warn-bg);border:1px solid var(--ember);border-radius:6px;padding:10px 12px;margin:0 0 12px}
+.rules h2{color:var(--ember);margin-bottom:4px}
+.rules ul{margin:4px 0 0;padding-left:20px}
+.rules li{margin:3px 0}
+.progress{position:sticky;top:0;z-index:2;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.bar{flex:1;height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .2s}
+.progress span{font-variant-numeric:tabular-nums;font-size:.9rem;color:var(--muted);min-width:5.5em;text-align:right}
+details{background:var(--panel);border:1px solid var(--line);border-radius:6px;margin:0 0 10px}
+summary{list-style:none;cursor:pointer;padding:12px;display:flex;gap:10px;align-items:baseline}
+summary::-webkit-details-marker{display:none}
+summary .n{font-weight:700;color:var(--ember);min-width:1.4em}
+summary .t{flex:1}
+summary .time{color:var(--muted);font-size:.85rem;white-space:nowrap}
+details.done summary .n{color:var(--ok)}
+details.done summary h2{text-decoration:line-through;text-decoration-color:var(--muted)}
+.body{padding:0 12px 12px}
+.why{color:var(--muted);margin:0 0 8px;font-size:.95rem}
+label.step{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+label.step input{width:24px;height:24px;flex:none;margin:1px 0 0;accent-color:var(--ok)}
+label.step input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.stop{color:var(--danger);font-weight:600}
+.tip{font-size:.9rem;color:var(--muted);border-left:3px solid var(--line);padding-left:10px;margin:8px 0 0}
+.foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px;color:var(--muted);font-size:.9rem}
+button{font:600 .95rem system-ui,sans-serif;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:6px;cursor:pointer}
+a{color:var(--ember)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Temporary shelter at pick 2</h1>
+<p class="sub">Work down the stages in order. Tick each step as you go; your ticks stay on this phone.</p>
+
+<dl class="facts">
+  <dt>Pick 2</dt><dd>50.97015, -114.70109 · 1453 m</dd>
+  <dt>Walk in</dt><dd>Leave Telephone Loop at 50.97189, -114.70275, about 250 m downhill (orange line on the <a href="../map/">map</a>)</dd>
+  <dt>Ground</dt><dd>Glacial till (gritty clay), about 9° slope, young forest and open ground</dd>
+  <dt>Water</dt><dd>Unnamed creek within 20 m of the pick</dd>
+  <dt>Zone edge</dt><dd>100–200 m east. Don't set up further east.</dd>
+</dl>
+
+<section class="rules">
+  <h2>PLUZ rules that shape this camp</h2>
+  <ul>
+    <li><b>Portable and temporary only.</b> Tarp, cord, stakes and gear you carry out. Any structure or ground improvement needs approval from Alberta Environment and Protected Areas, so no digging, no cutting live trees and no cob stove here.</li>
+    <li><b>At least 30 m from the creek.</b> The pick itself is closer than that, so you'll set up a little back from it.</li>
+    <li><b>14 days max</b> in one spot, then move at least 1 km for 72 hours.</li>
+    <li><b>Fires</b> only for cooking or warmth, never during a fire ban, never unattended, and out until cold to the touch.</li>
+    <li><b>Toilet</b> at least 70 m from water, in a hole at least 15 cm deep.</li>
+  </ul>
+</section>
+
+<div class="progress" aria-live="polite"><div class="bar"><i id="bar"></i></div><span id="count"></span></div>
+
+<div id="stages"></div>
+
+<div class="foot">
+  <button id="reset" type="button">Clear all ticks</button>
+  <span>Rules summarised from alberta.ca on 8 Oct 2026. Check the fire ban map before every trip.</span>
+</div>
+</div>
+
+<script>
+'use strict';
+// Each stage: title, rough time, why it matters, then the steps. A step starting with "!" is a stop rule.
+const STAGES = [
+  { t: 'Before you leave (with signal)', time: 'at home',
+    why: 'Out there you have GPS but probably no signal, so everything you need has to be on the phone already.',
+    steps: [
+      'Check albertafirebans.ca for the Calgary Forest Area. If there is a ban, plan a no-fire trip.',
+      'Check the forecast for Bragg Creek at about 1450 m. Early October nights here often drop below freezing and can bring snow.',
+      'Buy the Kananaskis Conservation Pass if you\'re parking in the pass area ($15 a day).',
+      'Open the map, scroll around pick 2 and the walk-in route so the tiles are saved, and open this page once so it works offline.',
+      'Tell someone where you\'re going (pick 2 coordinates), your route and when you\'ll be back.',
+      'Pack: tarp (3.7 × 4.9 m), 15 m ridgeline cord plus 8 × 2 m guy cords, 8 stakes, knife, folding saw, closed-cell pad, bag rated about −10 °C, headlamp with spare batteries, water filter, bear spray, food bag with 15 m rope, trowel, blaze orange (it\'s hunting season), and a fire pan if you plan a fire.',
+    ] },
+  { t: 'Arrive and get your bearings', time: '15 min',
+    why: 'Check you\'re in the right place and inside the zone before you unpack anything.',
+    steps: [
+      'Open the map and confirm the blue dot is at pick 2.',
+      'Note which way is east. The zone edge is 100–200 m that way, so everything you do stays west of the pick.',
+      'Find the creek and walk along it a short way. Look for bear sign: fresh scat, digging, torn logs or a carcass smell.',
+      '!Fresh bear sign or a carcass nearby means leave and use another pick.',
+      'Drop your pack somewhere obvious and note the time. Sunset in early October is around 7 pm and gets earlier each day, so leave at least 2 hours of light for the shelter.',
+    ] },
+  { t: 'Choose the exact spot', time: '20–30 min',
+    why: 'The spot decides how warm, dry and safe the night is. Spend the time here.',
+    steps: [
+      'Walk at least 30 m from the creek, about 40 normal paces, uphill or north rather than east. Further is fine.',
+      'Avoid the lowest ground by the creek. Cold air pools there overnight, and it\'s where water runs in rain.',
+      'Look for a patch at least 3 × 4 m that is flatter than the 9° around it: a small bench or shoulder on the slope.',
+      'Look straight up. There must be no dead trees, dead tops or hanging branches within reach of the spot if they fell. Beetle-killed pine and leaning snags fall without wind.',
+      '!Any dead tree that could reach your bed means move.',
+      'Check the ground isn\'t a water path: no lines of washed needles, bare gravel or moss growing in a channel.',
+      'Stay off game trails and clear of berry bushes.',
+      'Look for two healthy trees 5–7 m apart for the ridgeline, with the gap between them running up and down the slope. If there aren\'t any, find two dead fallen poles about 2 m long to use as shear legs instead.',
+      'Feel the wind. You\'ll put the closed, low end of the tarp toward it; here that\'s usually west or south-west.',
+    ] },
+  { t: 'Clear the bed area', time: '15 min',
+    why: 'You only move what\'s loose. Nothing gets dug or cut, so the ground stays as it was.',
+    steps: [
+      'Lie down where your bed will go, head uphill, and check for roots and rocks under your hips and shoulders.',
+      'Move loose sticks, pine cones and stones off a 2 × 3 m patch. Don\'t pull up moss or plants.',
+      'Keep a pile of dry dead needles and leaf litter to one side for insulation later.',
+    ] },
+  { t: 'Rig the ridgeline', time: '20 min',
+    why: 'A tight, low ridgeline makes a tarp that sheds wind and snow.',
+    steps: [
+      'Tie the ridgeline to the uphill tree at about hip height (around 1 m). Pad the bark with a folded cloth or bark so the cord doesn\'t cut it.',
+      'Run it to the downhill tree and tie it a little higher, so the ridge is roughly level over sloping ground. Tension it with a taut-line hitch so you can tighten it later.',
+      'If you\'re using shear legs, lash the tops of two dead poles together into an X at each end, stand them up about 1 m tall, and run the ridgeline over both and out to a stake at each end.',
+      'Push down hard in the middle. It should sag no more than a hand\'s width.',
+    ] },
+  { t: 'Pitch the tarp as a low A-frame', time: '30 min',
+    why: 'An A-frame with the windward end closed is the warmest pitch for a frosty night with this size of tarp.',
+    steps: [
+      'Throw the tarp over the ridgeline so the 4.9 m length runs along it and about 1.85 m hangs down each side.',
+      'Stake the four corners first, then the middle of each long edge. Drive stakes at 45° leaning away from the tarp. If the till is too stony, tie the guy lines to rocks or a dead log instead.',
+      'Leave the edges 10–15 cm off the ground for airflow, or pull them to the ground on the windward side if it\'s blowing.',
+      'Fold the windward end in like an envelope and stake it closed.',
+      'Leave the downwind end open as your door. You can half-close it later with your pack.',
+      'Tighten the ridgeline and all the guy lines until the tarp has no flapping panels.',
+      'Check that rain off the edges will drip outside the bed patch.',
+    ] },
+  { t: 'Insulate the ground', time: '30–60 min',
+    why: 'The ground takes more heat from you than the air. This is the step that matters most for a cold night.',
+    steps: [
+      'Gather dry dead needles, leaf litter and dead grass from a wide area, a little from each place so nothing looks raked.',
+      'Pile it 20–30 cm deep and fluffy over the bed patch. It will press down to about a third.',
+      'Lay your closed-cell pad on top, then your sleeping bag.',
+      'Lay a dead log or a line of stones along the downhill edge of the bed so you don\'t slide off it at 9°.',
+      'Lie in it. If you feel cold coming through anywhere, add more litter there.',
+    ] },
+  { t: 'Kitchen, fire and food', time: '30 min',
+    why: 'Bears are active in October before they den. Keep food smells away from where you sleep.',
+    steps: [
+      'Set the kitchen at least 50 m from the shelter, downwind, and still 30 m from the creek.',
+      'If there\'s no fire ban: use your fire pan or an existing fire ring, on bare mineral ground, at least 3 m from the tarp and clear of overhanging branches. Keep a full pot of water beside it.',
+      'Only burn dead and down wood you can break by hand. Don\'t heat stones from the creek; they can explode.',
+      'Hang the food bag at least 100 m from the shelter, about 4 m up and 1.5 m out from the trunk. Put all food, garbage and toiletries in it.',
+      'Fill your water at the creek and filter or boil it.',
+      'Pick a toilet spot 70 m or more from the creek and the trail, and dig a cat hole at least 15 cm deep with the trowel.',
+    ] },
+  { t: 'Before dark', time: '15 min',
+    why: 'Fix things while you can still see.',
+    steps: [
+      'Re-tension the ridgeline and guy lines; cord stretches as it cools.',
+      'Lay out the headlamp, water bottle and bear spray where your hand finds them lying down.',
+      'Put on dry base layers to sleep in, and keep tomorrow\'s clothes in the bag with you.',
+      'Fire fully out before bed: drown it, stir it, drown it again until it\'s cold to the touch.',
+      'Mark the shelter as a waypoint on your phone in case you walk away from it after dark.',
+    ] },
+  { t: 'While you\'re here: stove scouting', time: 'optional',
+    why: 'The cob stove can\'t be built here without approval, but you can learn what the site offers.',
+    steps: [
+      'Look along the creek for a cutbank where the finer, stickier layers of the till show.',
+      'Take a fist-sized sample from the face, put the loose soil back, and bag it for the clay test at home: roll a snake and see if it bends into a ring.',
+      'Note where flat stones lie on dry ground away from the creek. Leave them in place.',
+      'Photograph anything useful and drop a waypoint on it.',
+    ] },
+  { t: 'Leaving', time: '30 min',
+    why: 'Leave it so nobody can tell you were there. That keeps the site and the rules on your side.',
+    steps: [
+      'Take down the tarp, cord and every stake.',
+      'Scatter the bed litter back across the area and put moved sticks and stones roughly back.',
+      'Scatter any cold ash and check the fire spot is cold with your bare hand.',
+      'Fill in and cover the cat hole.',
+      'Walk the site once looking down for anything left behind: twist ties, cord ends, wrappers.',
+      'Tell your contact you\'re out.',
+    ] },
+];
+
+const KEY = 'pick2-shelter-ticks-v1';
+let ticks = {};
+try { ticks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ticks = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} };
+
+const host = document.getElementById('stages');
+let total = 0;
+STAGES.forEach((s, i) => {
+  const d = document.createElement('details');
+  d.id = 'stage-' + i;
+  const sum = document.createElement('summary');
+  sum.innerHTML = '<span class="n">' + i + '</span><span class="t"><h2></h2></span><span class="time"></span>';
+  sum.querySelector('h2').textContent = s.t;
+  sum.querySelector('.time').textContent = s.time;
+  d.appendChild(sum);
+  const body = document.createElement('div');
+  body.className = 'body';
+  const why = document.createElement('p');
+  why.className = 'why';
+  why.textContent = s.why;
+  body.appendChild(why);
+  s.steps.forEach((text, j) => {
+    const id = i + '-' + j;
+    const stop = text.startsWith('!');
+    const lab = document.createElement('label');
+    lab.className = 'step';
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    box.checked = !!ticks[id];
+    box.addEventListener('change', () => { if (box.checked) ticks[id] = 1; else delete ticks[id]; save(); refresh(); });
+    const span = document.createElement('span');
+    span.textContent = stop ? text.slice(1) : text;
+    if (stop) span.className = 'stop';
+    lab.append(box, span);
+    body.appendChild(lab);
+    total++;
+  });
+  d.appendChild(body);
+  host.appendChild(d);
+});
+
+function refresh() {
+  let done = 0, openedNext = false;
+  STAGES.forEach((s, i) => {
+    const d = document.getElementById('stage-' + i);
+    const n = s.steps.filter((_, j) => ticks[i + '-' + j]).length;
+    done += n;
+    d.classList.toggle('done', n === s.steps.length);
+    if (!refresh.ran && n < s.steps.length && !openedNext) { d.open = true; openedNext = true; }
+  });
+  refresh.ran = true;
+  document.getElementById('bar').style.width = (100 * done / total) + '%';
+  document.getElementById('count').textContent = done + ' / ' + total;
+}
+refresh();
+
+document.getElementById('reset').addEventListener('click', () => {
+  if (!confirm('Clear every tick on this page?')) return;
+  ticks = {}; save();
+  document.querySelectorAll('label.step input').forEach((b) => { b.checked = false; });
+  refresh();
+});
+
+// Keep a copy for when there's no signal.
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
