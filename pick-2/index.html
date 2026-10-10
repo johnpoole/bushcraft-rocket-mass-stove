@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1c2221">
-<title>Pick 2 Camp</title>
+<title>Pick 2 Shelter</title>
 <style>
 :root{color-scheme:light;--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;--ember:#d4531c;--danger:#b3261e;--ok:#2f7d4f;--warn-bg:#fbeee6}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--danger:#ef6b62;--ok:#5cbf85;--warn-bg:#2a1f1a}}
@@ -44,12 +44,26 @@ label.step input:checked + span{color:var(--muted);text-decoration:line-through;
 .foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px;color:var(--muted);font-size:.9rem}
 button{font:600 .95rem system-ui,sans-serif;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:6px;cursor:pointer}
 a{color:var(--ember)}
+.sec{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+details details{margin:8px 0 4px;background:var(--bg)}
+details details summary{padding:9px 10px}
+details details h2{font-size:1rem}
+.callnote{color:var(--muted);font-size:.85rem;font-weight:400}
+.list{margin:8px 0 0;font-size:.92rem}
+.list b{display:block;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;margin-top:8px}
+.list ul{margin:2px 0 0;padding-left:20px}
+.list li{margin:2px 0}
+.list.safety li{color:var(--danger)}
+.differs{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--ember);border-radius:6px;padding:10px 12px;margin:0 0 12px}
+.differs h2{margin-bottom:4px}
+.differs ul{margin:4px 0 0;padding-left:20px}
+.differs li{margin:3px 0}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>Temporary shelter and stove at pick 2</h1>
-<p class="sub">Work down the stages in order. Tick each step as you go; your ticks stay on this phone.</p>
+<h1>Three-tree shelter and stove at pick 2</h1>
+<p class="sub">Your shelter and stove build, step by step, in the order from the <a href="../shelter/">shelter page</a>. Tick each step as you go; your ticks stay on this phone.</p>
 
 <dl class="facts">
   <dt>Pick 2</dt><dd>50.97015, -114.70109 · 1453 m</dd>
@@ -60,14 +74,24 @@ a{color:var(--ember)}
 </dl>
 
 <section class="rules">
-  <h2>PLUZ rules that shape this camp</h2>
+  <h2>PLUZ rules for this area</h2>
   <ul>
-    <li><b>Temporary only.</b> Everything you bring goes out with you, and everything you build comes apart and goes back where it came from. No cutting live trees.</li>
-    <li><b>Check the stove first.</b> The general rules say fires go in existing fire pits or portable fire receptacles, and that any structure needs approval from Alberta Environment and Protected Areas. A cob stove you take apart may still count, so call the Calgary district office before you build it.</li>
-    <li><b>At least 30 m from the creek.</b> The pick itself is closer than that, so you'll set up a little back from it.</li>
+    <li><b>Camping gear</b> must be portable and temporary. Any structure or improvement to the land needs prior approval from Alberta Environment and Protected Areas.</li>
+    <li><b>Fires</b> only for cooking or warmth, in existing fire pits or portable fire receptacles, never during a fire ban, never unattended, and out until cold to the touch.</li>
+    <li><b>Camp</b> at least 30 m from lakes and streams.</li>
     <li><b>14 days max</b> in one spot, then move at least 1 km for 72 hours.</li>
-    <li><b>Fires</b> only for cooking or warmth, never during a fire ban, never unattended, and out until cold to the touch.</li>
     <li><b>Toilet</b> at least 70 m from water, in a hole at least 15 cm deep.</li>
+  </ul>
+</section>
+
+<section class="differs">
+  <h2>Where pick 2 differs from the design</h2>
+  <p class="why" style="margin:0">The steps below are your design as written. These are the places the site or the rules don't match it, for you to decide on.</p>
+  <ul>
+    <li>The design is drawn for a lake shore, about 25 m back from the lake. At pick 2 the water is a creek, and the creek is within 20 m of the pick.</li>
+    <li>The design fells and cuts poles and logs, and sets posts in the ground. In a PLUZ that counts as a structure, which needs approval first.</li>
+    <li>The design takes weeks to build. A PLUZ stay is 14 days in one spot.</li>
+    <li>The zone edge is 100–200 m east of the pick.</li>
   </ul>
 </section>
 
@@ -81,189 +105,138 @@ a{color:var(--ember)}
 </div>
 </div>
 
+<script src="design.js"></script>
 <script>
 'use strict';
-// Each stage: title, rough time, why it matters, then the steps. A step starting with "!" is a stop rule.
-const STAGES = [
+// Trip stages around the design. A step starting with "!" is a stop rule.
+const BEFORE = [
   { t: 'Before you leave (with signal)', time: 'at home',
     why: 'Out there you have GPS but probably no signal, so everything you need has to be on the phone already.',
     steps: [
-      'Check albertafirebans.ca for the Calgary Forest Area. If there is a ban, plan a no-fire trip.',
+      'Check albertafirebans.ca for the Calgary Forest Area.',
       'Check the forecast for Bragg Creek at about 1450 m. Early October nights here often drop below freezing and can bring snow.',
       'Buy the Kananaskis Conservation Pass if you\'re parking in the pass area ($15 a day).',
       'Open the map, scroll around pick 2 and the walk-in route so the tiles are saved, and open this page once so it works offline.',
       'Tell someone where you\'re going (pick 2 coordinates), your route and when you\'ll be back.',
-      'Pack: knife, folding saw, closed-cell pad, bag rated about −10 °C, headlamp with spare batteries, water filter, bear spray, food bag with 15 m rope, trowel, blaze orange (it\'s hunting season), and a fire pan if you plan a fire.',
-      'For the stove, add: a folding shovel, a bucket, a small tarp to tread mix on, a tape measure, and formers for the 15 × 15 cm openings. Cardboard folded into square tubes works and burns out cleanly: 50 cm for the tunnel, 35 cm for the feed tube and 140 cm for the riser.',
-      'Plan the days: day 1 shelter, days 2–4 build the stove, days 5–8 dry it with small fires, and be packed out with the stove taken apart by day 14.',
+      'Pack the kit: sleeping bag, axe, saw, knife, pot, ferro rod, tarp, gill net, fishing line and hooks, snare wire.',
+      'For this site, also: bear spray, a headlamp, and blaze orange (it\'s hunting season).',
     ] },
   { t: 'Arrive and get your bearings', time: '15 min',
     why: 'Check you\'re in the right place and inside the zone before you unpack anything.',
     steps: [
       'Open the map and confirm the blue dot is at pick 2.',
-      'Note which way is east. The zone edge is 100–200 m that way, so everything you do stays west of the pick.',
+      'Note which way is east. The zone edge is 100–200 m that way.',
       'Find the creek and walk along it a short way. Look for bear sign: fresh scat, digging, torn logs or a carcass smell.',
       '!Fresh bear sign or a carcass nearby means leave and use another pick.',
-      'Drop your pack somewhere obvious and note the time. Sunset in early October is around 7 pm and gets earlier each day, so leave at least 2 hours of light for the shelter.',
+      'Note the time. Sunset in early October is around 7 pm and gets earlier each day.',
     ] },
-  { t: 'Choose the exact spot', time: '20–30 min',
-    why: 'The spot decides how warm, dry and safe the night is. Spend the time here.',
-    steps: [
-      'Walk at least 30 m from the creek, about 40 normal paces, uphill or north rather than east. Further is fine.',
-      'Avoid the lowest ground by the creek. Cold air pools there overnight, and it\'s where water runs in rain.',
-      'Look for a patch at least 3 × 4 m that is flatter than the 9° around it: a small bench or shoulder on the slope.',
-      'Look straight up. There must be no dead trees, dead tops or hanging branches within reach of the spot if they fell. Beetle-killed pine and leaning snags fall without wind.',
-      '!Any dead tree that could reach your bed means move.',
-      'Check the ground isn\'t a water path: no lines of washed needles, bare gravel or moss growing in a channel.',
-      'Stay off game trails and clear of berry bushes.',
-      'Feel the wind. Here it usually comes from the west or south-west.',
-    ] },
-  { t: 'Clear the bed area', time: '15 min',
-    why: 'You only move what\'s loose. Nothing gets dug or cut, so the ground stays as it was.',
-    steps: [
-      'Lie down where your bed will go, head uphill, and check for roots and rocks under your hips and shoulders.',
-      'Move loose sticks, pine cones and stones off a 2 × 3 m patch. Don\'t pull up moss or plants.',
-      'Keep a pile of dry dead needles and leaf litter to one side for insulation later.',
-    ] },
-  { t: 'Insulate the ground', time: '30–60 min',
-    why: 'The ground takes more heat from you than the air. This is the step that matters most for a cold night.',
-    steps: [
-      'Gather dry dead needles, leaf litter and dead grass from a wide area, a little from each place so nothing looks raked.',
-      'Pile it 20–30 cm deep and fluffy over the bed patch. It will press down to about a third.',
-      'Lay your closed-cell pad on top, then your sleeping bag.',
-      'Lay a dead log or a line of stones along the downhill edge of the bed so you don\'t slide off it at 9°.',
-      'Lie in it. If you feel cold coming through anywhere, add more litter there.',
-    ] },
-  { t: 'Kitchen, fire and food', time: '30 min',
-    why: 'Bears are active in October before they den. Keep food smells away from where you sleep.',
-    steps: [
-      'Set the kitchen at least 50 m from the shelter, downwind, and still 30 m from the creek.',
-      'If there\'s no fire ban: use your fire pan or an existing fire ring, on bare mineral ground, at least 3 m from the shelter and clear of overhanging branches. Keep a full pot of water beside it.',
-      'Only burn dead and down wood you can break by hand. Don\'t heat stones from the creek; they can explode.',
-      'Hang the food bag at least 100 m from the shelter, about 4 m up and 1.5 m out from the trunk. Put all food, garbage and toiletries in it.',
-      'Fill your water at the creek and filter or boil it.',
-      'Pick a toilet spot 70 m or more from the creek and the trail, and dig a cat hole at least 15 cm deep with the trowel.',
-    ] },
-  { t: 'Before dark', time: '15 min',
-    why: 'Fix things while you can still see.',
-    steps: [
-      'Lay out the headlamp, water bottle and bear spray where your hand finds them lying down.',
-      'Put on dry base layers to sleep in, and keep tomorrow\'s clothes in the bag with you.',
-      'Fire fully out before bed: drown it, stir it, drown it again until it\'s cold to the touch.',
-      'Mark the shelter as a waypoint on your phone in case you walk away from it after dark.',
-    ] },
-  { t: 'Stove: place it and test the clay', time: 'day 2, 2 hours',
-    why: 'Set the stove where it can\'t set the shelter alight and the chimney smoke goes away from you.',
-    steps: [
-      'Pick the stove spot on level ground with nothing overhanging, at least 1 m from anything that can burn.',
-      'Mark the footprint, about 1 × 1.5 m for the core.',
-      'Choose a clay pit on dry ground at least 30 m from the creek, near the stove. Don\'t dig into the creek bank; the till is clay everywhere here.',
-      'Lift the top layer of moss and litter off the pit in whole pieces and set them aside, face up, to go back at the end.',
-      'Dig a test hole below the dark topsoil. Roll a moist ball into a snake: it should bend into a ring without cracking.',
-      'Make three small patties, one plain and two with extra sand or grit, dry them by a small fire, then put them in it. Use the mix that comes out whole. Till is already gritty, so you may need little or no extra sand.',
-      '!If the snake won\'t bend at all, there isn\'t enough clay here. Build a shelter-only trip and keep the patties for the record.',
-    ] },
-  { t: 'Stove: gather and mix', time: 'day 2–3, half a day',
-    why: 'The core needs about a third of a cubic metre of clay, roughly 15 buckets.',
-    steps: [
-      'Dig the clay from the pit, keeping the topsoil in its own pile.',
-      'Collect flat stones and a cooktop slab about 60–70 cm across from dry ground only. Never use stones from the creek or wet ground; they can explode when hot.',
-      'Gather a few armfuls of dry grass for the cob, and ash, sawdust or dry chopped grass for the riser insulation.',
-      'Cob: tread clay with the sand or grit your test showed, plus a good handful of dry grass, on the small tarp.',
-      'Refractory mix for the burn tunnel: the same clay and sand with no grass.',
-      'Light clay for the riser: clay thinned to a slurry, stirred into the ash or dry grass until just coated.',
-    ] },
-  { t: 'Stove: build the core', time: 'days 3–4',
-    why: 'Same design as your build guide, 15 × 15 cm everywhere. Every size is an inside measurement.',
-    steps: [
-      'Lay a 10 cm bed of dry flat stones over the footprint to keep ground damp out.',
-      'Burn tunnel: lay the 50 cm former on a flat stone floor and pack 5–8 cm of refractory mix around it.',
-      'Feed tube: stand the 35 cm former at the near end of the tunnel and pack refractory mix around it.',
-      'Riser: stand the 140 cm former at the far end. Build 3 cm of refractory mix around it, then 7–10 cm of light clay, then a cob shell. Go up in layers and let each firm before the next.',
-      'Dome: build a cob wall round the riser with a 5 cm gap, and set the cooktop slab 5–8 cm above the riser top.',
-      'Outlet and chimney: open a 15 × 15 cm outlet at the bottom of the dome and run it to a stone-and-cob chimney whose top is at least 60 cm above the riser top.',
-      'Measure the narrowest point of every opening with the tape. Nothing smaller than 15 × 15 cm.',
-      'Plaster every outside surface with clay and sand, and fill cracks with slip.',
-      'Cover it if rain is coming.',
-    ] },
-  { t: 'Stove: dry it and first fires', time: 'days 5–8',
-    why: 'Wet cob cracks and smokes if it\'s fired hard. Small fires first, bigger each day.',
-    steps: [
-      'Let it air-dry at least a day before any fire.',
-      'Burn a few handfuls of twigs just inside the feed tube for the first 1–2 days. The formers will burn out.',
-      'Rake out ash and charred former through the feed tube.',
-      'Make the fires bigger over the next days, and seal new cracks with slip as they appear.',
-      'It\'s working when the fire is pulled sideways down the feed tube and the chimney shows little smoke.',
-      '!Smoke coming back out of the feed tube means stop and look for a blocked or undersized section before you fire it again.',
-      'Never leave it burning unattended or burning while you sleep, and only when there is no fire ban.',
-    ] },
-  { t: 'Leaving', time: '2–3 hours with the stove',
-    why: 'Leave it so nobody can tell you were there. That keeps the site and the rules on your side.',
+];
+const AFTER = [
+  { t: 'Taking the stove apart', time: 'when you leave',
+    why: 'The stove comes apart when you go.',
     steps: [
       'Let the stove go cold overnight before you touch it.',
       'Break the stove down: chimney, cooktop and dome first, then the riser and tunnel. Put the stones back on dry ground roughly where they came from.',
-      'Break the cob and fired clay into small pieces and put it all back in the clay pit, with any cold ash.',
-      'Tread the pit full, cover it with its topsoil, and lay the moss and litter back on top, face up.',
-      'Scatter litter over the stove footprint until it looks like the ground around it.',
-      'Scatter the bed litter back across the area and put moved sticks and stones roughly back.',
+      'Break the cob and fired clay into small pieces and put it back where the clay was dug, with any cold ash.',
       'Check every fire spot is cold with your bare hand.',
-      'Fill in and cover the cat hole.',
-      'Walk the site once looking down for anything left behind: twist ties, cord ends, wrappers.',
       'Tell your contact you\'re out.',
     ] },
 ];
 
-const KEY = 'pick2-shelter-ticks-v3';
+const KEY = 'pick2-shelter-ticks-v4';
 let ticks = {};
 try { ticks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ticks = {}; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} };
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const P = window.DESIGN.PROCS;
+const tops = [];   // [details, [keys]] for each top-level stage
+
+function stepBox(key, text, stop, keys) {
+  keys.push(key);
+  const lab = el('label', 'step');
+  const box = el('input');
+  box.type = 'checkbox';
+  box.checked = !!ticks[key];
+  box.addEventListener('change', () => { if (box.checked) ticks[key] = 1; else delete ticks[key]; save(); refresh(); });
+  const span = el('span', stop ? 'stop' : '', text);
+  lab.append(box, span);
+  return lab;
+}
+function summary(n, title, time) {
+  const sum = el('summary');
+  sum.append(el('span', 'n', n), Object.assign(el('span', 't'), {}), el('span', 'time', time || ''));
+  sum.querySelector('.t').appendChild(el('h2', '', title));
+  return sum;
+}
+function list(cls, head, items) {
+  if (!items.length) return null;
+  const d = el('div', 'list ' + cls);
+  d.appendChild(el('b', '', head));
+  const ul = el('ul');
+  items.forEach((t) => ul.appendChild(el('li', '', t)));
+  d.appendChild(ul);
+  return d;
+}
+
+const shown = new Set();
+function procBody(id, keys) {
+  const p = P[id];
+  shown.add(id);
+  const body = el('div', 'body');
+  body.appendChild(el('p', 'why', p.purpose));
+  const pre = list('', 'Before you start', p.pre); if (pre) body.appendChild(pre);
+  p.steps.forEach((st, i) => {
+    const key = id + ':' + i;
+    if (typeof st === 'string') { body.appendChild(stepBox(key, st, false, keys)); return; }
+    const sub = P[st.call];
+    const extra = [st.times > 1 ? '×' + st.times : '', st.note].filter(Boolean).join(', ');
+    if (shown.has(st.call)) {
+      body.appendChild(stepBox(key, 'Again: ' + sub.title + (extra ? ' (' + extra + ')' : ''), false, keys));
+      return;
+    }
+    const d = el('details');
+    const sum = summary('↳', sub.title, '');
+    if (extra) sum.querySelector('h2').appendChild(el('span', 'callnote', ' · ' + extra));
+    d.appendChild(sum);
+    d.appendChild(procBody(st.call, keys));
+    body.appendChild(d);
+  });
+  const chk = list('', 'Done when', p.checks); if (chk) body.appendChild(chk);
+  const saf = list('safety', 'Safety', p.safety); if (saf) body.appendChild(saf);
+  return body;
+}
 
 const host = document.getElementById('stages');
-let total = 0;
-STAGES.forEach((s, i) => {
-  const d = document.createElement('details');
-  d.id = 'stage-' + i;
-  const sum = document.createElement('summary');
-  sum.innerHTML = '<span class="n">' + i + '</span><span class="t"><h2></h2></span><span class="time"></span>';
-  sum.querySelector('h2').textContent = s.t;
-  sum.querySelector('.time').textContent = s.time;
-  d.appendChild(sum);
-  const body = document.createElement('div');
-  body.className = 'body';
-  const why = document.createElement('p');
-  why.className = 'why';
-  why.textContent = s.why;
-  body.appendChild(why);
-  s.steps.forEach((text, j) => {
-    const id = i + '-' + j;
-    const stop = text.startsWith('!');
-    const lab = document.createElement('label');
-    lab.className = 'step';
-    const box = document.createElement('input');
-    box.type = 'checkbox';
-    box.checked = !!ticks[id];
-    box.addEventListener('change', () => { if (box.checked) ticks[id] = 1; else delete ticks[id]; save(); refresh(); });
-    const span = document.createElement('span');
-    span.textContent = stop ? text.slice(1) : text;
-    if (stop) span.className = 'stop';
-    lab.append(box, span);
-    body.appendChild(lab);
-    total++;
-  });
-  d.appendChild(body);
-  host.appendChild(d);
+let n = 0;
+function staticStage(s) {
+  const d = el('details'); const keys = [];
+  d.appendChild(summary(String(n++), s.t, s.time));
+  const body = el('div', 'body');
+  body.appendChild(el('p', 'why', s.why));
+  s.steps.forEach((text, j) => body.appendChild(stepBox('trip:' + s.t + ':' + j, text.replace(/^!/, ''), text.startsWith('!'), keys)));
+  d.appendChild(body); host.appendChild(d); tops.push([d, keys]);
+}
+BEFORE.forEach(staticStage);
+host.appendChild(el('div', 'sec', 'Your build'));
+window.DESIGN.ORDER.forEach((id) => {
+  const d = el('details'); const keys = [];
+  d.appendChild(summary(String(n++), P[id].title, ''));
+  d.appendChild(procBody(id, keys));
+  host.appendChild(d); tops.push([d, keys]);
 });
+host.appendChild(el('div', 'sec', 'Leaving'));
+AFTER.forEach(staticStage);
 
+let ran = false;
 function refresh() {
-  let done = 0, openedNext = false;
-  STAGES.forEach((s, i) => {
-    const d = document.getElementById('stage-' + i);
-    const n = s.steps.filter((_, j) => ticks[i + '-' + j]).length;
-    done += n;
-    d.classList.toggle('done', n === s.steps.length);
-    if (!refresh.ran && n < s.steps.length && !openedNext) { d.open = true; openedNext = true; }
-  });
-  refresh.ran = true;
+  let done = 0, total = 0, opened = false;
+  for (const [d, keys] of tops) {
+    const k = keys.filter((x) => ticks[x]).length;
+    done += k; total += keys.length;
+    d.classList.toggle('done', k === keys.length);
+    if (!ran && k < keys.length && !opened) { d.open = true; opened = true; }
+  }
+  ran = true;
   document.getElementById('bar').style.width = (100 * done / total) + '%';
   document.getElementById('count').textContent = done + ' / ' + total;
 }
