@@ -58,6 +58,7 @@ details details h2{font-size:1rem}
 .differs h2{margin-bottom:4px}
 .differs ul{margin:4px 0 0;padding-left:20px}
 .differs li{margin:3px 0}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ember);border:1px solid var(--ember);border-radius:3px;padding:0 4px;margin-left:6px;vertical-align:1px;text-decoration:none}
 </style>
 </head>
 <body>
@@ -85,14 +86,15 @@ details details h2{font-size:1rem}
 </section>
 
 <section class="differs">
-  <h2>Where pick 2 differs from the design</h2>
-  <p class="why" style="margin:0">The steps below are your design as written. These are the places the site or the rules don't match it, for you to decide on.</p>
+  <h2>Adapted for pick 2</h2>
+  <p class="why" style="margin:0">Your shelter and stove design is unchanged. Steps marked <span class="tag">pick 2</span> were rewritten for this site; every other step is as written.</p>
   <ul>
-    <li>The design is drawn for a lake shore, about 25 m back from the lake. At pick 2 the water is a creek, and the creek is within 20 m of the pick.</li>
-    <li>The design fells and cuts poles and logs, and sets posts in the ground. In a PLUZ that counts as a structure, which needs approval first.</li>
-    <li>The design takes weeks to build. A PLUZ stay is 14 days in one spot.</li>
-    <li>The zone edge is 100–200 m east of the pick.</li>
+    <li><b>Directions</b> are front, back, left and right, as you stand in front of the shelter looking at it. The front faces downhill. At pick 2 the slope falls about north-east (from 30 m terrain data, so check on the ground).</li>
+    <li><b>Water:</b> a creek instead of a lake, with the shelter at least 30 m from it.</li>
+    <li><b>Materials:</b> clay from the till, sand from creek bars, stones from dry ground with no limestone, and a scraped mixing patch instead of a rock ledge.</li>
+    <li><b>Slope:</b> about 8° around the pick, so look for a flatter shelf.</li>
   </ul>
+  <p class="why" style="margin:8px 0 0">Still yours to decide: the design fells poles and sets posts, which in a PLUZ counts as a structure needing approval, and it takes longer to build than the 14-day stay limit.</p>
 </section>
 
 <div class="progress" aria-live="polite"><div class="bar"><i id="bar"></i></div><span id="count"></span></div>
@@ -143,7 +145,7 @@ const AFTER = [
     ] },
 ];
 
-const KEY = 'pick2-shelter-ticks-v4';
+const KEY = 'pick2-shelter-ticks-v4';  // ticks are keyed by step, so wording changes keep them
 let ticks = {};
 try { ticks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ticks = {}; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} };
@@ -151,7 +153,7 @@ const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls)
 const P = window.DESIGN.PROCS;
 const tops = [];   // [details, [keys]] for each top-level stage
 
-function stepBox(key, text, stop, keys) {
+function stepBox(key, text, stop, keys, adapted) {
   keys.push(key);
   const lab = el('label', 'step');
   const box = el('input');
@@ -159,6 +161,7 @@ function stepBox(key, text, stop, keys) {
   box.checked = !!ticks[key];
   box.addEventListener('change', () => { if (box.checked) ticks[key] = 1; else delete ticks[key]; save(); refresh(); });
   const span = el('span', stop ? 'stop' : '', text);
+  if (adapted) span.appendChild(el('span', 'tag', 'pick 2'));
   lab.append(box, span);
   return lab;
 }
@@ -173,7 +176,11 @@ function list(cls, head, items) {
   const d = el('div', 'list ' + cls);
   d.appendChild(el('b', '', head));
   const ul = el('ul');
-  items.forEach((t) => ul.appendChild(el('li', '', t)));
+  items.forEach((t) => {
+    const li = el('li', '', typeof t === 'string' ? t : t.t);
+    if (t.a) li.appendChild(el('span', 'tag', 'pick 2'));
+    ul.appendChild(li);
+  });
   d.appendChild(ul);
   return d;
 }
@@ -188,6 +195,7 @@ function procBody(id, keys) {
   p.steps.forEach((st, i) => {
     const key = id + ':' + i;
     if (typeof st === 'string') { body.appendChild(stepBox(key, st, false, keys)); return; }
+    if (!st.call) { body.appendChild(stepBox(key, st.t, false, keys, true)); return; }
     const sub = P[st.call];
     const extra = [st.times > 1 ? '×' + st.times : '', st.note].filter(Boolean).join(', ');
     if (shown.has(st.call)) {

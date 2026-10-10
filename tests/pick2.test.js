@@ -12,3 +12,11 @@ test('the pick 2 checklist carries the current instructions (run node pick-2/bui
 test('every size in the pick 2 checklist is filled in', () => {
   assert.doesNotMatch(out(build()), /\{[a-z][A-Za-z0-9]*\.[A-Za-z0-9.]+\}/);
 });
+
+test('every pick 2 site change still finds the text it replaces', () => {
+  assert.deepEqual(build().unused.map((c) => c.find), []);
+});
+
+test('no lake-shore wording is left in the pick 2 checklist', () => {
+  assert.doesNotMatch(out(build()), /\blake\b|lakeshore|high-water|east arm|rock ledge/i);
+});
