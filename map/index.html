@@ -392,6 +392,19 @@ const PICK_GEO = [
 const geoLayer = L.polygon([[51.01175, -114.68994], [51.01715, -114.6899], [51.0172, -114.68983], [51.01912, -114.68708], [51.01917, -114.68701], [51.01921, -114.68688], [51.02203, -114.67598], [51.02093, -114.65373], [51.0033, -114.65189], [51.00039, -114.6579], [50.9992, -114.66411], [50.99761, -114.6671], [50.99714, -114.66798], [50.99329, -114.67521], [50.99582, -114.67919], [51.0017, -114.68302], [51.01012, -114.68708], [51.01014, -114.68711], [51.01175, -114.68994]], { color: "#8a5a2b", weight: 2, dashArray: "5 4", fillColor: "#c08a50", fillOpacity: .25 })
   .bindPopup(`<b>Glacial lake clay</b><div class="meta">Glaciolacustrine deposit (AGS surficial geology, 1:1,000,000)</div><p>Fine silt and clay laid down in an old glacial lake, the best clay bet on the geology map. It's <strong>outside the Kananaskis PLUZ</strong>, so it's probably private or other land. Don't dig without the owner's permission.</p>`, { maxWidth: 300 });
 const pickList = document.getElementById("picks");
+// Easiest walk-in from the nearest trail to pick 2 (least-cost path on a 5 m grid). Walking speed from slope (Tobler's hiking
+// function on a 20 m terrain model), slowed by off-trail ground: thick 2-6 m regrowth costs most, tall forest a little for deadfall,
+// slopes over 30 degrees and stream crossings are avoided. Canopy from Meta's 1 m canopy height model.
+const ROUTES = Object.fromEntries([{"pick":2,"trail":"Telephone Loop","start":[50.97189,-114.70275],"lenM":247,"straightM":224,"climbM":1,"dropM":23,"minutes":7,"thicketPct":7,"forestPct":10,"openPct":46,"maxSlope":11,"crossings":0,"line":[[50.97189,-114.70275],[50.97148,-114.70218],[50.97139,-114.70218],[50.97126,-114.70197],[50.97103,-114.70197],[50.97099,-114.7019],[50.97085,-114.7019],[50.97044,-114.70133],[50.97031,-114.70133],[50.97026,-114.70125],[50.97022,-114.70133],[50.97017,-114.70111]]}].map(r => [r.pick, r]));
+function routeText(r) {
+  const ground = r.openPct >= 50 ? "mostly open ground" : r.openPct >= 35 ? "about half open, half young forest" : r.forestPct >= 40 ? "mostly tall forest" : r.thicketPct >= 30 ? "some thick regrowth" : "mixed young forest";
+  return `${r.lenM} m from ${r.trail} (orange line), about ${r.minutes} min. ${r.climbM} m up, ${r.dropM} m down, steepest ${r.maxSlope}°, ${ground}${r.crossings ? `, ${r.crossings} stream crossing${r.crossings > 1 ? "s" : ""}` : ", no stream crossings"}.`;
+}
+const routeLayer = L.layerGroup(Object.values(ROUTES).flatMap(r => [
+  L.polyline(r.line, { pane: "sites", color: "#fff", weight: 6, opacity: .9, interactive: false }),
+  L.polyline(r.line, { pane: "sites", color: "#e8590c", weight: 3.5, opacity: 1 }).bindTooltip(`Walk-in to pick ${r.pick}: ${r.lenM} m, about ${r.minutes} min`, { sticky: true }),
+  L.circleMarker(r.start, { pane: "sites", radius: 4, color: "#e8590c", weight: 2, fillColor: "#fff", fillOpacity: 1 }).bindTooltip(`Leave ${r.trail} here: ${r.start[0]}, ${r.start[1]}`)
+])).addTo(map);
 SITES.picks.forEach((p, i) => {
   const rock = p.rockM == null ? "No mapped cliffs or scree within 5 km" : `Mapped cliff, scree or bare rock ${p.rockM.toLocaleString()} m away`;
   const label = p.stream.startsWith("unnamed") ? "Unnamed creek near " + p.stream.replace(/.* from (.*)\)$/, "$1") : p.stream;
@@ -402,6 +415,7 @@ SITES.picks.forEach((p, i) => {
     `<li><span class="rk">Rock</span> ${rock}. ${p.steepPct}% of the ground within 250 m is steeper than 35°.</li>` +
     `<li><span class="rk">Ground</span> ${p.slope}° slope at the spot</li>` +
     (PICK_GEO[i] ? `<li><span class="rk">Clay</span> ${PICK_GEO[i][0]}: ${PICK_GEO[i][1]}</li>` : "") +
+    (ROUTES[i + 1] ? `<li><span class="rk">Route</span> ${routeText(ROUTES[i + 1])}</li>` : "") +
     (p.fromFocusKm != null ? `<li><span class="rk">Distance</span> ${p.fromFocusKm} km from your point, ${p.trailM} m from the nearest mapped trail</li>` : "") + `</ul>` +
     `<p class="rnote"><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking">Directions</a> · <a target="_blank" rel="noopener" href="https://www.google.com/maps/@${p.lat},${p.lon},1200m/data=!3m1!1e3">Satellite</a> · <a target="_blank" rel="noopener" href="https://opentopomap.org/#map=15/${p.lat}/${p.lon}">Topo</a> · Check on the ground: mapped streams can be dry and small roads or cutlines can be missing.</p>`;
   const m = L.marker([p.lat, p.lon], { icon: L.divIcon({ className: "", html: `<div class="pick-num" style="width:24px;height:24px">${i + 1}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] }), zIndexOffset: 1000 })
@@ -432,6 +446,7 @@ const TRAILS = [["Canyon Creek Trail",[[50.90271,-114.80198],[50.90352,-114.8033
 const trailLayer = L.layerGroup(TRAILS.map(([n, l]) => { const pl = L.polyline(l, { renderer: sr, color: "#7a3f98", weight: 2, opacity: .9, dashArray: "5 4" });
   if (n) pl.bindTooltip(n, { sticky: true }); return pl; })).addTo(map);
 layersCtl.addOverlay(trailLayer, "Trails (purple dashes)");
+layersCtl.addOverlay(routeLayer, "Walk-in to pick 2 (orange)");
 
 // "Where am I": live GPS dot, accuracy ring and the nearest pick. Falls back to pasted coordinates when the browser won't share location.
 (() => {
