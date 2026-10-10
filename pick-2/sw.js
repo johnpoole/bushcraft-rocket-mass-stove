@@ -1,5 +1,5 @@
 // Keeps the pick 2 checklist on the phone so it opens with no signal.
-const CACHE = 'pick2-v1';
+const CACHE = 'pick2-v2';
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', 'index.html'])).then(() => self.skipWaiting()));
 });

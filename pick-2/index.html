@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1c2221">
-<title>Pick 2 Shelter</title>
+<title>Pick 2 Camp</title>
 <style>
 :root{color-scheme:light;--bg:#eef0ec;--ink:#1f2a28;--muted:#5b6862;--line:#c9cfc9;--panel:#f7f8f5;--ember:#d4531c;--danger:#b3261e;--ok:#2f7d4f;--warn-bg:#fbeee6}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#151a19;--ink:#dce3df;--muted:#97a39d;--line:#2d3634;--panel:#1c2221;--ember:#ec6a32;--danger:#ef6b62;--ok:#5cbf85;--warn-bg:#2a1f1a}}
@@ -48,7 +48,7 @@ a{color:var(--ember)}
 </head>
 <body>
 <div class="wrap">
-<h1>Temporary shelter at pick 2</h1>
+<h1>Temporary shelter and stove at pick 2</h1>
 <p class="sub">Work down the stages in order. Tick each step as you go; your ticks stay on this phone.</p>
 
 <dl class="facts">
@@ -62,7 +62,8 @@ a{color:var(--ember)}
 <section class="rules">
   <h2>PLUZ rules that shape this camp</h2>
   <ul>
-    <li><b>Portable and temporary only.</b> Tarp, cord, stakes and gear you carry out. Any structure or ground improvement needs approval from Alberta Environment and Protected Areas, so no digging, no cutting live trees and no cob stove here.</li>
+    <li><b>Temporary only.</b> Everything you bring goes out with you, and everything you build comes apart and goes back where it came from. No cutting live trees.</li>
+    <li><b>Check the stove first.</b> The general rules say fires go in existing fire pits or portable fire receptacles, and that any structure needs approval from Alberta Environment and Protected Areas. A cob stove you take apart may still count, so call the Calgary district office before you build it.</li>
     <li><b>At least 30 m from the creek.</b> The pick itself is closer than that, so you'll set up a little back from it.</li>
     <li><b>14 days max</b> in one spot, then move at least 1 km for 72 hours.</li>
     <li><b>Fires</b> only for cooking or warmth, never during a fire ban, never unattended, and out until cold to the touch.</li>
@@ -93,6 +94,8 @@ const STAGES = [
       'Open the map, scroll around pick 2 and the walk-in route so the tiles are saved, and open this page once so it works offline.',
       'Tell someone where you\'re going (pick 2 coordinates), your route and when you\'ll be back.',
       'Pack: tarp (3.7 × 4.9 m), 15 m ridgeline cord plus 8 × 2 m guy cords, 8 stakes, knife, folding saw, closed-cell pad, bag rated about −10 °C, headlamp with spare batteries, water filter, bear spray, food bag with 15 m rope, trowel, blaze orange (it\'s hunting season), and a fire pan if you plan a fire.',
+      'For the stove, add: a folding shovel, a bucket, a small tarp to tread mix on, a tape measure, and formers for the 15 × 15 cm openings. Cardboard folded into square tubes works and burns out cleanly: 50 cm for the tunnel, 35 cm for the feed tube and 140 cm for the riser.',
+      'Plan the days: day 1 shelter, days 2–4 build the stove, days 5–8 dry it with small fires, and be packed out with the stove taken apart by day 14.',
     ] },
   { t: 'Arrive and get your bearings', time: '15 min',
     why: 'Check you\'re in the right place and inside the zone before you unpack anything.',
@@ -170,27 +173,69 @@ const STAGES = [
       'Fire fully out before bed: drown it, stir it, drown it again until it\'s cold to the touch.',
       'Mark the shelter as a waypoint on your phone in case you walk away from it after dark.',
     ] },
-  { t: 'While you\'re here: stove scouting', time: 'optional',
-    why: 'The cob stove can\'t be built here without approval, but you can learn what the site offers.',
+  { t: 'Stove: place it and test the clay', time: 'day 2, 2 hours',
+    why: 'The stove sits outside the tarp, at the open end, so the shelter can\'t catch and the chimney smoke goes away from you.',
     steps: [
-      'Look along the creek for a cutbank where the finer, stickier layers of the till show.',
-      'Take a fist-sized sample from the face, put the loose soil back, and bag it for the clay test at home: roll a snake and see if it bends into a ring.',
-      'Note where flat stones lie on dry ground away from the creek. Leave them in place.',
-      'Photograph anything useful and drop a waypoint on it.',
+      'Pick the stove spot just beyond the open (downwind) end of the tarp: the feed tube at least 1 m from the tarp, nothing overhanging, on level ground.',
+      'Mark the footprint, about 1 × 1.5 m for the core. If you want a short bench, run it away from the tarp, never under it.',
+      'Choose a clay pit on dry ground at least 30 m from the creek, near the stove. Don\'t dig into the creek bank; the till is clay everywhere here.',
+      'Lift the top layer of moss and litter off the pit in whole pieces and set them aside, face up, to go back at the end.',
+      'Dig a test hole below the dark topsoil. Roll a moist ball into a snake: it should bend into a ring without cracking.',
+      'Make three small patties, one plain and two with extra sand or grit, dry them by a small fire, then put them in it. Use the mix that comes out whole. Till is already gritty, so you may need little or no extra sand.',
+      '!If the snake won\'t bend at all, there isn\'t enough clay here. Build a shelter-only trip and keep the patties for the record.',
     ] },
-  { t: 'Leaving', time: '30 min',
+  { t: 'Stove: gather and mix', time: 'day 2–3, half a day',
+    why: 'The core needs about a third of a cubic metre of clay, roughly 15 buckets.',
+    steps: [
+      'Dig the clay from the pit, keeping the topsoil in its own pile.',
+      'Collect flat stones and a cooktop slab about 60–70 cm across from dry ground only. Never use stones from the creek or wet ground; they can explode when hot.',
+      'Gather a few armfuls of dry grass for the cob, and ash, sawdust or dry chopped grass for the riser insulation.',
+      'Cob: tread clay with the sand or grit your test showed, plus a good handful of dry grass, on the small tarp.',
+      'Refractory mix for the burn tunnel: the same clay and sand with no grass.',
+      'Light clay for the riser: clay thinned to a slurry, stirred into the ash or dry grass until just coated.',
+    ] },
+  { t: 'Stove: build the core', time: 'days 3–4',
+    why: 'Same design as your build guide, 15 × 15 cm everywhere. Every size is an inside measurement.',
+    steps: [
+      'Lay a 10 cm bed of dry flat stones over the footprint to keep ground damp out.',
+      'Burn tunnel: lay the 50 cm former on a flat stone floor and pack 5–8 cm of refractory mix around it.',
+      'Feed tube: stand the 35 cm former at the tarp end of the tunnel and pack refractory mix around it.',
+      'Riser: stand the 140 cm former at the far end. Build 3 cm of refractory mix around it, then 7–10 cm of light clay, then a cob shell. Go up in layers and let each firm before the next.',
+      'Dome: build a cob wall round the riser with a 5 cm gap, and set the cooktop slab 5–8 cm above the riser top.',
+      'Outlet and chimney: open a 15 × 15 cm outlet at the bottom of the dome on the side away from the tarp, and run it to a stone-and-cob chimney whose top is at least 60 cm above the riser top.',
+      'Measure the narrowest point of every opening with the tape. Nothing smaller than 15 × 15 cm.',
+      'Plaster every outside surface with clay and sand, and fill cracks with slip.',
+      'Put a ground sheet or spare tarp over it if rain is coming, well clear of the tarp you sleep under.',
+    ] },
+  { t: 'Stove: dry it and first fires', time: 'days 5–8',
+    why: 'Wet cob cracks and smokes if it\'s fired hard. Small fires first, bigger each day.',
+    steps: [
+      'Let it air-dry at least a day before any fire.',
+      'Burn a few handfuls of twigs just inside the feed tube for the first 1–2 days. The formers will burn out.',
+      'Rake out ash and charred former through the feed tube.',
+      'Make the fires bigger over the next days, and seal new cracks with slip as they appear.',
+      'It\'s working when the fire is pulled sideways down the feed tube and the chimney shows little smoke.',
+      '!Smoke coming back out of the feed tube means stop and look for a blocked or undersized section before you fire it again.',
+      'Never leave it burning unattended or burning while you sleep, and only when there is no fire ban.',
+    ] },
+  { t: 'Leaving', time: '2–3 hours with the stove',
     why: 'Leave it so nobody can tell you were there. That keeps the site and the rules on your side.',
     steps: [
+      'Let the stove go cold overnight before you touch it.',
+      'Break the stove down: chimney, cooktop and dome first, then the riser and tunnel. Put the stones back on dry ground roughly where they came from.',
+      'Break the cob and fired clay into small pieces and put it all back in the clay pit, with any cold ash.',
+      'Tread the pit full, cover it with its topsoil, and lay the moss and litter back on top, face up.',
+      'Scatter litter over the stove footprint until it looks like the ground around it.',
       'Take down the tarp, cord and every stake.',
       'Scatter the bed litter back across the area and put moved sticks and stones roughly back.',
-      'Scatter any cold ash and check the fire spot is cold with your bare hand.',
+      'Check every fire spot is cold with your bare hand.',
       'Fill in and cover the cat hole.',
       'Walk the site once looking down for anything left behind: twist ties, cord ends, wrappers.',
       'Tell your contact you\'re out.',
     ] },
 ];
 
-const KEY = 'pick2-shelter-ticks-v1';
+const KEY = 'pick2-shelter-ticks-v2';
 let ticks = {};
 try { ticks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { ticks = {}; }
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(ticks)); } catch (e) {} };
