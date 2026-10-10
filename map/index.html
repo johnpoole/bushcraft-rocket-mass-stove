@@ -486,7 +486,7 @@ layersCtl.addOverlay(routeLayer, "Walk-in to pick 2 (orange)");
       ` <button type="button" class="loczoom">Fit both</button> <button type="button" class="locstop">${live ? "Stop" : "Clear"}</button></div>`;
     box.querySelector(".loczoom").onclick = () => map.fitBounds(L.latLngBounds([ll, [best.p.lat, best.p.lon]]), { padding: [40, 40], maxZoom: 16 });
     box.querySelector(".locstop").onclick = stop;
-    if (!centred) { centred = true; map.setView(ll, Math.max(map.getZoom(), 14)); }
+    if (!centred) { centred = true; map.setView(ll, Math.max(map.getZoom(), 17)); }
   }
   function stop() {
     if (watch != null) navigator.geolocation.clearWatch(watch);
