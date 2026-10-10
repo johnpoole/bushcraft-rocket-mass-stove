@@ -453,7 +453,7 @@ layersCtl.addOverlay(routeLayer, "Walk-in to pick 2 (orange)");
   const dot = L.circleMarker([0, 0], { radius: 8, color: "#fff", weight: 3, fillColor: "#1a73e8", fillOpacity: 1, interactive: false });
   const acc = L.circle([0, 0], { radius: 1, color: "#1a73e8", weight: 1, fillColor: "#1a73e8", fillOpacity: .12, interactive: false });
   const line = L.polyline([], { color: "#1a73e8", weight: 2, dashArray: "4 6", interactive: false });
-  let watch = null, centred = false;
+  let watch = null, centred = false, fellBack = false;
   const box = L.DomUtil.create("div", "locbox"); box.hidden = true;
   L.DomEvent.disableClickPropagation(box); L.DomEvent.disableScrollPropagation(box);
   const btn = L.DomUtil.create("button", "locbtn"); btn.type = "button"; btn.title = "Show my location"; btn.setAttribute("aria-label", "Show my location");
@@ -506,13 +506,22 @@ layersCtl.addOverlay(routeLayer, "Walk-in to pick 2 (orange)");
   btn.addEventListener("click", () => {
     if (watch != null || !box.hidden) return stop();
     if (!navigator.geolocation) return manual("This browser doesn't share location with the page.");
-    btn.classList.add("on");
+    btn.classList.add("on"); fellBack = false;
     box.hidden = false; box.innerHTML = '<div class="lochead">Finding you…</div>';
     watch = navigator.geolocation.watchPosition(
       pos => show([pos.coords.latitude, pos.coords.longitude], pos.coords.accuracy, true),
-      err => { if (watch != null) navigator.geolocation.clearWatch(watch); watch = null; btn.classList.remove("on");
-        manual(err.code === 1 ? "Location permission was refused or is blocked for this page." : err.code === 3 ? "No GPS fix yet. Try again in the open." : "Your position couldn't be found."); },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 });
+      err => {
+        // A slow first GPS fix: fall back to a quick network position, keep watching for GPS.
+        if (err.code === 3 && !fellBack) { fellBack = true; navigator.geolocation.getCurrentPosition(pos => show([pos.coords.latitude, pos.coords.longitude], pos.coords.accuracy, true), () => {}, { enableHighAccuracy: false, maximumAge: 60000, timeout: 15000 }); return; }
+        if (watch != null) navigator.geolocation.clearWatch(watch); watch = null; btn.classList.remove("on");
+        const ios = /iPhone|iPad|iPod/.test(navigator.userAgent), inApp = /FBAN|FBAV|Instagram|Line\/|wv\)|; wv|GSA\//.test(navigator.userAgent);
+        const fix = !window.isSecureContext ? "This page isn't on a secure (https) address, so the browser won't share location."
+          : inApp ? "This looks like an app's built-in browser. Use the share or ⋯ menu to open the page in Safari or Chrome."
+          : ios ? "On iPhone: Settings › Privacy & Security › Location Services must be on, and Safari Websites set to While Using. In Safari, tap aA › Website Settings › Location › Allow, then reload."
+          : "On Android: turn on Location in quick settings. In Chrome, tap the icon left of the address › Permissions › Location › Allow, then reload.";
+        manual((err.code === 1 ? "Location is blocked for this page. " : err.code === 3 ? "No position yet (timed out). " : "Your position couldn't be found. ") + fix +
+          ` <span style="opacity:.6">(code ${err.code}${err.message ? ": " + err.message.replace(/</g, "&lt;") : ""})</span>`); },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 });
   });
 })();
 </script>
