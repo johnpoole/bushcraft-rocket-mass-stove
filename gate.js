@@ -9,7 +9,7 @@
   //   node gate.js "new password"
   // and paste the printed hash here.
   const SALT = 'bushcraft-rocket-mass-stove:';
-  const HASH = '__HASH__';
+  const HASH = 'aa285ffd1f0043811f02dfb1009152c11fbbfaf30bc3eb9c5cffd574e3a1e7df';
   const KEY = 'bushcraft-gate';
 
   if (typeof module !== 'undefined' && module.exports) {
@@ -46,7 +46,7 @@
     const box = document.createElement('div');
     box.id = 'gate';
     box.innerHTML = '<form><label for="gate-pw">Password</label>' +
-      '<input id="gate-pw" type="password" autocomplete="current-password" autofocus>' +
+      '<input id="gate-pw" type="password" autocomplete="current-password" autocapitalize="off" autocorrect="off" autofocus>' +
       '<button type="submit">Open</button><p role="alert"></p></form>';
     document.body.appendChild(box);
     const input = box.querySelector('input');
