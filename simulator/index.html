@@ -337,13 +337,17 @@ function stopPlay() {
 function layout(p) {
   const W = 6, ROOF = 6, DOME = 8, COOK = 6, FOUND = 10, CW = 8, REFR = 3;
   const sf = p.feedSize, st = p.tunnelSize, sr = p.riserSize, sc = p.channelSize, sk = p.chimneySize;
-  const Lt = Math.max(p.tunnelLength, sf + sr + 4);
+  const ins = p.riserInsulation;
+  // The feed tube stands outside the dome, against its front wall; the tunnel runs under that wall to the riser.
+  const DMIN = 4;
+  const Lt = Math.max(p.tunnelLength, sf + DMIN + p.sideGap + ins + REFR + sr);
+  const DF = Math.min(DOME, Lt - (sf + p.sideGap + ins + REFR + sr));
   const Hf = Math.max(p.feedHeight, st + 4);
   const Hr = Math.max(p.riserHeight, st + 10);
-  const ins = p.riserInsulation;
   const riserL = Lt - sr;
   const outL = riserL - REFR - ins, outR = Lt + REFR + ins;
   const domeInL = outL - p.sideGap, domeInR = outR + p.sideGap;
+  const domeOutL = domeInL - DF;
   const domeTop = Hr + p.topGap;
   const Ldraw = Math.min(p.channelLength, 170);
   const benchStart = domeInR + DOME;
@@ -355,7 +359,7 @@ function layout(p) {
   const R = (st0, cls, x, z, w, h, until = 99) => { if (w > 0 && h > 0) s.push({ st: st0, until, cls, x, z, w, h }); };
   R(1, 'stone', -W - 6, -FOUND, xC + sk + CW + W + 12, FOUND);
   R(2, 'refr', -W, 0, W, Hf);
-  R(2, 'refr', sf, st, W, Math.max(0, Hf - st));
+  R(2, 'refr', sf, st, Math.min(W, domeInL - sf), Math.max(0, Hf - st));
   R(2, 'slab', sf, st, riserL - sf, ROOF);
   R(2, 'former', 0, 0, sf, Hf, 7);
   R(2, 'former', 0, 0, Lt, st, 7);
@@ -364,9 +368,9 @@ function layout(p) {
   R(3, 'refr', Lt, 0, REFR, Hr);
   R(3, 'insul', Lt + REFR, 0, ins, Hr);
   R(3, 'former', riserL, st, sr, Hr - st, 7);
-  R(4, 'cob', domeInL - DOME, st + ROOF, DOME, domeTop - st - ROOF);
+  R(4, 'cob', domeOutL, st + ROOF, DF, domeTop - st - ROOF);
   R(4, 'cob', domeInR, sc, DOME, domeTop - sc);
-  R(4, 'slab', domeInL - DOME - 4, domeTop, domeInR - domeInL + 2 * DOME + 8, COOK);
+  R(4, 'slab', domeOutL - 4, domeTop, domeInR + DOME - domeOutL + 8, COOK);
   R(5, 'cob', benchStart, sc, xC - CW - benchStart, p.benchCover);
   R(5, 'former', domeInR, 0, xC + sk - domeInR, sc, 7);
   R(6, 'cob', xC - CW, sc, CW, Hc - sc);
@@ -374,7 +378,7 @@ function layout(p) {
   R(6, 'former', xC, sc, sk, Hc - sc, 7);
   const PL = 1.5;
   R(7, 'plaster', benchStart, benchTop, xC - CW - benchStart, PL);
-  R(7, 'plaster', domeInL - DOME - PL, st + ROOF, PL, domeTop - st - ROOF);
+  R(7, 'plaster', domeOutL - PL, st + ROOF, PL, domeTop - st - ROOF);
   R(7, 'plaster', domeInR + DOME, benchTop, PL, domeTop - benchTop);
   R(7, 'plaster', xC + sk + CW, 0, PL, Hc);
   R(7, 'plaster', xC - CW - PL, benchTop, PL, Hc - benchTop);
@@ -386,7 +390,7 @@ function layout(p) {
     [xC + sk / 2, sc / 2], [xC + sk / 2, Hc + 30],
   ];
   const widths = [sf, st, sr, p.topGap, p.sideGap, sc, sk];
-  return { s, path, widths, Ldraw, sf, st, sr, sc, sk, Lt, Hf, Hr, Hc, domeInL, domeInR, domeTop, DOME, COOK, FOUND, CW, W, xC, benchStart, benchTop, riserL };
+  return { s, path, widths, Ldraw, sf, st, sr, sc, sk, Lt, Hf, Hr, Hc, domeInL, domeInR, domeOutL, domeTop, DOME, COOK, FOUND, CW, W, xC, benchStart, benchTop, riserL };
 }
 
 function tempColour(t) {
@@ -431,7 +435,7 @@ function draw() {
       const benchGlow = Math.min(0.5, res.bench.riseC / 50);
       h += `<rect class="glow" x="${L.benchStart}" y="${-(L.benchTop)}" width="${L.xC - L.CW - L.benchStart}" height="${p.benchCover}" fill="#d4531c" opacity="${benchGlow.toFixed(2)}"/>`;
       const cookGlow = Math.min(0.6, Math.max(0, (res.temps.cooktop - 60) / 600));
-      h += `<rect class="glow" x="${L.domeInL - L.DOME - 4}" y="${-(L.domeTop + L.COOK)}" width="${L.domeInR - L.domeInL + 2 * L.DOME + 8}" height="${L.COOK}" fill="#d4531c" opacity="${cookGlow.toFixed(2)}"/>`;
+      h += `<rect class="glow" x="${L.domeOutL - 4}" y="${-(L.domeTop + L.COOK)}" width="${L.domeInR + L.DOME - L.domeOutL + 8}" height="${L.COOK}" fill="#d4531c" opacity="${cookGlow.toFixed(2)}"/>`;
     }
     for (const f of [0.2, 0.45, 0.7]) h += `<rect class="stick" x="${L.sf * f}" y="${-(L.Hf + 12)}" width="${L.sf * 0.13}" height="${L.Hf + 12 - L.st * 0.25}"/>`;
     const power = res.stalled ? 0.15 : res.firePower / res.fuelCapacity;
@@ -451,7 +455,7 @@ function draw() {
   if (stage >= 2) h += T(-L.W - 4, L.Hf * 0.6, 'feed tube', 'end');
   if (stage >= 2) h += T(L.Lt / 2, -L.FOUND - fs * 1.2, t0 ? `burn tunnel · ${Math.round(res.temps.fire)}°C` : 'burn tunnel');
   if (stage >= 4) h += T((L.domeInL + L.domeInR) / 2, L.domeTop + L.COOK + fs * 0.5, t0 ? `cooktop · ${Math.round(res.temps.cooktop)}°C` : 'cooktop');
-  if (stage >= 3) h += T(L.domeInL - L.DOME - fs * 0.4, L.Hr * 0.55, t0 ? `riser · ${Math.round(res.temps.riserMean)}°C` : 'riser', 'end');
+  if (stage >= 3) h += T(L.domeOutL - fs * 0.4, L.Hr * 0.55, t0 ? `riser · ${Math.round(res.temps.riserMean)}°C` : 'riser', 'end');
   if (stage >= 5) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, L.benchTop + fs * 0.6, t0 ? `bench · +${res.bench.riseC.toFixed(0)}°C` : 'bench');
   if (stage >= 5) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, -L.FOUND - fs * 1.2, `channel ${(p.channelLength / 100).toFixed(1)} m`);
   if (stage >= 6) h += T(L.xC + L.sk + L.CW + fs * 0.4, L.Hc - fs * 0.6, t0 ? `exhaust ${Math.round(res.temps.exhaust)}°C` : 'chimney', 'start');
@@ -538,12 +542,12 @@ function tick(now) {
   }
   if (!p.cracksSealed) {
     crackAcc += dt * 8;
-    while (crackAcc > 1) { crackAcc -= 1; smoke.push({ x: L.domeInL - L.DOME, z: L.Hr * (0.3 + Math.random() * 0.5), vx: -10 - Math.random() * 8, vz: 6 + Math.random() * 6, life: 1 }); }
+    while (crackAcc > 1) { crackAcc -= 1; smoke.push({ x: L.domeOutL, z: L.Hr * (0.3 + Math.random() * 0.5), vx: -10 - Math.random() * 8, vz: 6 + Math.random() * 6, life: 1 }); }
   }
   smoke = smoke.filter((s) => s.life > 0);
   for (const s of smoke) {
     s.x += s.vx * dt * (s.z > L.Hf ? 1.6 : 0.2); s.z += s.vz * dt;
-    if (s.z > L.Hf || s.x < L.domeInL - L.DOME - 2) s.life -= dt * 0.35;
+    if (s.z > L.Hf || s.x < L.domeOutL - 2) s.life -= dt * 0.35;
     const el = circle(ci++);
     el.setAttribute('cx', s.x.toFixed(1)); el.setAttribute('cy', (-s.z).toFixed(1));
     el.setAttribute('r', (fs * (0.3 + (1 - s.life) * 0.7)).toFixed(2));
