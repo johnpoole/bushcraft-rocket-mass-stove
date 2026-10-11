@@ -82,6 +82,7 @@ ol.picks .t { font-weight: 600; } ol.picks .d { color: var(--muted); font-size: 
 .compass { background: rgba(255,255,255,.95); color: #1f2a22; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,.3); padding: 6px 8px; font: 12px/1.35 var(--body); width: 160px; text-align: center; }
 .compass svg { display: block; margin: 0 auto 4px; } .compass .cmuted, .compass .cnote { color: #5d6a60; } .compass .cnote { color: #9a5b12; margin-top: 3px; }
 .compass .csel { display: block; margin-top: 4px; } .compass select { font: 13px var(--body); padding: 2px 4px; max-width: 100%; }
+.buildbtn { display: block; background: #2f6b45; color: #fff !important; font: 600 13px/1 var(--body); padding: 9px 10px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,.4); text-decoration: none; }
 </style>
 </head>
 <body>
@@ -99,7 +100,7 @@ ol.picks .t { font-weight: 600; } ol.picks .d { color: var(--muted); font-size: 
   <section>
     <h2>Pick 2 close-up</h2>
     <div class="sub" style="font-size:12px;display:flex;flex-direction:column;gap:6px">
-      <p><button type="button" id="goto-p2" class="copy" style="font-size:12px">Zoom to pick 2</button> 50.97015, -114.70109</p>
+      <p><button type="button" id="goto-p2" class="copy" style="font-size:12px">Zoom to pick 2</button> 50.97015, -114.70109 · <a href="https://johnpoole.github.io/bushcraft-rocket-mass-stove/pick-2/"><strong>Build steps</strong></a></p>
       <p><strong>Trees:</strong> about 13 m canopy right at the spot. Within 50 m, 71% is covered by trees over 5 m and 15% is open (under 2 m). Within 300 m it's about half forest, half openings. ESA land cover calls it tree cover, with grassland patches nearby.</p>
       <p><strong>Ground:</strong> about 1,454 m elevation, an 8–9° slope facing northeast (from a 20 m terrain model).</p>
       <p><strong>Zone edge:</strong> the official boundary is 100–200 m east of the spot, so don't build any further east than the pick.</p>
@@ -428,7 +429,7 @@ SITES.picks.forEach((p, i) => {
     `<li><span class="rk">Rock</span> ${rock}. ${p.steepPct}% of the ground within 250 m is steeper than 35°.</li>` +
     `<li><span class="rk">Ground</span> ${p.slope}° slope at the spot</li>` +
     (PICK_GEO[i] ? `<li><span class="rk">Clay</span> ${PICK_GEO[i][0]}: ${PICK_GEO[i][1]}</li>` : "") +
-    (i === 1 ? `<li><span class="rk">Route</span> Your Oct 10 route (green): leave Telephone Loop at 50.96909, -114.70464 and walk 283 m northeast, about 9 min, 31 m downhill going in. It's the easiest way you found. The way you first came in looped 940 m around the north.</li>` : ROUTES[i + 1] ? `<li><span class="rk">Route</span> ${routeText(ROUTES[i + 1])}</li>` : "") +
+    (i === 1 ? `<li><span class="rk">Route</span> Your Oct 10 route (green): leave Telephone Loop at 50.96909, -114.70464 and walk 283 m northeast, about 9 min, 31 m downhill going in. It's the easiest way you found. The way you first came in looped 940 m around the north.</li><li><span class="rk">Build</span> <a href="https://johnpoole.github.io/bushcraft-rocket-mass-stove/pick-2/"><strong>Shelter build steps for pick 2</strong></a></li>` : ROUTES[i + 1] ? `<li><span class="rk">Route</span> ${routeText(ROUTES[i + 1])}</li>` : "") +
     (p.fromFocusKm != null ? `<li><span class="rk">Distance</span> ${p.fromFocusKm} km from your point, ${p.trailM} m from the nearest mapped trail</li>` : "") + `</ul>` +
     `<p class="rnote"><a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lon}&travelmode=walking">Directions</a> · <a target="_blank" rel="noopener" href="https://www.google.com/maps/@${p.lat},${p.lon},1200m/data=!3m1!1e3">Satellite</a> · <a target="_blank" rel="noopener" href="https://opentopomap.org/#map=15/${p.lat}/${p.lon}">Topo</a> · Check on the ground: mapped streams can be dry and small roads or cutlines can be missing.</p>`;
   const m = L.marker([p.lat, p.lon], { icon: L.divIcon({ className: "", html: `<div class="pick-num" style="width:24px;height:24px">${i + 1}</div>`, iconSize: [24, 24], iconAnchor: [12, 12] }), zIndexOffset: 1000 })
@@ -644,6 +645,11 @@ L.circleMarker(PARK, { pane: "sites", radius: 7, color: "#1f2a22", weight: 2, fi
   const PCtl = L.Control.extend({ onAdd() { return panel; } });
   new PCtl({ position: "topright" }).addTo(map);
   window.compassRedraw = () => { if (on) draw(); };
+})();
+// Build steps button: opens the pick 2 shelter checklist (works offline once opened with signal).
+(() => {
+  const C = L.Control.extend({ onAdd() { const a = L.DomUtil.create("a", "buildbtn"); a.href = "https://johnpoole.github.io/bushcraft-rocket-mass-stove/pick-2/"; a.textContent = "Build steps"; a.title = "Pick 2 shelter build checklist"; L.DomEvent.disableClickPropagation(a); return a; } });
+  new C({ position: "topleft" }).addTo(map);
 })();
 </script>
 </body>
