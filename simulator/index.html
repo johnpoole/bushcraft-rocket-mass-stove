@@ -113,6 +113,7 @@ select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(-
   <div class="panel">
     <div class="v3head">
       <h2>3D view</h2>
+      <label><input type="checkbox" id="v3riser"> Riser close-up</label>
       <label><input type="checkbox" id="v3cut" checked> Cut in half</label>
       <label><input type="checkbox" id="v3spin"> Spin</label>
       <button class="btn" id="v3reset">Reset view</button>
@@ -638,7 +639,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 const box = document.getElementById('view3d');
-const cutBox = document.getElementById('v3cut'), spinBox = document.getElementById('v3spin');
+const cutBox = document.getElementById('v3cut'), spinBox = document.getElementById('v3spin'), riserBox = document.getElementById('v3riser');
 const STUB = 45; // cm of bench channel drawn past the dome
 
 let renderer;
@@ -677,6 +678,9 @@ function materials() {
   const m = (v, extra = {}) => new THREE.MeshStandardMaterial({ color: new THREE.Color(css(v)), roughness: 0.95, ...extra });
   mats = {
     stone: m('--stone'), refr: m('--refr'), insul: m('--insul'), cob: m('--cob'), slab: m('--slab'),
+    lead: new THREE.LineBasicMaterial({ color: new THREE.Color(css('--ink')) }),
+    leadDot: new THREE.MeshBasicMaterial({ color: new THREE.Color(css('--ink')) }),
+    ghost: m('--cob', { transparent: true, opacity: 0.12, depthWrite: false }),
     edge: new THREE.LineBasicMaterial({ color: new THREE.Color(css('--ink')), transparent: true, opacity: 0.35 }),
   };
   return mats;
@@ -696,28 +700,35 @@ function hideCovered() {
   }
 }
 function frame(L) {
-  // Fit a sphere around the stove into the view, looking from the cut face, a little from the side and above.
-  const x0 = -L.W - 6, x1 = L.domeInR + L.DOME + STUB, y0 = -L.FOUND, y1 = L.domeTop + L.COOK;
+  // Fit a sphere around the stove (or just the riser and its dome) into the view, looking at the cut face from a little to the side and above.
+  const close = riserBox.checked;
+  const x0 = close ? L.domeOutL - 70 : -L.W - 6, x1 = L.domeInR + (close ? L.DOME + 70 : L.DOME + STUB);
+  const y0 = close ? 0 : -L.FOUND, y1 = L.domeTop + L.COOK;
   const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-  const radius = 0.5 * Math.hypot(x1 - x0, y1 - y0, 2 * (L.domeInL - L.domeOutL + 40));
+  const radius = 0.5 * Math.hypot(x1 - x0, y1 - y0, close ? 0 : 2 * (L.domeInL - L.domeOutL + 40));
   const fov = THREE.MathUtils.degToRad(camera.fov) / 2;
   const dist = (radius / Math.sin(Math.min(fov, Math.atan(Math.tan(fov) * camera.aspect)))) * 0.85;
   controls.target.set(cx, cy, 0);
-  camera.position.copy(new THREE.Vector3(0.45, 0.35, 1).normalize().multiplyScalar(dist).add(controls.target));
+  camera.position.copy(new THREE.Vector3(close ? 0.3 : 0.45, close ? 0.4 : 0.35, 1).normalize().multiplyScalar(dist).add(controls.target));
   controls.update();
 }
 
 function build() {
   const p = params, L = layout(p), M3 = materials();
-  const cut = cutBox.checked;
+  const cut = cutBox.checked, close = riserBox.checked;
   for (const o of [...stoveGroup.children]) {
     stoveGroup.remove(o);
     o.traverse((c) => { if (c.geometry) c.geometry.dispose(); if (c.element) c.element.remove(); });
   }
 
   // One box per solid piece, shown from its build step on. With the cut on, only the back half is kept.
+  // In the riser close-up only the riser is solid; the tunnel, dome and cooktop are faint outlines for the gaps.
   const B = (st0, mat, x0, x1, y0, y1, z0, z1) => {
     if (stage < st0) return;
+    if (close && st0 !== 3) {
+      if (st0 !== 2 && st0 !== 4) return;
+      mat = 'ghost';
+    }
     if (cut) z1 = Math.min(z1, 0);
     if (x1 - x0 <= 0 || y1 - y0 <= 0 || z1 - z0 <= 0) return;
     const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0);
@@ -774,7 +785,7 @@ function build() {
     const t = res.temps;
     const gas = (temp, x0, x1, y0, y1, a) => {
       const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, cut ? a : 2 * a);
-      const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(tempColour(temp)), transparent: true, opacity: 0.55, depthWrite: false });
+      const mat = new THREE.MeshBasicMaterial({ color: new THREE.Color(tempColour(temp)), transparent: true, opacity: close ? 0.3 : 0.55, depthWrite: false });
       const mesh = new THREE.Mesh(g, mat);
       mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, cut ? -a / 2 : 0);
       stoveGroup.add(mesh);
@@ -782,32 +793,55 @@ function build() {
     gas(t.fire, 0, Lt, 0, st, ht);
     gas(t.fire, riserL, Lt, st, (st + Hr) / 2, hr);
     gas(t.riserTop, riserL, Lt, (st + Hr) / 2, Hr, hr);
-    gas(t.riserTop, domeInL, domeInR, Hr, domeTop, hd);
-    gas(t.bell, domeInR - p.sideGap, domeInR, 0, Hr, hd);
-    gas(t.exhaust, domeInR + DOME, xEnd, 0, sc, hc);
+    if (!close) {
+      gas(t.riserTop, domeInL, domeInR, Hr, domeTop, hd);
+      gas(t.bell, domeInR - p.sideGap, domeInR, 0, Hr, hd);
+      gas(t.exhaust, domeInR + DOME, xEnd, 0, sc, hc);
+    }
   }
 
   tags = [];
-  const label = (st0, txt, x, y, z) => {
+  // side 'left' or 'right' draws a leader line from the point out past the dome and hangs the label on its end.
+  const label = (st0, txt, x, y, z, side) => {
     if (stage < st0) return;
     const el = document.createElement('div');
     el.className = 'lbl';
     el.textContent = txt;
     const o = new CSS2DObject(el);
+    if (side) {
+      const xe = side === 'left' ? domeOutL - 8 : domeInR + DOME + 8;
+      const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, y, z), new THREE.Vector3(xe, y, z)]);
+      stoveGroup.add(new THREE.Line(g, M3.lead));
+      stoveGroup.add(new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 6), M3.leadDot).translateX(x).translateY(y).translateZ(z));
+      o.center.set(side === 'left' ? 1 : 0, 0.5);
+      x = xe;
+    }
     o.position.set(x, y, z);
     stoveGroup.add(o);
     tags.push(o);
   };
   const zl = cut ? 0 : ho + 8;
+  if (close) {
+    // Sizes written on the cut face of each layer, staggered up the riser so they don't overlap.
+    const outside = sr + 2 * (REFR + ins);
+    label(3, `passage ${sr} × ${sr} cm inside`, (riserL + Lt) / 2, Hr * 0.85, 0, 'left');
+    label(3, `refractory ${REFR} cm`, riserL - REFR / 2, Hr * 0.68, 0, 'left');
+    if (ins > 0) label(3, `insulation ${ins} cm`, riserL - REFR - ins / 2, Hr * 0.51, 0, 'left');
+    label(3, 'from the burn tunnel', riserL + 2, st / 2, 0, 'left');
+    label(4, `${p.topGap} cm gap under the cooktop`, Lt - 2, Hr + p.topGap / 2, 0, 'right');
+    label(3, `${Hr} cm tall, ${outside} cm square outside`, Lt + REFR + ins, Hr * 0.6, 0, 'right');
+    label(4, `${p.sideGap} cm gap to the dome`, domeInR - p.sideGap / 2, Hr * 0.35, 0, 'right');
+  } else {
   label(2, 'feed tube', sf / 2, Hf + 10, 0);
   label(2, 'burn tunnel', (sf + riserL) / 2, -FOUND - 8, zl);
   label(3, 'riser', Lt - hr, Hr * 0.6, cut ? -hr : 0);
   label(4, 'cooktop', (domeOutL + domeInR) / 2, domeTop + COOK + 10, 0);
   label(4, 'dome', domeInR + DOME / 2, domeTop * 0.75, cut ? -hd : zl);
   label(5, 'to the bench', xEnd - 6, top + 10, 0);
+  }
 
   // Frame the stove the first time, and again when its overall size changes a lot.
-  const key = `${Math.round(L.domeTop / 20)}|${Math.round((xEnd + W) / 20)}`;
+  const key = `${close}|${Math.round(L.domeTop / 20)}|${Math.round((xEnd + W) / 20)}`;
   if (!framed || key !== lastKey) { frame(L); framed = true; }
   lastKey = key;
   scene3.background = new THREE.Color(css('--sky'));
@@ -825,6 +859,7 @@ resize();
 
 window.draw3d = () => { try { build(); } catch (e) { showError(e); } };
 cutBox.addEventListener('change', window.draw3d);
+riserBox.addEventListener('change', window.draw3d);
 spinBox.addEventListener('change', () => { controls.autoRotate = spinBox.checked; });
 document.getElementById('v3reset').addEventListener('click', () => frame(layout(params)));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', window.draw3d);
