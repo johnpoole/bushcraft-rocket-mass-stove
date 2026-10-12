@@ -662,11 +662,12 @@ function resetParticles() {
   if (!res || stage !== 8) return;
   scene.segs = segments();
   scene.total = scene.segs[scene.segs.length - 1].start + scene.segs[scene.segs.length - 1].len;
-  const top = scene.segs.find((s) => s.k === 'topGap');
-  scene.coreEnd = top.start + top.len;
+  const down = scene.segs.find((s) => s.k === 'sideGap');
+  scene.coreEnd = down.start + down.len;
   const n = res.stalled ? 0 : Math.min(160, Math.max(8, Math.round(res.airFlow * 1000 * 12)));
   // j: offset across the passage in the drawing; q: offset across the stove; ph and side: where on the spin it rides.
-  const particle = (s, i) => ({ s, j: Math.random() - 0.5, q: Math.random() - 0.5, ph: Math.random() * 6.283, side: i % 2 ? 1 : -1 });
+  // ang: which way round the riser the particle spreads and falls.
+  const particle = (s, i) => ({ s, j: Math.random() - 0.5, q: Math.random() - 0.5, ph: Math.random() * 6.283, side: i % 2 ? 1 : -1, ang: Math.random() * 6.283 });
   for (let i = 0; i < n; i++) flow.push(particle(Math.random() * scene.total, i));
   if (!res.stalled) for (let i = 0; i < 90; i++) core.push(particle(Math.random() * scene.coreEnd, i));
   if (scene.L.pchan && !res.stalled) for (let i = 0; i < 10; i++) air2.push({ f: Math.random(), q: Math.random() - 0.5 });
@@ -692,7 +693,36 @@ function flowPoint(pt) {
       x = xc + r * Math.cos(th); y = r * Math.sin(th);
     }
   }
-  return { x, y, z, seg, temp: seg.T[0] + (seg.T[1] - seg.T[0]) * f };
+  // Over the riser the gas spreads out every way under the cooktop, then falls down all four sides
+  // in the gap between the riser and the dome. At the floor it works round the riser to the bench
+  // opening, which faces +x. Angle 0 points at the bench, π at the fire end.
+  let hidden = false;
+  if (seg.k === 'topGap' || seg.k === 'sideGap') {
+    const L = scene.L, p = params;
+    const riserX = scene.segs.find((s) => s.k === 'riser').x0;
+    const ring = L.sr / 2 + L.REFR + p.riserInsulation + p.sideGap / 2;
+    const onRing = (a, r) => { const m = Math.max(Math.abs(Math.cos(a)), Math.abs(Math.sin(a))); return [riserX + (r * Math.cos(a)) / m, (r * Math.sin(a)) / m]; };
+    const zTop = L.Hr + p.topGap / 2, zOut = L.sc / 2;
+    // On the fire side the floor of the gap is the roof over the fire.
+    const zFloor = (a) => (Math.cos(a) < -0.3 ? L.foot + 2 : zOut);
+    let a = pt.ang;
+    if (seg.k === 'topGap') {
+      [x, y] = onRing(a, ring * f);
+      z = zTop;
+    } else if (f < 0.8) {
+      [x, y] = onRing(a, ring);
+      z = zTop + (zFloor(a) - zTop) * (f / 0.8);
+    } else {
+      const g = (f - 0.8) / 0.2;
+      const a0 = a > Math.PI ? a - 2 * Math.PI : a;
+      a = a0 * (1 - g);
+      [x, y] = onRing(a, ring);
+      z = zFloor(pt.ang) + (zOut - zFloor(pt.ang)) * g;
+    }
+    // In the section only gas in the cut plane shows; gas beside the riser is behind or in front of it.
+    hidden = seg.k === 'sideGap' && Math.abs(x - riserX) < L.sr / 2 + L.REFR + p.riserInsulation;
+  }
+  return { x, y, z, seg, hidden, temp: seg.T[0] + (seg.T[1] - seg.T[0]) * f };
 }
 // Smoke the fire did not burn shows grey in the bench and chimney: too little air, a cool riser,
 // or a batch box without the mixing its P-channel and narrow port give it.
@@ -724,9 +754,9 @@ function tick(now) {
     const seg0 = flowPoint(pt).seg;
     pt.s += seg0.speed * dt;
     if (pt.s >= scene.total) { pt.s -= scene.total; pt.j = Math.random() - 0.5; pt.q = Math.random() - 0.5; }
-    const { x, z, seg, temp } = flowPoint(pt);
+    const { x, z, seg, temp, hidden } = flowPoint(pt);
     pt.colour = smoky && lateSeg(seg.k) ? '#6b6560' : tempColour(temp);
-    pt.fade = seg.k === 'chimney' && z > L.Hc ? Math.max(0, 1 - (z - L.Hc) / 30) : 0.9;
+    pt.fade = hidden ? 0 : seg.k === 'chimney' && z > L.Hc ? Math.max(0, 1 - (z - L.Hc) / 30) : 0.9;
     const el = circle(ci++);
     el.setAttribute('cx', x.toFixed(1)); el.setAttribute('cy', (-z).toFixed(1));
     el.setAttribute('r', (fs * 0.22).toFixed(2));
@@ -737,7 +767,8 @@ function tick(now) {
   for (const pt of core) {
     pt.s += flowPoint(pt).seg.speed * dt;
     if (pt.s >= scene.coreEnd) { pt.s %= scene.coreEnd; pt.j = Math.random() - 0.5; pt.q = Math.random() - 0.5; }
-    pt.colour = tempColour(flowPoint(pt).temp);
+    const at = flowPoint(pt);
+    pt.colour = smoky && lateSeg(at.seg.k) ? '#6b6560' : tempColour(at.temp);
   }
 
   // The P-channel's room air, cool, falling down the back wall into the port.
