@@ -6,7 +6,7 @@ A rocket mass stove built from clay, sand, stone and sticks gathered on site.
 - [procedures/](procedures/): every job, with the tools, materials and skills it needs; see [procedures/README.md](procedures/README.md)
 - [build-guide.html](build-guide.html): how the stove works and every size, with links to its instructions
 - [rocket-mass-stove-section.html](rocket-mass-stove-section.html): dimensioned section drawing
-- [simulator/index.html](simulator/index.html): step through the build, change the stove and see what goes wrong
+- [simulator/index.html](simulator/index.html): a J-tube or a batch box; step through the build, change the stove and watch the gas flow and what goes wrong
 - [shelter/index.html](shelter/index.html): a one-person shelter built around the stove between three trees and a post, in 3D
 - [survival-plan.html](survival-plan.html): a plan for a season on Great Slave Lake living on fish, snares and foraging
 - [engine/](engine/README.md): checks, runs, schedules and renders instructions written as procedures, for any job
