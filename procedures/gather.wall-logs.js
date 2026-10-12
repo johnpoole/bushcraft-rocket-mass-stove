@@ -10,6 +10,7 @@
       "tools": [
         "saw",
         "axe",
+        "drawknife",
         "measuring-stick"
       ],
       "materials": [],
@@ -35,7 +36,7 @@
       "Fell it.",
       "Limb it with the axe, from the butt toward the top, cutting the stubs flush.",
       "Saw it into pieces about 1.4 m, 2.0 m and 2.9 m long, the lengths the walls take, measured with the stick. Stop where it gets thinner than 12 cm.",
-      "Peel off any bark left on with the axe held flat. Bark holds water and insects under it.",
+      "Peel off any bark left on with the drawknife. Bark holds water and insects under it.",
       "Carry the pieces to the site on your shoulder, or drag the longest ones, and stack them on two cross-logs off the ground."
     ],
     "checks": [
@@ -45,8 +46,8 @@
       "A green 2.9 m log of this size weighs about 30 kg. Lift with your legs, one end at a time."
     ],
     "estimate": {
-      "hours": 1.5,
-      "note": "About 15 minutes to fell, 20 to limb and buck, 25 to peel, 30 to carry from up to 100 m. Wall logs for the whole shelter are about 18 trees."
+      "hours": 1.25,
+      "note": "About 15 minutes to fell, 20 to limb and buck, 10 to peel, 30 to carry from up to 100 m. Wall logs for the whole shelter are about 18 trees."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

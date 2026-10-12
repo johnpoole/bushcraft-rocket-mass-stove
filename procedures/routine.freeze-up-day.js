@@ -5,7 +5,7 @@
     "id": "routine.freeze-up-day",
     "kind": "task",
     "title": "A day at freeze-up",
-    "purpose": "The daily round while the ice is too thin to walk on and too thick for open water: live on the store and your own fat.",
+    "purpose": "The daily round while the ice is too thin to walk on and too thick for open water: live on the store, the carried food and your own fat.",
     "requires": {
       "tools": [],
       "materials": [],
@@ -48,7 +48,7 @@
     ],
     "safety": [
       "Stay off the ice until it holds 10 cm of clear ice.",
-      "Tap out at once for dizziness, confusion, fainting, a racing or stumbling heartbeat at rest, or swelling in the legs."
+      "Call for help at once for dizziness, confusion, fainting, a racing or stumbling heartbeat at rest, or swelling in the legs."
     ],
     "estimate": {
       "hours": 0.25,

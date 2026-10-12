@@ -118,7 +118,7 @@
     ],
     "estimate": {
       "hours": 0,
-      "note": "Estimate: about 110 hours of work in the steps it calls, spread over one to two weeks with drying waits."
+      "note": "Estimate: about 110 hours of work, spread over one to two weeks with drying waits."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

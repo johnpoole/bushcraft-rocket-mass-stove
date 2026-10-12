@@ -68,7 +68,7 @@
     ],
     "estimate": {
       "hours": 0,
-      "note": "Estimate: about 80 hours of work in the steps it calls, over two to four weeks including drying."
+      "note": "Estimate: about 80 hours of work, over two to four weeks including drying."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

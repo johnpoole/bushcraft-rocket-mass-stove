@@ -13,7 +13,7 @@
         "saw",
         "knife",
         "club",
-        "digging-stick",
+        "shovel",
         "measuring-stick",
         "wedges",
         "water-basin"

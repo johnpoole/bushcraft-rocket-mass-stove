@@ -8,7 +8,7 @@
     "purpose": "Dig cattail roots in the shallows before the ice, for starch.",
     "requires": {
       "tools": [
-        "digging-stick",
+        "shovel",
         "knife",
         "pot"
       ],
@@ -31,7 +31,7 @@
     ],
     "steps": [
       "In a shallow, weedy bay, find cattail by its brown cigar-shaped head.",
-      "Follow a stem down into the mud with your hand and loosen the root runner with the digging stick. Pull it out whole.",
+      "Follow a stem down into the mud with your hand and loosen the root runner with the shovel. Pull it out whole.",
       "Wash it, peel off the spongy outer layer, and cut the white core into pieces.",
       "Boil it in the fish broth, or chew it raw and spit out the fibres."
     ],

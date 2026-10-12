@@ -9,7 +9,7 @@
     "purpose": "Lay a drained, insulated base under the stove core and a bed of dry stone along the bench route, so the tunnel floor is level with the shelter floor and heat stays out of the ground.",
     "requires": {
       "tools": [
-        "digging-stick",
+        "shovel",
         "bark-tray",
         "measuring-stick"
       ],

@@ -10,7 +10,7 @@
       "tools": [
         "measuring-stick",
         "bark-tray",
-        "digging-stick"
+        "shovel"
       ],
       "materials": [
         {

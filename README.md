@@ -3,7 +3,7 @@
 A rocket mass stove built from clay, sand, stone and sticks gathered on site.
 
 - [index.html](index.html): home page linking the others; every page carries the same menu from [nav.js](nav.js)
-- [procedures/](procedures/): every job written like code, with the tools, materials and skills it needs and the steps it calls; see [procedures/README.md](procedures/README.md)
+- [procedures/](procedures/): every job, with the tools, materials and skills it needs; see [procedures/README.md](procedures/README.md)
 - [build-guide.html](build-guide.html): how the stove works and every size, with links to its instructions
 - [rocket-mass-stove-section.html](rocket-mass-stove-section.html): dimensioned section drawing
 - [simulator/index.html](simulator/index.html): step through the build, change the stove and see what goes wrong

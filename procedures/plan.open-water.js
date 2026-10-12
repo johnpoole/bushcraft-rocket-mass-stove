@@ -35,7 +35,7 @@
       },
       {
         "call": "food.smoke-fish",
-        "times": 8,
+        "times": 4,
         "note": "a batch every few days"
       },
       {
@@ -66,9 +66,6 @@
         "note": "before the ground freezes"
       },
       {
-        "call": "make.snow-paddle"
-      },
-      {
         "call": "make.ice-gear"
       },
       {
@@ -84,7 +81,7 @@
       }
     ],
     "checks": [
-      "At least 90 kg of fish smoked and stored.",
+      "At least 45 kg of fish smoked and stored.",
       "The stove and bench are built and dry."
     ]
   };

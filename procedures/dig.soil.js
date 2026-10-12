@@ -5,10 +5,10 @@
     "id": "dig.soil",
     "kind": "gather",
     "title": "Dig and carry soil",
-    "purpose": "Loosen mineral soil and carry it where it is needed, with a digging stick and a bark tray.",
+    "purpose": "Loosen mineral soil and carry it where it is needed, with the shovel and a bark tray.",
     "requires": {
       "tools": [
-        "digging-stick",
+        "shovel",
         "bark-tray"
       ],
       "materials": [],
@@ -27,8 +27,8 @@
     "steps": [
       "Choose a borrow spot downhill of the shelter, at least 3 m from the shelter and from any tree you rely on, where water will not collect in the hole.",
       "Scrape the moss and leaf litter aside and keep it; lay it back over the hole when you finish.",
-      "Stab the digging stick into the soil at a slant and lever it back to loosen a patch 30 cm across. Pry out stones as you meet them and set them aside.",
-      "Scoop the loose soil into the tray with your hands, half full, and carry it to where it goes.",
+      "Dig with the shovel. Pry out stones as you meet them and set them aside.",
+      "Shovel the soil into the tray, half full, and carry it to where it goes.",
       "Stop the hole when you reach rock or water. Take the next load from a new spot."
     ],
     "checks": [
@@ -38,8 +38,8 @@
       "Lift with your legs, back straight. Carry half loads."
     ],
     "estimate": {
-      "hours": 5,
-      "note": "About 0.1 m³ an hour in stony soil."
+      "hours": 2,
+      "note": "About 0.25 m³ an hour in stony soil."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

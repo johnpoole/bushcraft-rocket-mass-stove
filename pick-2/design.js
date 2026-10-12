@@ -18,10 +18,10 @@ window.DESIGN = {
    "title": "Make the camp tools",
    "purpose": "Make the tools that every other job relies on, in the first days, before they are needed.",
    "pre": [
-    "You have the ten kit items."
+    "You have your gear."
    ],
    "checks": [
-    "A measuring stick, a club, a digging stick and a bark tray, each passing its own check."
+    "A measuring stick, a club, root cordage and a bark tray, each passing its own check."
    ],
    "safety": [],
    "steps": [
@@ -32,11 +32,6 @@ window.DESIGN = {
     },
     {
      "call": "make.club",
-     "times": 1,
-     "note": ""
-    },
-    {
-     "call": "make.digging-stick",
      "times": 1,
      "note": ""
     },
@@ -86,103 +81,6 @@ window.DESIGN = {
     "Carve the last 25 cm at one end down to a handle about 4 cm thick, leaving the other end full thickness as the head."
    ],
    "photos": []
-  },
-  "make.digging-stick": {
-   "title": "Make a digging stick",
-   "purpose": "Make a fire-hardened stick for loosening soil and prying out stones, since there is no shovel.",
-   "pre": [],
-   "checks": [
-    "The point stays sharp after ten hard stabs into packed ground."
-   ],
-   "safety": [],
-   "steps": [
-    "Find a straight birch or other hardwood sapling about 4–5 cm thick. Saw it off at the ground and saw it to 1.3 m long.",
-    "Trim off side shoots and the bark.",
-    "Carve the thick end to a flat chisel point 8 cm long, like a wide screwdriver tip.",
-    {
-     "call": "task.light-fire",
-     "times": 1,
-     "note": ""
-    },
-    "When the fire has burned down to coals, hold the point just above them and turn it slowly until the wood darkens to brown all over. Pull it back if it smokes heavily or blackens: charred wood crumbles.",
-    "Let it cool, then rub off the loose surface."
-   ],
-   "photos": []
-  },
-  "task.light-fire": {
-   "title": "Light a fire with the ferro rod",
-   "purpose": "Start a fire from dry wood and birch bark with the ferro rod, for cooking, fire-hardening and heat.",
-   "pre": [],
-   "checks": [
-    "A fire burning on thumb-thick wood without help.",
-    "When finished, ashes cold to the back of the hand."
-   ],
-   "safety": [
-    "Never leave a fire burning unattended."
-   ],
-   "steps": [
-    {
-     "call": "gather.birch-bark",
-     "times": 1,
-     "note": "if you have no birch bark left"
-    },
-    {
-     "call": "gather.dry-wood",
-     "times": 1,
-     "note": "if you have no dry wood left"
-    },
-    "Clear a spot to bare mineral soil or rock, 1 m across, away from roots and overhanging branches.",
-    "Sort the wood into three piles: matchstick-thin, pencil-thick, and thumb- to wrist-thick. Collect twice as much of the thin sizes as you think you need.",
-    "Scrape a small heap of fine shavings, as fine as hair, from a piece of birch bark with the back of the knife. Set it on a flat sheet of bark as a base.",
-    "Hold the ferro rod with its tip in the shavings. Hold the striker still against the rod and pull the rod back hard toward you, so the sparks fall into the shavings and the rod does not scatter them.",
-    "When the shavings catch, add matchstick-thin wood at once, then pencil-thick, leaning the pieces together over the flame like a tent. Add the thicker wood only when the pencil wood is burning well.",
-    "Put the fire out when you are finished: drown it, stir the ashes, and drown it again until nothing is warm to the back of your hand."
-   ],
-   "photos": []
-  },
-  "gather.birch-bark": {
-   "title": "Gather birch bark",
-   "purpose": "Collect sheets of birch bark for tinder, trays and edge covers.",
-   "pre": [],
-   "checks": [
-    "Six sheets about 60 × 80 cm, flat and dry."
-   ],
-   "safety": [],
-   "steps": [
-    "Find fallen dead birch trunks. The bark outlasts the wood inside and peels off in sheets.",
-    "Cut through the bark along the length of the trunk with the tip of the knife, about 80 cm long.",
-    "Work your fingers under the edge of the cut and peel the sheet off around the trunk.",
-    "Only if there is no dead birch: take thin outer bark from a living tree by cutting through the papery layers only, never into the green or red layer beneath, which kills the tree.",
-    "Stack the sheets flat under a stone so they do not curl."
-   ],
-   "photos": [
-    {
-     "name": "Birch bark sheets",
-     "url": "https://www.google.com/search?tbm=isch&q=paper%20birch%20bark%20sheet%20peeled%20Betula%20papyrifera"
-    }
-   ]
-  },
-  "gather.dry-wood": {
-   "title": "Gather dry dead wood",
-   "purpose": "Collect dry, dead wood from finger- to wrist-thick for fires.",
-   "pre": [],
-   "checks": [
-    "Four armloads stacked off the ground and under cover.",
-    "Each piece snaps rather than bends."
-   ],
-   "safety": [],
-   "steps": [
-    "Look for standing dead trees and dead branches still on the trunk, not wood lying on the ground, which soaks up water.",
-    "Test each piece: dry wood snaps cleanly with a crack. If it bends, it is wet or alive; leave it.",
-    "Snap what you can by hand. Saw thicker pieces into lengths of about 50 cm.",
-    "Bundle the wood into armloads and carry them to where they will be used. Keep them off the ground on two poles, under cover."
-   ],
-   "photos": [
-    {
-     "name": "Dry dead wood",
-     "url": "https://www.google.com/search?tbm=isch&q=dry%20dead%20standing%20spruce%20pine%20branches%20firewood"
-    }
-   ]
   },
   "make.root-cordage": {
    "title": "Make spruce root cordage",
@@ -241,11 +139,33 @@ window.DESIGN = {
    ],
    "photos": []
   },
+  "gather.birch-bark": {
+   "title": "Gather birch bark",
+   "purpose": "Collect sheets of birch bark for tinder, trays and edge covers.",
+   "pre": [],
+   "checks": [
+    "Six sheets about 60 × 80 cm, flat and dry."
+   ],
+   "safety": [],
+   "steps": [
+    "Find fallen dead birch trunks. The bark outlasts the wood inside and peels off in sheets.",
+    "Cut through the bark along the length of the trunk with the tip of the knife, about 80 cm long.",
+    "Work your fingers under the edge of the cut and peel the sheet off around the trunk.",
+    "Only if there is no dead birch: take thin outer bark from a living tree by cutting through the papery layers only, never into the green or red layer beneath, which kills the tree.",
+    "Stack the sheets flat under a stone so they do not curl."
+   ],
+   "photos": [
+    {
+     "name": "Birch bark sheets",
+     "url": "https://www.google.com/search?tbm=isch&q=paper%20birch%20bark%20sheet%20peeled%20Betula%20papyrifera"
+    }
+   ]
+  },
   "shelter.choose-site": {
    "title": "Choose the shelter site",
    "purpose": "Find three healthy trees in the right place at least 30 m from the creek, on ground deep enough to dig and with good clay in the till, before committing days of work to it.",
    "pre": [
-    "The measuring stick and digging stick are made."
+    "The measuring stick is made."
    ],
    "checks": [
     {
@@ -273,7 +193,7 @@ window.DESIGN = {
      "a": 1
     },
     {
-     "t": "Dig a test hole every 20 m or so on the likely ground: scrape off the moss, needles and topsoil and dig down with the digging stick 50 cm, or until you reach rock.",
+     "t": "Dig a test hole every 20 m or so on the likely ground: scrape off the moss, needles and topsoil and dig down with the shovel 50 cm, or until you reach rock.",
      "a": 1
     },
     "Test the soil from below the topsoil in each hole with the clay test: roll it, bend it, rub it, and set a shake test in the pot at the best hole.",
@@ -333,6 +253,59 @@ window.DESIGN = {
    ],
    "photos": []
   },
+  "task.light-fire": {
+   "title": "Light a fire with the ferro rod",
+   "purpose": "Start a fire from dry wood and birch bark with the ferro rod, for cooking, fire-hardening and heat.",
+   "pre": [],
+   "checks": [
+    "A fire burning on thumb-thick wood without help.",
+    "When finished, ashes cold to the back of the hand."
+   ],
+   "safety": [
+    "Never leave a fire burning unattended."
+   ],
+   "steps": [
+    {
+     "call": "gather.birch-bark",
+     "times": 1,
+     "note": "if you have no birch bark left"
+    },
+    {
+     "call": "gather.dry-wood",
+     "times": 1,
+     "note": "if you have no dry wood left"
+    },
+    "Clear a spot to bare mineral soil or rock, 1 m across, away from roots and overhanging branches.",
+    "Sort the wood into three piles: matchstick-thin, pencil-thick, and thumb- to wrist-thick. Collect twice as much of the thin sizes as you think you need.",
+    "Scrape a small heap of fine shavings, as fine as hair, from a piece of birch bark with the back of the knife. Set it on a flat sheet of bark as a base.",
+    "Hold the ferro rod with its tip in the shavings. Hold the striker still against the rod and pull the rod back hard toward you, so the sparks fall into the shavings and the rod does not scatter them.",
+    "When the shavings catch, add matchstick-thin wood at once, then pencil-thick, leaning the pieces together over the flame like a tent. Add the thicker wood only when the pencil wood is burning well.",
+    "Put the fire out when you are finished: drown it, stir the ashes, and drown it again until nothing is warm to the back of your hand."
+   ],
+   "photos": []
+  },
+  "gather.dry-wood": {
+   "title": "Gather dry dead wood",
+   "purpose": "Collect dry, dead wood from finger- to wrist-thick for fires.",
+   "pre": [],
+   "checks": [
+    "Four armloads stacked off the ground and under cover.",
+    "Each piece snaps rather than bends."
+   ],
+   "safety": [],
+   "steps": [
+    "Look for standing dead trees and dead branches still on the trunk, not wood lying on the ground, which soaks up water.",
+    "Test each piece: dry wood snaps cleanly with a crack. If it bends, it is wet or alive; leave it.",
+    "Snap what you can by hand. Saw thicker pieces into lengths of about 50 cm.",
+    "Bundle the wood into armloads and carry them to where they will be used. Keep them off the ground on two poles, under cover."
+   ],
+   "photos": [
+    {
+     "name": "Dry dead wood",
+     "url": "https://www.google.com/search?tbm=isch&q=dry%20dead%20standing%20spruce%20pine%20branches%20firewood"
+    }
+   ]
+  },
   "shelter.frame": {
    "title": "Build the shelter frame",
    "purpose": "Clear the site, turn the rain around it, and put up the posts, the beam, the plate and the rafters, then roof it with the tarp so you can sleep dry under it within the first days.",
@@ -357,9 +330,9 @@ window.DESIGN = {
     "Look up once more from each corner. Pull down any dead branch over the site with the hook pole, standing to one side of it, never underneath.",
     "Clear the floor and 1 m round it: saw off brush and small trees at the ground.",
     "Cut the moss and leaf litter into mats with the knife, roll them up and pile them to one side for the earth bank and chinking.",
-    "Loosen the roots and humus with the digging stick and scrape them off down to mineral soil. Cut roots thinner than 3 cm with the saw. Leave every root of the three shelter trees that is thicker than that, and dig round it.",
+    "Dig off the roots and humus with the shovel down to mineral soil. Cut roots thinner than 3 cm with the saw. Leave every root of the three shelter trees that is thicker than that, and dig round it.",
     "Rake the floor level with a forked branch, filling low spots with soil from high ones, and check it with the pot of water on a pole.",
-    "Drain ditch: 1 m uphill of the back wall line, dig a ditch 20 cm wide and 20 cm deep with the digging stick, from 1 m past the right end to 1 m past the left end. Turn each end downhill and run it 2 m further, past the front corners. Dig under any big root of the back-left tree, do not cut it.",
+    "Drain ditch: 1 m uphill of the back wall line, dig a ditch 20 cm wide and 20 cm deep with the shovel, from 1 m past the right end to 1 m past the left end. Turn each end downhill and run it 2 m further, past the front corners. Dig under any big root of the back-left tree, do not cut it.",
     "Carry the soil from the ditch away in the bark tray and spread it on low spots of the floor, tamped down.",
     {
      "call": "gather.frame-posts",
@@ -423,7 +396,7 @@ window.DESIGN = {
     "Limb each one with the axe, from the butt toward the top.",
     "Saw two to 2.6 m long and two to 1.8 m long, measured with the stick.",
     "Saw and chop a U-shaped saddle 5 cm deep across the top of each, as wide as the beam or plate that will sit in it.",
-    "Peel the bark off the lower 60 cm with the axe, so the part in the ground does not rot as fast.",
+    "Peel the bark off the lower 60 cm with the drawknife, so the part in the ground does not rot as fast.",
     "Carry them to the site and lay them off the ground."
    ],
    "photos": [
@@ -448,7 +421,7 @@ window.DESIGN = {
     "Fell each one.",
     "Limb it with the axe, from the butt toward the top.",
     "Measure with the stick on the ground: from the corner post mark to the bark of the back-left tree, and from bark to bark between the two front trees. Saw the beam 10 cm longer than the first, less 5 cm, so it stops 5 cm clear of the bark. Saw the plate 5 cm shorter than the second at each end.",
-    "Peel off the bark with the axe held flat.",
+    "Peel off the bark with the drawknife.",
     "Drag each one to the site butt first, one end at a time if it is too heavy to lift."
    ],
    "photos": [
@@ -666,7 +639,7 @@ window.DESIGN = {
   },
   "dig.soil": {
    "title": "Dig and carry soil",
-   "purpose": "Loosen mineral soil and carry it where it is needed, with a digging stick and a bark tray.",
+   "purpose": "Loosen mineral soil and carry it where it is needed, with the shovel and a bark tray.",
    "pre": [],
    "checks": [
     "About 0.5 m³ of soil delivered, roughly 50 half-full trays."
@@ -677,8 +650,8 @@ window.DESIGN = {
    "steps": [
     "Choose a borrow spot downhill of the shelter, at least 3 m from the shelter and from any tree you rely on, where water will not collect in the hole.",
     "Scrape the moss and leaf litter aside and keep it; lay it back over the hole when you finish.",
-    "Stab the digging stick into the soil at a slant and lever it back to loosen a patch 30 cm across. Pry out stones as you meet them and set them aside.",
-    "Scoop the loose soil into the tray with your hands, half full, and carry it to where it goes.",
+    "Dig with the shovel. Pry out stones as you meet them and set them aside.",
+    "Shovel the soil into the tray, half full, and carry it to where it goes.",
     "Stop the hole when you reach rock or water. Take the next load from a new spot."
    ],
    "photos": [
@@ -863,8 +836,8 @@ window.DESIGN = {
      "times": 1,
      "note": ""
     },
-    "Hew a flat 6–8 cm wide along the top of each piece.",
-    "Roll it over and hew a matching flat along the bottom, parallel to the top one.",
+    "Hew a flat 6–8 cm wide along the top of each piece with the axe, and dress it level with the adze.",
+    "Roll it over and hew and dress a matching flat along the bottom, parallel to the top one.",
     "Stack the hewn pieces by length, off the ground."
    ],
    "photos": [
@@ -890,7 +863,7 @@ window.DESIGN = {
     "Fell it.",
     "Limb it with the axe, from the butt toward the top, cutting the stubs flush.",
     "Saw it into pieces about 1.4 m, 2.0 m and 2.9 m long, the lengths the walls take, measured with the stick. Stop where it gets thinner than 12 cm.",
-    "Peel off any bark left on with the axe held flat. Bark holds water and insects under it.",
+    "Peel off any bark left on with the drawknife. Bark holds water and insects under it.",
     "Carry the pieces to the site on your shoulder, or drag the longest ones, and stack them on two cross-logs off the ground."
    ],
    "photos": [
@@ -935,7 +908,7 @@ window.DESIGN = {
    ],
    "steps": [
     "Scrape off the moss, topsoil and roots down to the clay layer. Pile the topsoil to one side to put back.",
-    "Loosen the clay with the digging stick and lift it out in lumps. Cut sticky clay with the knife.",
+    "Dig the clay out with the shovel in lumps. Cut sticky clay off the blade with the knife.",
     "Pick out roots and stones as you go.",
     "Carry it half a tray at a time to the mixing place, and keep the pile covered with bark so it neither dries out nor washes away.",
     "When the pit is finished, put the topsoil back over it."
@@ -1155,7 +1128,7 @@ window.DESIGN = {
      "t": "In the first days, dig into the till around the site and look along the creek cutbank within about 200 m of the shelter. Clay shows as grey, blue-grey or tan subsoil in cut banks and under the roots of fallen trees.",
      "a": 1
     },
-    "At each likely spot, dig a test hole with the digging stick through the moss and topsoil until the soil changes colour, usually 20–50 cm down.",
+    "At each likely spot, dig a test hole with the shovel through the moss and topsoil until the soil changes colour, usually 20–50 cm down.",
     "Test a handful from each hole with the snake, rub and shake tests. Keep going until one passes.",
     "At the best spot, dig a hole 50 cm across to see how deep the clay runs. Measure its depth with the measuring stick.",
     "Make the three fire-test patties (0, 1 and 2 parts sand to 1 part clay) and fire them in the evening fire. The one that comes out whole sets the sand in every mix.",
@@ -2422,15 +2395,15 @@ window.DESIGN = {
    ],
    "safety": [
     "A blocked air inlet, vent or chimney fills the shelter with carbon monoxide. Clear them before every firing.",
-    "Snow is heavy: 30 cm of settled snow on this roof weighs about 700 kg. If the rafters sag more than 2 cm, paddle the roof clear."
+    "Snow is heavy: 30 cm of settled snow on this roof weighs about 700 kg. If the rafters sag more than 2 cm, shovel the roof clear."
    ],
    "steps": [
     "Clear the door, the air inlet in the front wall, the vent in the back wall, and the chimney cleanout first. Mark each with a stick pushed into the snow beside it.",
-    "Paddle snow against the back and end walls in layers about 20 cm deep, treading each layer firm before adding the next.",
+    "Shovel snow against the back and end walls in layers about 20 cm deep, treading each layer firm before adding the next.",
     "Build the bank up to the roof edge, 50 cm thick at the top and wider at the base.",
     "Along the front wall, bank around the door and the air inlet but keep both open, with a clear space in front of each at least as wide as the opening.",
     "Keep a clear space of 50 cm all round the chimney and its cleanout. Snow against the warm masonry melts and refreezes into ice.",
-    "Let snow lie on the roof up to 30 cm deep. Paddle off anything deeper, and anything within 50 cm of the chimney.",
+    "Let snow lie on the roof up to 30 cm deep. Shovel off anything deeper, and anything within 50 cm of the chimney.",
     "Open the vent in the back wall to about twice its size: remove the next section of log beside it. The snow bank stops the leaks that carried moisture out, and without a bigger vent the shelter air gets damp enough to frost the inner tarp.",
     "After every snowfall and every windy night: clear the door, the air inlet, the vent and the chimney top before you light the stove, then top up the bank."
    ],

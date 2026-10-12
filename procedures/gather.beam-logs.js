@@ -10,6 +10,7 @@
       "tools": [
         "saw",
         "axe",
+        "drawknife",
         "measuring-stick"
       ],
       "materials": [],
@@ -34,7 +35,7 @@
       "Fell each one.",
       "Limb it with the axe, from the butt toward the top.",
       "Measure with the stick on the ground: from the corner post mark to the bark of the north-west tree, and from bark to bark between the two south trees. Saw the beam 10 cm longer than the first, less {shelter.trunkGap} cm, so it stops {shelter.trunkGap} cm clear of the bark. Saw the plate {shelter.trunkGap} cm shorter than the second at each end.",
-      "Peel off the bark with the axe held flat.",
+      "Peel off the bark with the drawknife.",
       "Drag each one to the site butt first, one end at a time if it is too heavy to lift."
     ],
     "checks": [

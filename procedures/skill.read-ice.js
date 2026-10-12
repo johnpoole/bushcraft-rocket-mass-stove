@@ -28,7 +28,7 @@
       "Test as you walk: every three steps, strike the ice in front of you hard with the back of the axe. Good ice rings and the axe bounces. If the axe goes through, or water comes up, or the ice cracks away from the blow, go back the way you came.",
       "Measure: at your first stop, and wherever the ice looks different, chop a small hole through and measure the clear ice with the measuring stick. Go on only if it is 10 cm or more.",
       "If you go through: do not try to climb out forward onto ice you have not tested. Turn back toward the way you came, where the ice held you. Put your arms flat on the ice, kick your legs up behind you until you lie flat, and slide and roll away from the hole. Do not stand up until you are on ice you walked on.",
-      "Then go straight to the fire or the stove, strip off the wet clothes and get into the sleeping bag. Do not wait to see if you are all right. Any break through the ice is a reason to tap out."
+      "Then go straight to the fire or the stove, strip off the wet clothes and get into the sleeping bag. Do not wait to see if you are all right. Any break through the ice is a reason to call for help."
     ],
     "checks": [],
     "safety": [],

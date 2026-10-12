@@ -8,7 +8,7 @@
     "purpose": "Find workable clay within easy carrying distance before committing to the stove. The east arm is mostly bare granite, and the whole stove depends on it.",
     "requires": {
       "tools": [
-        "digging-stick",
+        "shovel",
         "knife",
         "pot",
         "measuring-stick"
@@ -25,7 +25,7 @@
     "preconditions": [],
     "steps": [
       "In the first days, walk the creek banks and low, wet ground within about 200 m of the shelter. Clay shows as grey, blue-grey or tan subsoil in cut banks and under the roots of fallen trees.",
-      "At each likely spot, dig a test hole with the digging stick through the moss and topsoil until the soil changes colour, usually 20–50 cm down.",
+      "At each likely spot, dig a test hole with the shovel through the moss and topsoil until the soil changes colour, usually 20–50 cm down.",
       "Test a handful from each hole with the snake, rub and shake tests. Keep going until one passes.",
       "At the best spot, dig a hole 50 cm across to see how deep the clay runs. Measure its depth with the measuring stick.",
       "Make the three fire-test patties (0, 1 and 2 parts sand to 1 part clay) and fire them in the evening fire. The one that comes out whole sets the sand in every mix.",

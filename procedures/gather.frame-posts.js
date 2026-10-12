@@ -10,6 +10,7 @@
       "tools": [
         "saw",
         "axe",
+        "drawknife",
         "measuring-stick"
       ],
       "materials": [],
@@ -35,7 +36,7 @@
       "Limb each one with the axe, from the butt toward the top.",
       "Saw two to 2.6 m long and two to 1.8 m long, measured with the stick.",
       "Saw and chop a U-shaped saddle 5 cm deep across the top of each, as wide as the beam or plate that will sit in it.",
-      "Peel the bark off the lower 60 cm with the axe, so the part in the ground does not rot as fast.",
+      "Peel the bark off the lower 60 cm with the drawknife, so the part in the ground does not rot as fast.",
       "Carry them to the site and lay them off the ground."
     ],
     "checks": [

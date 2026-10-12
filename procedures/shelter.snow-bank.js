@@ -8,7 +8,7 @@
     "purpose": "Use snow, which insulates far better than soil, to wrap the shelter for the winter.",
     "requires": {
       "tools": [
-        "snow-paddle",
+        "shovel",
         "measuring-stick"
       ],
       "materials": [
@@ -30,11 +30,11 @@
     ],
     "steps": [
       "Clear the door, the air inlet in the front wall, the vent in the back wall, and the chimney cleanout first. Mark each with a stick pushed into the snow beside it.",
-      "Paddle snow against the back and end walls in layers about 20 cm deep, treading each layer firm before adding the next.",
+      "Shovel snow against the back and end walls in layers about 20 cm deep, treading each layer firm before adding the next.",
       "Build the bank up to the roof edge, 50 cm thick at the top and wider at the base.",
       "Along the front wall, bank around the door and the air inlet but keep both open, with a clear space in front of each at least as wide as the opening.",
       "Keep a clear space of 50 cm all round the chimney and its cleanout. Snow against the warm masonry melts and refreezes into ice.",
-      "Let snow lie on the roof up to 30 cm deep. Paddle off anything deeper, and anything within 50 cm of the chimney.",
+      "Let snow lie on the roof up to 30 cm deep. Shovel off anything deeper, and anything within 50 cm of the chimney.",
       "Open the vent in the back wall to about twice its size: remove the next section of log beside it. The snow bank stops the leaks that carried moisture out, and without a bigger vent the shelter air gets damp enough to frost the inner tarp.",
       "After every snowfall and every windy night: clear the door, the air inlet, the vent and the chimney top before you light the stove, then top up the bank."
     ],
@@ -47,7 +47,7 @@
     ],
     "safety": [
       "A blocked air inlet, vent or chimney fills the shelter with carbon monoxide. Clear them before every firing.",
-      "Snow is heavy: 30 cm of settled snow on this roof weighs about 700 kg. If the rafters sag more than 2 cm, paddle the roof clear."
+      "Snow is heavy: 30 cm of settled snow on this roof weighs about 700 kg. If the rafters sag more than 2 cm, shovel the roof clear."
     ],
     "estimate": {
       "hours": 5,

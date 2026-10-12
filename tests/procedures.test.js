@@ -22,8 +22,9 @@ test('the camp keeps every rule the engine checks', () => {
   assert.deepEqual(checkProject({ reg, cat: C, root: project.root, params, parts: project.parts() }), []);
 });
 
-test('the kit is exactly the ten items taken in, and nothing is bought', () => {
-  assert.equal(C.KIT.length, 10);
+test('every kit tool is used by some job, and nothing is bought', () => {
+  const used = new Set([...reg.values()].flatMap((p) => p.requires.tools));
+  for (const t of C.KIT) assert.ok(used.has(t), `kit tool "${t}" is used by no procedure`);
   const kitTools = Object.entries(C.TOOLS).filter(([, t]) => t.source === 'kit').map(([id]) => id).sort();
   assert.deepEqual(kitTools, [...C.KIT].sort());
   const bought = [...Object.entries(C.TOOLS), ...Object.entries(C.MATERIALS)].filter(([, x]) => x.source === 'bought').map(([id]) => id);

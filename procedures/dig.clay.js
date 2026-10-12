@@ -8,7 +8,7 @@
     "purpose": "Dig clay subsoil for cob, mortar, blocks and plaster.",
     "requires": {
       "tools": [
-        "digging-stick",
+        "shovel",
         "bark-tray",
         "knife"
       ],
@@ -31,7 +31,7 @@
     ],
     "steps": [
       "Scrape off the moss, topsoil and roots down to the clay layer. Pile the topsoil to one side to put back.",
-      "Loosen the clay with the digging stick and lift it out in lumps. Cut sticky clay with the knife.",
+      "Dig the clay out with the shovel in lumps. Cut sticky clay off the blade with the knife.",
       "Pick out roots and stones as you go.",
       "Carry it half a tray at a time to the mixing place, and keep the pile covered with bark so it neither dries out nor washes away.",
       "When the pit is finished, put the topsoil back over it."
@@ -43,8 +43,8 @@
       "Do not dig under an overhanging bank: undercut banks collapse."
     ],
     "estimate": {
-      "hours": 2,
-      "note": "About 0.05 m³ an hour, more in soft ground."
+      "hours": 1,
+      "note": "About 0.1 m³ an hour, more in soft ground."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

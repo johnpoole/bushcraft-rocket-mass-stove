@@ -16,7 +16,7 @@
       "materials": []
     },
     "preconditions": [
-      "You have the ten kit items."
+      "You have your gear."
     ],
     "steps": [
       {
@@ -26,9 +26,6 @@
         "call": "make.club"
       },
       {
-        "call": "make.digging-stick"
-      },
-      {
         "call": "make.root-cordage"
       },
       {
@@ -36,7 +33,7 @@
       }
     ],
     "checks": [
-      "A measuring stick, a club, a digging stick and a bark tray, each passing its own check."
+      "A measuring stick, a club, root cordage and a bark tray, each passing its own check."
     ],
     "safety": [],
     "estimate": {

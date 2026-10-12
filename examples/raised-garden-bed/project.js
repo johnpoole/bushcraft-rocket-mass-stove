@@ -10,7 +10,7 @@
     root: 'plan.build-bed',
     pageTitle: 'Raised Garden Bed',
     heading: 'Raised garden bed',
-    intro: 'A cedar bed {bed.length} × {bed.width} m and {bed.height} cm deep, built over two weekends. Each job lists the tools, materials and skills it needs and calls other jobs as steps. The tools in the shed are assumed; the lumber, soil and seed are bought, and the prices are rough. Start from the plan.',
+    intro: 'A cedar bed {bed.length} × {bed.width} m and {bed.height} cm deep, built over two weekends. The tools come from the shed. The lumber, soil and seed are bought, and the prices are rough. Start from the plan.',
     labels: {
       kitHeading: 'Tools in the shed',
       kitIntro: 'Already owned. Anything else is bought or made here.',
@@ -33,7 +33,7 @@
       heading: 'Schedule',
       linkText: 'Schedule',
       planLinkText: 'The plan',
-      intro: 'The plan run day by day from a Saturday: six hours on weekend days, an hour and a half on weekday evenings. Daily watering comes first, then each job in order, starting only when what it needs exists and the soil has settled. Hours are estimates.',
+      intro: 'Six hours on weekend days, an hour and a half on weekday evenings. Hours are estimates.',
       milestones: ['plan.first-weekend', 'soil.fill', 'plant.sow', 'plant.thin'],
     },
     parts: () => design.parts,

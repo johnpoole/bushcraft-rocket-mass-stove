@@ -67,7 +67,7 @@
     ],
     "safety": [
       "Carry the ice pole across your body every time you go on the ice.",
-      "Tap out for any break through the ice, a deep cut, or frostbite you cannot treat."
+      "Call for help for any break through the ice, a deep cut, or frostbite you cannot treat."
     ],
     "estimate": {
       "hours": 0.25,

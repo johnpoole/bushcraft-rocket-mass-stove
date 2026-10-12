@@ -9,6 +9,7 @@
     "requires": {
       "tools": [
         "axe",
+        "adze",
         "knife"
       ],
       "materials": [
@@ -35,8 +36,8 @@
       {
         "call": "gather.wall-logs"
       },
-      "Hew a flat 6–8 cm wide along the top of each piece.",
-      "Roll it over and hew a matching flat along the bottom, parallel to the top one.",
+      "Hew a flat 6–8 cm wide along the top of each piece with the axe, and dress it level with the adze.",
+      "Roll it over and hew and dress a matching flat along the bottom, parallel to the top one.",
       "Stack the hewn pieces by length, off the ground."
     ],
     "checks": [
@@ -45,7 +46,7 @@
     "safety": [],
     "estimate": {
       "hours": 0.75,
-      "note": "About 10 minutes a metre for both faces with a sharp axe."
+      "note": "About 10 minutes a metre for both faces with a sharp axe and adze."
     }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = procedure;

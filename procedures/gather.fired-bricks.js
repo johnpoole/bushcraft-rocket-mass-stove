@@ -10,7 +10,7 @@
       "tools": [
         "knife",
         "measuring-stick",
-        "digging-stick"
+        "shovel"
       ],
       "materials": [
         {

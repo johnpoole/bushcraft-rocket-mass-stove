@@ -23,7 +23,7 @@
       "to": 90
     },
     "title": "Freeze-up",
-    "purpose": "Live on the store while the ice is too thin to walk on, wrap the shelter in snow, and get ready to fish through the ice.",
+    "purpose": "Live on the store and the carried food while the ice is too thin to walk on, wrap the shelter in snow, and get ready to fish through the ice.",
     "steps": [
       {
         "call": "shelter.snow-bank",

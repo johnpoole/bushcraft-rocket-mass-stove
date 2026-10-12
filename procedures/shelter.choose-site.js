@@ -8,7 +8,7 @@
     "purpose": "Find three healthy trees in the right place near a creek with good clay, on ground deep enough to dig, before committing days of work to it.",
     "requires": {
       "tools": [
-        "digging-stick",
+        "shovel",
         "measuring-stick",
         "pot",
         "knife",
@@ -30,14 +30,14 @@
       "materials": []
     },
     "preconditions": [
-      "The measuring stick and digging stick are made."
+      "The measuring stick is made."
     ],
     "steps": [
       {
         "call": "make.hook-pole"
       },
       "Walk the shore to the creeks that run into the lake. For each, walk up both banks for about 200 m.",
-      "Dig a test hole in the bank every 20 m or so, where the bank is low and firm: scrape off the moss and topsoil and dig down with the digging stick 50 cm, or until you reach rock.",
+      "Dig a test hole in the bank every 20 m or so, where the bank is low and firm: scrape off the moss and topsoil and dig down with the shovel 50 cm, or until you reach rock.",
       "Test the soil from below the topsoil in each hole with the clay test: roll it, bend it, rub it, and set a shake test in the pot at the best hole.",
       {
         "call": "task.light-fire",

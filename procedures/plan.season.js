@@ -12,7 +12,7 @@
       "materials": []
     },
     "preconditions": [
-      "You have the ten kit items and have measured your saw blade at home."
+      "You have your gear and have measured your saw blade at home."
     ],
     "safety": [],
     "estimate": {

@@ -1,12 +1,13 @@
 // Everything a procedure can name as a tool or a material.
 // A tool comes from the kit or is made by a procedure; a material comes from the site
-// as it stands or is produced by a procedure. Nothing else exists at day zero.
+// as it stands or is produced by a procedure.
 // Shared entries live here; each domain adds its own in catalog.<domain>.js.
 (function (root) {
   'use strict';
 
-  // The ten items taken in. Nothing else is carried, so every other tool is made on site.
-  const KIT = ['sleeping-bag', 'axe', 'saw', 'knife', 'pot', 'ferro-rod', 'tarp', 'gill-net', 'fishing-kit', 'snare-wire'];
+  // The gear the jobs use, from the items Alone allows its participants (approved list and
+  // standard issue, all seasons). The rest of what is brought in is on survival-plan.html.
+  const KIT = ['sleeping-bag', 'axe', 'saw', 'knife', 'pot', 'ferro-rod', 'tarp', 'gill-net', 'fishing-kit', 'snare-wire', 'shovel', 'drawknife', 'adze'];
 
   const TOOLS = {
     'sleeping-bag': { name: 'Sleeping bag', source: 'kit' },
@@ -19,11 +20,12 @@
     'gill-net': { name: 'Gill net', source: 'kit' },
     'fishing-kit': { name: 'Fishing line and hooks', source: 'kit' },
     'snare-wire': { name: 'Snare wire', source: 'kit' },
+    shovel: { name: 'Small shovel', source: 'kit' },
+    drawknife: { name: 'Two-handed drawknife', source: 'kit' },
+    adze: { name: 'Adze', source: 'kit' },
 
     'measuring-stick': { name: 'Measuring stick, marked every 10 cm', source: 'make.measuring-stick' },
-    'digging-stick': { name: 'Digging stick', source: 'make.digging-stick' },
     'bark-tray': { name: 'Bark carrying tray', source: 'make.bark-tray' },
-    'snow-paddle': { name: 'Snow paddle', source: 'make.snow-paddle' },
     club: { name: 'Wooden club', source: 'make.club' },
   };
 

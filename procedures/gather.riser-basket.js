@@ -11,7 +11,7 @@
         "knife",
         "size-gauge",
         "measuring-stick",
-        "digging-stick"
+        "shovel"
       ],
       "materials": [
         {

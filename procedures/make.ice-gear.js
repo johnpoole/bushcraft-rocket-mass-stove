@@ -42,7 +42,7 @@
       {
         "call": "task.light-fire"
       },
-      "Harden the gaff point: hold it just above the coals and turn it until it darkens to brown, as for the digging stick. Pull it back if it blackens.",
+      "Harden the gaff point: hold it just above the coals and turn it until it darkens to brown all over. Pull it back if it blackens: charred wood crumbles.",
       "Dry the ladle by the fire, not close enough to crack it."
     ],
     "checks": [

@@ -12,7 +12,7 @@
         "axe",
         "saw",
         "knife",
-        "digging-stick",
+        "shovel",
         "club",
         "bark-tray",
         "measuring-stick"

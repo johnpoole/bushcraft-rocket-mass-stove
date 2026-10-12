@@ -14,7 +14,7 @@
         "knife",
         "club",
         "measuring-stick",
-        "digging-stick"
+        "shovel"
       ],
       "materials": [
         {
@@ -70,7 +70,7 @@
         "call": "gather.boughs"
       },
       "Choose a spot of soil about {rack.toShore} m above the shore, downwind of the shelter in the usual wind and at least 20 m from it, with no branches overhead.",
-      "Mark a rectangle {rack.width} × {rack.depth} m with the measuring stick. Loosen the ground at each corner with the digging stick and drive a stake there with the club, until each stands {rack.height} m high.",
+      "Mark a rectangle {rack.width} × {rack.depth} m with the measuring stick. Loosen the ground at each corner with the shovel and drive a stake there with the club, until each stands {rack.height} m high.",
       "Saw poles to 1.7 m. Lash one across the two long sides at 1.0 m and one at 1.4 m, on the outside of the stakes, with square lashings. These carry the two tiers.",
       "Cut about 30 green willow or alder sticks, 2 cm thick and 1.2 m long. Lay them across each pair of tier bars every 10 cm and tie each end with a turn of cordage.",
       "Lash two poles across the tops of the stakes and lay bark sheets over them as a roof, white side up, overlapping like shingles. Tie them down.",
