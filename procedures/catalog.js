@@ -53,6 +53,9 @@
   for (const part of ['stove', 'shelter', 'food']) parts[part] = node ? require(`./catalog.${part}.js`) : (root.CATALOG_PARTS || {})[part];
 
   const api = engine.assemble({ KIT, TOOLS, MATERIALS }, parts);
+  // A picture search for each material, shown as a small link where the pages name it.
+  const photos = node ? require('./photos.js') : root.MaterialPhotos;
+  if (photos) for (const [id, m] of Object.entries(api.MATERIALS)) { const u = photos.url(id); if (u) m.photos = u; }
   if (node) module.exports = api;
   else root.Catalog = api;
 })(this);

@@ -8,6 +8,8 @@ const L = require('../engine/lib.js');
 const reg = L.byId(require('../procedures/index.js').load());
 const params = require('../procedures/project.js').params();
 const { CHANGES, relative } = require('./site.js');
+const C = require('../procedures/catalog.js');
+const photos = require('../procedures/photos.js');
 
 // The build order from shelter/index.html, with the camp tools made first.
 const ORDER = ['plan.make-tools', 'shelter.choose-site', 'shelter.frame', 'shelter.roof-insulate', 'shelter.walls',
@@ -35,6 +37,8 @@ function build() {
         title: r(p.title), purpose: r(p.purpose),
         pre: p.preconditions.map(rs), checks: p.checks.map(rs), safety: p.safety.map(rs),
         steps: p.steps.map((s) => (L.isCall(s) ? { call: s.call, times: s.times || 1, note: s.note ? r(s.note) : '' } : rs(s))),
+        // A picture search for each material this step gathers, shown as a small link.
+        photos: p.produces.materials.map((m) => ({ name: r(C.MATERIALS[m.id].name).split(/[,:]/)[0], url: photos.url(m.id) })).filter((x) => x.url),
       };
       add(L.callsOf(p));
     }

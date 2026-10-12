@@ -31,3 +31,7 @@ ol.steps>li{padding-left:4px}
 .list li{margin:2px 0}
 .err{border-left:4px solid var(--ember);background:var(--panel);padding:10px 14px;white-space:pre-wrap}
 .safety li::marker{color:var(--ember)}
+
+/* A material's picture search: small and quiet, for when it's needed. */
+a.photos{font-size:.78rem;color:var(--muted)}
+a.photos:hover{color:var(--ember)}

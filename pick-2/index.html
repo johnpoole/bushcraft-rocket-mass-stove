@@ -50,6 +50,8 @@ details details{margin:8px 0 4px;background:var(--bg)}
 details details summary{padding:9px 10px}
 details details h2{font-size:1rem}
 .callnote{color:var(--muted);font-size:.85rem;font-weight:400}
+.photos{color:var(--muted);font-size:.8rem;margin:2px 0 6px}
+.photos a{color:var(--muted)}
 .list{margin:8px 0 0;font-size:.92rem}
 .list b{display:block;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;margin-top:8px}
 .list ul{margin:2px 0 0;padding-left:20px}
@@ -192,6 +194,15 @@ function procBody(id, keys) {
   shown.add(id);
   const body = el('div', 'body');
   body.appendChild(el('p', 'why', p.purpose));
+  if (p.photos && p.photos.length) {
+    const ph = el('p', 'photos', 'Photos: ');
+    p.photos.forEach((x, i) => {
+      const a = el('a', '', x.name.toLowerCase());
+      a.href = x.url; a.target = '_blank'; a.rel = 'noopener';
+      ph.append(i ? ', ' : '', a);
+    });
+    body.appendChild(ph);
+  }
   const pre = list('', 'Before you start', p.pre); if (pre) body.appendChild(pre);
   p.steps.forEach((st, i) => {
     const key = id + ':' + i;

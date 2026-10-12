@@ -50,7 +50,8 @@ window.DESIGN = {
      "times": 1,
      "note": ""
     }
-   ]
+   ],
+   "photos": []
   },
   "make.measuring-stick": {
    "title": "Make a measuring stick",
@@ -69,7 +70,8 @@ window.DESIGN = {
     "Cut a length of fishing line exactly as long as the stick. Fold it in half and mark 50 cm on the stick at the fold.",
     "Cut a second length of line 50 cm long, from the end of the stick to the 50 cm mark. Fold it back and forth into five equal zigzags, adjusting until all the folds line up. One zigzag is 10 cm.",
     "Using that 10 cm piece, cut a shallow notch every 10 cm along the stick. Cut every 50 cm notch deeper."
-   ]
+   ],
+   "photos": []
   },
   "make.club": {
    "title": "Make a club",
@@ -82,7 +84,8 @@ window.DESIGN = {
    "steps": [
     "Saw a 50 cm length of green hardwood, birch if you can find it, about 8–10 cm thick.",
     "Carve the last 25 cm at one end down to a handle about 4 cm thick, leaving the other end full thickness as the head."
-   ]
+   ],
+   "photos": []
   },
   "make.digging-stick": {
    "title": "Make a digging stick",
@@ -103,7 +106,8 @@ window.DESIGN = {
     },
     "When the fire has burned down to coals, hold the point just above them and turn it slowly until the wood darkens to brown all over. Pull it back if it smokes heavily or blackens: charred wood crumbles.",
     "Let it cool, then rub off the loose surface."
-   ]
+   ],
+   "photos": []
   },
   "task.light-fire": {
    "title": "Light a fire with the ferro rod",
@@ -133,7 +137,8 @@ window.DESIGN = {
     "Hold the ferro rod with its tip in the shavings. Hold the striker still against the rod and pull the rod back hard toward you, so the sparks fall into the shavings and the rod does not scatter them.",
     "When the shavings catch, add matchstick-thin wood at once, then pencil-thick, leaning the pieces together over the flame like a tent. Add the thicker wood only when the pencil wood is burning well.",
     "Put the fire out when you are finished: drown it, stir the ashes, and drown it again until nothing is warm to the back of your hand."
-   ]
+   ],
+   "photos": []
   },
   "gather.birch-bark": {
    "title": "Gather birch bark",
@@ -149,6 +154,12 @@ window.DESIGN = {
     "Work your fingers under the edge of the cut and peel the sheet off around the trunk.",
     "Only if there is no dead birch: take thin outer bark from a living tree by cutting through the papery layers only, never into the green or red layer beneath, which kills the tree.",
     "Stack the sheets flat under a stone so they do not curl."
+   ],
+   "photos": [
+    {
+     "name": "Birch bark sheets",
+     "url": "https://www.google.com/search?tbm=isch&q=paper%20birch%20bark%20sheet%20peeled%20Betula%20papyrifera"
+    }
    ]
   },
   "gather.dry-wood": {
@@ -165,6 +176,12 @@ window.DESIGN = {
     "Test each piece: dry wood snaps cleanly with a crack. If it bends, it is wet or alive; leave it.",
     "Snap what you can by hand. Saw thicker pieces into lengths of about 50 cm.",
     "Bundle the wood into armloads and carry them to where they will be used. Keep them off the ground on two poles, under cover."
+   ],
+   "photos": [
+    {
+     "name": "Dry dead wood",
+     "url": "https://www.google.com/search?tbm=isch&q=dry%20dead%20standing%20spruce%20pine%20branches%20firewood"
+    }
    ]
   },
   "make.root-cordage": {
@@ -184,6 +201,12 @@ window.DESIGN = {
     {
      "t": "Coil the cordage and keep it in water, in the pot or in the creek shallows under a stone, until you use it. Dry root goes stiff; soak it again before tying.",
      "a": 1
+    }
+   ],
+   "photos": [
+    {
+     "name": "Split spruce root cordage",
+     "url": "https://www.google.com/search?tbm=isch&q=split%20spruce%20root%20cordage"
     }
    ]
   },
@@ -215,7 +238,8 @@ window.DESIGN = {
     "Fold up the four sides along the score lines. At each corner, fold the spare bark into a triangle and press it flat against the end wall.",
     "Punch two holes through each corner with the knife tip, and stitch the corner triangles tight with soaked root cordage.",
     "Lash a stick along the top of each long side with root cordage, with 15 cm left over at each end as handles."
-   ]
+   ],
+   "photos": []
   },
   "shelter.choose-site": {
    "title": "Choose the shelter site",
@@ -289,7 +313,8 @@ window.DESIGN = {
      "t": "Once a site passes, fill the test holes you will not dig for clay, and drive a peeled stick at the fourth corner to mark it.",
      "a": 1
     }
-   ]
+   ],
+   "photos": []
   },
   "make.hook-pole": {
    "title": "Make a hook pole",
@@ -305,7 +330,8 @@ window.DESIGN = {
     "Saw the side branch off 10 cm from the trunk, so the stub points up and out as a hook.",
     "Trim off the other branches flush with the knife.",
     "Cut a deep notch at 2.35 m from the butt, the height of the chimney top. When the butt stands on the ground beside the chimney, the tip is more than 2 m above the chimney top and shows the lowest a branch may hang."
-   ]
+   ],
+   "photos": []
   },
   "shelter.frame": {
    "title": "Build the shelter frame",
@@ -378,7 +404,8 @@ window.DESIGN = {
      "times": 1,
      "note": ""
     }
-   ]
+   ],
+   "photos": []
   },
   "gather.frame-posts": {
    "title": "Cut frame posts",
@@ -398,6 +425,12 @@ window.DESIGN = {
     "Saw and chop a U-shaped saddle 5 cm deep across the top of each, as wide as the beam or plate that will sit in it.",
     "Peel the bark off the lower 60 cm with the axe, so the part in the ground does not rot as fast.",
     "Carry them to the site and lay them off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Frame posts",
+     "url": "https://www.google.com/search?tbm=isch&q=forked%20log%20post%20saddle%20notch"
+    }
    ]
   },
   "gather.beam-logs": {
@@ -417,6 +450,12 @@ window.DESIGN = {
     "Measure with the stick on the ground: from the corner post mark to the bark of the back-left tree, and from bark to bark between the two front trees. Saw the beam 10 cm longer than the first, less 5 cm, so it stops 5 cm clear of the bark. Saw the plate 5 cm shorter than the second at each end.",
     "Peel off the bark with the axe held flat.",
     "Drag each one to the site butt first, one end at a time if it is too heavy to lift."
+   ],
+   "photos": [
+    {
+     "name": "Beam and plate logs",
+     "url": "https://www.google.com/search?tbm=isch&q=log%20beam%20lean-to%20shelter%20frame"
+    }
    ]
   },
   "gather.rafters": {
@@ -433,6 +472,12 @@ window.DESIGN = {
     "Limb it with the axe, from the butt toward the top.",
     "Saw it to 3.0 m, measured with the stick. The small end must still be at least 8 cm thick.",
     "Carry them to the site and lay them off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Rafters",
+     "url": "https://www.google.com/search?tbm=isch&q=pole%20rafters%20bushcraft%20shelter%20roof"
+    }
    ]
   },
   "make.tarp-pieces": {
@@ -467,7 +512,8 @@ window.DESIGN = {
     "Seal each cut edge so it does not fray: hold a glowing stick from the fire just against the edge and draw it slowly along, melting the threads together. Keep water in the pot beside you.",
     "Make tie points along the cut edge of each piece every 50 cm: fold a pebble the size of a thumbnail into the edge, twist the fabric around it to make a neck, and tie root cordage tight around the neck.",
     "Mark the outer piece with a charcoal cross in one corner so you can tell the pieces apart."
-   ]
+   ],
+   "photos": []
   },
   "shelter.roof-cover": {
    "title": "Cover the roof",
@@ -508,7 +554,8 @@ window.DESIGN = {
     "Tuck the side and front edges of the inner piece down onto the wall tops and tie them to the rafters with root cordage. This piece does not have to shed rain; it has to stay whole, with no holes and no gaps at the edges.",
     "Where the roof passes a trunk, cut the tarp around it with a hand-width to spare, and seal the gap round the trunk with a collar of moss pressed into clay.",
     "Lay the outer piece over the inner one as a rain cover for now, overlapping every edge by at least 20 cm and folded down over the ends of the poles. Tie it with slip knots so it can be lifted when the moss goes on."
-   ]
+   ],
+   "photos": []
   },
   "gather.poles": {
    "title": "Gather poles",
@@ -524,6 +571,12 @@ window.DESIGN = {
     "Limb it with the axe from the butt toward the top.",
     "Measure 3.5 m with the measuring stick and saw it to length.",
     "Stack the poles off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Straight poles",
+     "url": "https://www.google.com/search?tbm=isch&q=straight%20lodgepole%20pine%20poles%205%20cm"
+    }
    ]
   },
   "gather.boughs": {
@@ -538,6 +591,12 @@ window.DESIGN = {
     "Cut boughs about 60–80 cm long from the lower branches of spruce trees, with the saw or knife.",
     "Take no more than a third of the branches from any one tree, and move on through the stand.",
     "Carry them in armloads with the butt ends together."
+   ],
+   "photos": [
+    {
+     "name": "Spruce boughs",
+     "url": "https://www.google.com/search?tbm=isch&q=white%20spruce%20boughs%20branches"
+    }
    ]
   },
   "shelter.roof-insulate": {
@@ -575,7 +634,8 @@ window.DESIGN = {
     "Leave the front (low) edge and the back (high) edge of the outer piece open: push a row of short spruce twigs under each edge so it stands 3–5 cm clear of the moss. Air moves in at the front and out at the back and carries off any moisture that gets past the inner piece.",
     "Tie the outer piece to the roof poles at its sides and corners.",
     "Carry soil up in the bark tray and spread it 5–10 cm deep over the outer piece, with moss or boughs on the steepest part to stop it sliding. Keep the soil off the open front and back edges."
-   ]
+   ],
+   "photos": []
   },
   "gather.moss": {
    "title": "Gather and dry moss",
@@ -596,6 +656,12 @@ window.DESIGN = {
     },
     "Repeat over three or four dry days until it is dry.",
     "Store it under cover, off the ground, until you use it."
+   ],
+   "photos": [
+    {
+     "name": "Dry moss",
+     "url": "https://www.google.com/search?tbm=isch&q=feather%20moss%20Pleurozium%20schreberi%20Hylocomium%20splendens"
+    }
    ]
   },
   "dig.soil": {
@@ -614,6 +680,12 @@ window.DESIGN = {
     "Stab the digging stick into the soil at a slant and lever it back to loosen a patch 30 cm across. Pry out stones as you meet them and set them aside.",
     "Scoop the loose soil into the tray with your hands, half full, and carry it to where it goes.",
     "Stop the hole when you reach rock or water. Take the next load from a new spot."
+   ],
+   "photos": [
+    {
+     "name": "Mineral soil",
+     "url": "https://www.google.com/search?tbm=isch&q=mineral%20soil%20horizon%20under%20forest%20floor"
+    }
    ]
   },
   "shelter.walls": {
@@ -700,7 +772,8 @@ window.DESIGN = {
     "Mix clay and sand to the ratio from the clay test, with water, into a stiff paste that holds its shape.",
     "Press 2 cm of it over the moss and logs on the inside of the back and right walls, wherever a log is within 50 cm of the stove, from the floor to 50 cm above the cooktop.",
     "Press 2 cm of it over the logs on the outside of the left wall within 50 cm of the chimney, and over the bottom log above the flue passage."
-   ]
+   ],
+   "photos": []
   },
   "gather.stones": {
    "title": "Gather dry-land stones",
@@ -723,6 +796,12 @@ window.DESIGN = {
      "a": 1
     },
     "Carry them to a dry pile near where they will be used, fist- to loaf-sized in the bark tray and larger ones by hand, and keep the pile off wet ground."
+   ],
+   "photos": [
+    {
+     "name": "Dense stones from dry ground",
+     "url": "https://www.google.com/search?tbm=isch&q=quartzite%20sandstone%20cobbles%20glacial%20till"
+    }
    ]
   },
   "gather.flat-stones": {
@@ -741,6 +820,12 @@ window.DESIGN = {
     "Measure each with the measuring stick and sort them by size: small (about 20 cm across) for plugs and duct covers, large (40 cm and more) for the tunnel roof, floor and cooktop.",
     "Tap each with another stone. A clear ring means it is sound; a dull thud means a crack. Leave the cracked ones.",
     "Carry them edge-on, against your body, and stack them on edge off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Flat stone slabs from dry ground",
+     "url": "https://www.google.com/search?tbm=isch&q=flat%20sandstone%20slabs%20rock"
+    }
    ]
   },
   "gather.wall-stakes": {
@@ -756,6 +841,12 @@ window.DESIGN = {
     "Fell each one and limb it with the axe.",
     "Saw it to 2.6 m, measured with the stick. The ones for the front wall are sawn shorter when they are set.",
     "Stand each on the chopping block and sharpen the thick end to a point over the last 25 cm, turning it a quarter turn between strokes."
+   ],
+   "photos": [
+    {
+     "name": "Tall pointed wall stakes",
+     "url": "https://www.google.com/search?tbm=isch&q=stake%20log%20wall%20bushcraft%20shelter"
+    }
    ]
   },
   "gather.hewn-logs": {
@@ -775,6 +866,12 @@ window.DESIGN = {
     "Hew a flat 6–8 cm wide along the top of each piece.",
     "Roll it over and hew a matching flat along the bottom, parallel to the top one.",
     "Stack the hewn pieces by length, off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Wall logs hewn flat top and bottom",
+     "url": "https://www.google.com/search?tbm=isch&q=hewn%20log%20flat%20axe"
+    }
    ]
   },
   "gather.wall-logs": {
@@ -795,6 +892,12 @@ window.DESIGN = {
     "Saw it into pieces about 1.4 m, 2.0 m and 2.9 m long, the lengths the walls take, measured with the stick. Stop where it gets thinner than 12 cm.",
     "Peel off any bark left on with the axe held flat. Bark holds water and insects under it.",
     "Carry the pieces to the site on your shoulder, or drag the longest ones, and stack them on two cross-logs off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Peeled wall logs",
+     "url": "https://www.google.com/search?tbm=isch&q=peeled%20lodgepole%20pine%20logs"
+    }
    ]
   },
   "gather.chinking-moss": {
@@ -810,6 +913,12 @@ window.DESIGN = {
     "Cut around a mat with the knife and roll it up. Shake out the soil and needles.",
     "Pack it loosely into the bark tray and carry it to the walls.",
     "Pile it under a bark sheet or the roof edge so it stays damp but not soaking."
+   ],
+   "photos": [
+    {
+     "name": "Fresh moss for chinking",
+     "url": "https://www.google.com/search?tbm=isch&q=moss%20chinking%20log%20cabin"
+    }
    ]
   },
   "dig.clay": {
@@ -830,6 +939,12 @@ window.DESIGN = {
     "Pick out roots and stones as you go.",
     "Carry it half a tray at a time to the mixing place, and keep the pile covered with bark so it neither dries out nor washes away.",
     "When the pit is finished, put the topsoil back over it."
+   ],
+   "photos": [
+    {
+     "name": "Clay subsoil",
+     "url": "https://www.google.com/search?tbm=isch&q=glacial%20till%20clay%20soil%20Alberta"
+    }
    ]
   },
   "gather.sand": {
@@ -847,6 +962,12 @@ window.DESIGN = {
     },
     "Choose sharp, gritty sand over fine, rounded beach sand when you have the choice; it locks together better in cob.",
     "Pick out sticks and shells, and drain it on a flat rock before carrying it to the mixing place."
+   ],
+   "photos": [
+    {
+     "name": "Coarse sand",
+     "url": "https://www.google.com/search?tbm=isch&q=coarse%20sand%20gravel%20bar%20creek"
+    }
    ]
   },
   "plan.stove-stage-one": {
@@ -980,7 +1101,8 @@ window.DESIGN = {
      "times": 1,
      "note": ""
     }
-   ]
+   ],
+   "photos": []
   },
   "make.size-gauge": {
    "title": "Make the stove size gauges",
@@ -997,7 +1119,8 @@ window.DESIGN = {
     "Measure 11 cm on the stick with the measuring stick and the 1 cm line, and saw it off square. That is the opening gauge.",
     "Cut a second stick 1 cm longer. That is the former gauge: cob shrinks a little as it dries, so formers are made about 1 cm oversize.",
     "Cut a ring round the former gauge with the knife so you can tell them apart by touch."
-   ]
+   ],
+   "photos": []
   },
   "make.ash-rake": {
    "title": "Make an ash rake",
@@ -1013,7 +1136,8 @@ window.DESIGN = {
     "Saw the stem 1.2 m long, with the side branch near one end.",
     "Cut the side branch off 8 cm from the stem and carve it into a flat blade, narrower than the 11 cm opening by a finger-width.",
     "Carve the stem above the blade smooth, and round the handle end."
-   ]
+   ],
+   "photos": []
   },
   "stove.find-clay": {
    "title": "Find clay for the stove",
@@ -1037,7 +1161,8 @@ window.DESIGN = {
     "Make the three fire-test patties (0, 1 and 2 parts sand to 1 part clay) and fire them in the evening fire. The one that comes out whole sets the sand in every mix.",
     "Mark the spot with a blazed stake and pace the distance back to the shelter.",
     "If you find no clay that passes: do not build the stove. Pick another site, or plan on an open fire under a raised smoke hole."
-   ]
+   ],
+   "photos": []
   },
   "gather.grass-fibre": {
    "title": "Gather and chop dry grass",
@@ -1056,6 +1181,12 @@ window.DESIGN = {
     "Tie the handfuls into armloads with a twist of grass and carry them in.",
     "Keep long grass for formers and bedding. For cob, light clay and plaster, lay a bundle across a stump and chop it with the axe into lengths of 5–10 cm; for plaster, chop it again to 2–3 cm.",
     "Store it under cover, off the ground."
+   ],
+   "photos": [
+    {
+     "name": "Dry grass and sedge",
+     "url": "https://www.google.com/search?tbm=isch&q=dry%20grass%20sedge%20bundle"
+    }
    ]
   },
   "gather.withies": {
@@ -1075,6 +1206,12 @@ window.DESIGN = {
     "Cut 50 thinner shoots, pencil-thick and as long as you can find, for weaving.",
     "Take a few from each bush and move on.",
     "Strip the leaves by pulling each shoot through your closed hand, and bundle them."
+   ],
+   "photos": [
+    {
+     "name": "Willow or alder shoots for weaving",
+     "url": "https://www.google.com/search?tbm=isch&q=willow%20withies%20shoots%20for%20weaving"
+    }
    ]
   },
   "stove.test-burner": {
@@ -1129,7 +1266,8 @@ window.DESIGN = {
     "Light a small fire of shavings and thin sticks at the foot of the riser through the feed tube, then stand finger-thick sticks upright in the feed tube.",
     "Watch the flame and the smoke for half an hour.",
     "Break it down when you have seen enough. Soak the cob and tread it back into the next batch; put the stones back on the pile."
-   ]
+   ],
+   "photos": []
   },
   "gather.cob": {
    "title": "Mix cob",
@@ -1169,6 +1307,12 @@ window.DESIGN = {
     "Scatter in half an armload of chopped dry grass, about a good handful for every potful of clay, and tread and fold it in.",
     "Keep it as stiff as you can work.",
     "Use it the same day, or cover it with wet grass and bark."
+   ],
+   "photos": [
+    {
+     "name": "Cob",
+     "url": "https://www.google.com/search?tbm=isch&q=cob%20mix%20clay%20sand%20straw"
+    }
    ]
   },
   "gather.fired-bricks": {
@@ -1206,6 +1350,12 @@ window.DESIGN = {
     "While the fire burns down to a bed of coals, warm the tiles beside it for an hour.",
     "Set the tiles on the coals, heap more wood over them, and keep a hard fire going for about four hours.",
     "Let it burn down and leave the tiles buried in the ashes to cool overnight."
+   ],
+   "photos": [
+    {
+     "name": "Pit-fired clay tiles for the tunnel floor",
+     "url": "https://www.google.com/search?tbm=isch&q=pit%20fired%20clay%20tiles"
+    }
    ]
   },
   "gather.refractory-mix": {
@@ -1236,6 +1386,12 @@ window.DESIGN = {
     "Measure 1 part clay to 1–2 parts sand, using your fire test to pick the amount.",
     "Tread them together with as little water as you can, until it is one even colour.",
     "Add no fibre: it burns out in the hottest parts and leaves the wall weak. Pick out any roots or grass you see."
+   ],
+   "photos": [
+    {
+     "name": "Refractory mix",
+     "url": "https://www.google.com/search?tbm=isch&q=clay%20sand%20refractory%20mortar%20mix"
+    }
    ]
   },
   "stove.base": {
@@ -1274,7 +1430,8 @@ window.DESIGN = {
     "Pack 10 cm of light clay over the stones, pressing it down with your palms, so its top is level with the shelter floor. Check with a straight stick laid across the pit to the floor on each side.",
     "Along the whole bench route, lay 10 cm of dry stone on the floor: 70 cm wide along the back wall from the core to the left wall, and 60 cm wide along the left wall to 10 cm short of the front wall. Keep it 10 cm off the logs.",
     "Tread the stone layer firm and fill the biggest gaps with small stones."
-   ]
+   ],
+   "photos": []
   },
   "gather.light-clay": {
    "title": "Mix light clay insulation",
@@ -1309,6 +1466,12 @@ window.DESIGN = {
     "Pour each potful over the grass and toss it with your hands, until every strand is just coated.",
     "Stop adding slurry when it is coated: you want it light and full of air, with no slurry pooling under the heap.",
     "Dry wood ash can stand in for some of the grass when you have it."
+   ],
+   "photos": [
+    {
+     "name": "Light clay insulation",
+     "url": "https://www.google.com/search?tbm=isch&q=light%20straw%20clay%20insulation"
+    }
    ]
   },
   "gather.stove-formers": {
@@ -1341,6 +1504,12 @@ window.DESIGN = {
     "Press each side flat against a flat stone until it is square, and check it with the former gauge both ways.",
     "Cut the first former 40 cm long, for the tunnel.",
     "Make the second the same way, 30 cm less 11 cm long, for the feed tube, which stands on the end of the tunnel former."
+   ],
+   "photos": [
+    {
+     "name": "Grass-and-bark former for the burn tunnel or feed tube",
+     "url": "https://www.google.com/search?tbm=isch&q=straw%20bundle%20former%20rocket%20stove%20cob"
+    }
    ]
   },
   "stove.tunnel": {
@@ -1392,7 +1561,8 @@ window.DESIGN = {
     "Let it firm overnight.",
     "Next day, cut the formers' ties through the openings and pull the grass out a handful at a time, then slide out the bark. Do not leave any of it in.",
     "Run the size gauge along the whole tunnel and down the feed tube, both ways across. Scrape away any bulge the gauge catches on."
-   ]
+   ],
+   "photos": []
   },
   "gather.riser-basket": {
    "title": "Weave the riser basket",
@@ -1421,6 +1591,12 @@ window.DESIGN = {
     "Tie the top row to each upright with root cordage, and cut the uprights off level with it.",
     "Work it out of the ground and trim the bottom ends flush.",
     "Stand it near a fire, out of the flame, for two days to dry."
+   ],
+   "photos": [
+    {
+     "name": "Woven withy basket",
+     "url": "https://www.google.com/search?tbm=isch&q=woven%20willow%20basket%20tube"
+    }
    ]
   },
   "stove.riser": {
@@ -1472,7 +1648,8 @@ window.DESIGN = {
     "Bring the refractory wall and the insulation level with the top of the basket, 110 cm above the tunnel floor.",
     "Cap the top edge of the light clay with 2 cm of refractory mix so the hot gas turning over the lip does not eat into it.",
     "Leave the basket in: it holds the shape and burns out on the first fires."
-   ]
+   ],
+   "photos": []
   },
   "stove.dome": {
    "title": "Build the dome, cooktop and step",
@@ -1510,7 +1687,8 @@ window.DESIGN = {
     "Bed the largest flat slab, at least as wide as the dome, on a layer of cob across the top. That stone is the cooktop, about 1.2 m above the floor.",
     "Close the cleanout with a flat stone plug and seal its edges with a bead of cob, so it can be cut free and lifted.",
     "Saw a round 25 cm long from a dry dead trunk at least 30 cm thick. Stand it by the front-left corner of the dome, a hand-width clear of the feed tube, as a step. If there is no such trunk, stack flat stones to the same height."
-   ]
+   ],
+   "photos": []
   },
   "stove.duct": {
    "title": "Build the stone duct",
@@ -1548,7 +1726,8 @@ window.DESIGN = {
     "Where the duct passes through the left wall, pack cob round it so no log is closer than 10 cm.",
     "Cover the channel with flat slabs bedded on cob along the wall tops. Seal every joint between slabs with cob.",
     "Over each of the two bends, lay a slab on a thin bead of clay only, so it can be lifted to rake out the ash."
-   ]
+   ],
+   "photos": []
   },
   "stove.chimney": {
    "title": "Build the chimney",
@@ -1590,7 +1769,8 @@ window.DESIGN = {
     "Reach the upper courses from a log round or a stable stack of stones, never from the roof.",
     "Stop at 2.35 m above the shelter floor, which is 125 cm above the riser top.",
     "Close the foot cleanout with a flat stone plug sealed with a bead of cob."
-   ]
+   ],
+   "photos": []
   },
   "stove.seal": {
    "title": "Seal the stove",
@@ -1621,7 +1801,8 @@ window.DESIGN = {
     "Plaster the chimney base where the duct meets it, inside the wall opening and out.",
     "Fill every crack you can see with slip.",
     "Smear plaster over the wall logs within 1 m of the stove, as a fire skin."
-   ]
+   ],
+   "photos": []
   },
   "gather.plaster": {
    "title": "Mix clay plaster",
@@ -1657,6 +1838,12 @@ window.DESIGN = {
     "Tread clay and sand together at about the cob ratio, a little wetter.",
     "Work in grass chopped to 2–3 cm.",
     "Test a patch before plastering: smear 1 cm on a flat stone and dry it by the fire. If it cracks, add sand."
+   ],
+   "photos": [
+    {
+     "name": "Fine clay-and-sand plaster",
+     "url": "https://www.google.com/search?tbm=isch&q=earthen%20clay%20plaster%20wall"
+    }
    ]
   },
   "gather.slip": {
@@ -1678,6 +1865,12 @@ window.DESIGN = {
     "Break two double handfuls of clay into the pot and cover them with water. Let them soak for an hour.",
     "Stir and squeeze with your hand until there are no lumps.",
     "Pick out any grit you feel."
+   ],
+   "photos": [
+    {
+     "name": "Clay slip",
+     "url": "https://www.google.com/search?tbm=isch&q=clay%20slip"
+    }
    ]
   },
   "stove.first-firing": {
@@ -1716,7 +1909,8 @@ window.DESIGN = {
     "When it is cold, rake the ash and any charred former out through the feed tube, the dome cleanout and the chimney foot cleanout, into the bark tray.",
     "Over the next several days, make each fire a little bigger and longer.",
     "Steam and hairline cracks are normal. Fill each crack with slip as it appears."
-   ]
+   ],
+   "photos": []
   },
   "shelter.fit-out": {
    "title": "Fit out the shelter",
@@ -1793,7 +1987,8 @@ window.DESIGN = {
     "Drive the other two into the chinking outside, beside the door and under the roof overhang, for the ice ladle and gaff. The long ice pole leans against the wall there.",
     "Drying line: tie a 2 m length of root cordage tight under the rafters at the left end, running right to left over the foot of the bench, tied to a rafter at each end, well away from the cooktop.",
     "Boot stone: set a flat stone on the floor just inside the door, on the left side, clear of the swing of the door."
-   ]
+   ],
+   "photos": []
   },
   "make.door": {
    "title": "Make the door",
@@ -1834,7 +2029,8 @@ window.DESIGN = {
     "Hang it: tie two loops of root cordage round the right door post and the hinge-side upright, one near the top and one near the bottom, loose enough to swing. Hang it on the inside so it opens inward and snow cannot pin it shut.",
     "Carve a peg 3 cm thick and 20 cm long and lash it to the left door post as a toggle that turns across the door edge to hold it shut.",
     "Later, as hares are caught, lash their skins over the inside face, fur toward the room, through holes along their edges."
-   ]
+   ],
+   "photos": []
   },
   "make.wedges": {
    "title": "Make splitting wedges",
@@ -1849,7 +2045,8 @@ window.DESIGN = {
     "Saw it into three pieces 20 cm long.",
     "Stand each piece on the chopping block and chop one end down from two sides to a blunt edge about 1 cm thick, so it tapers evenly over 15 cm.",
     "Trim the edges and square the top with the knife so the club lands flat."
-   ]
+   ],
+   "photos": []
   },
   "make.water-basin": {
    "title": "Make the water basin",
@@ -1878,7 +2075,8 @@ window.DESIGN = {
     "Burn and scrape the flat face out to a hollow 10 cm deep, leaving a rim 3 cm thick and a bottom 4 cm thick.",
     "Scrape the inside smooth, down to clean wood with no char left in it.",
     "Fill it with water and leave it overnight, so the wood swells and closes any cracks."
-   ]
+   ],
+   "photos": []
   },
   "gather.stakes": {
    "title": "Cut stakes",
@@ -1892,6 +2090,12 @@ window.DESIGN = {
     "Cut straight live or freshly dead poles 5–8 cm thick with the saw.",
     "Saw them to the length the job needs, measured with the measuring stick. Walls and racks take stakes about 1.5 m long; the weir takes 1.2 m.",
     "Stand each one on the chopping block and sharpen the thick end to a point with the axe, turning it a quarter turn between strokes, over the last 20 cm."
+   ],
+   "photos": [
+    {
+     "name": "Pointed stakes",
+     "url": "https://www.google.com/search?tbm=isch&q=sharpened%20wooden%20stakes%20axe%20point"
+    }
    ]
   },
   "plan.stove-stage-two": {
@@ -1953,7 +2157,8 @@ window.DESIGN = {
      "times": 1,
      "note": ""
     }
-   ]
+   ],
+   "photos": []
   },
   "stove.bench-lifts": {
    "title": "Build the bench in thin lifts",
@@ -2025,7 +2230,8 @@ window.DESIGN = {
     "Over each bend, build a small box of blocks around the lift-out stone as the lifts rise, so it can still be reached from the bench top.",
     "About three lifts bring the core to 20 cm less one block (8 cm) over the channel.",
     "Finish with a course of blocks laid flat in mortar, bringing the mass to 20 cm over the channel. Close each bend box with a flat stone plug at the bench surface, bedded on a thin bead of clay only."
-   ]
+   ],
+   "photos": []
   },
   "gather.mortar": {
    "title": "Mix mortar",
@@ -2055,6 +2261,12 @@ window.DESIGN = {
     "Measure the same clay and sand as for cob, with no fibre.",
     "Tread it together, adding water a potful at a time, a little wetter than for blocks.",
     "Mix only as much as you will lay today."
+   ],
+   "photos": [
+    {
+     "name": "Clay mortar",
+     "url": "https://www.google.com/search?tbm=isch&q=clay%20mortar%20stone%20wall"
+    }
    ]
   },
   "stove.make-blocks": {
@@ -2099,6 +2311,12 @@ window.DESIGN = {
     "Next day, once they hold their shape when touched, stand the blocks on edge so air reaches all sides. Scrape off rough edges with the knife.",
     "Stack them loosely with finger-width gaps between, near heat but out of direct flame, where wet clay can burst: on the drying bed, around the stove dome or on the stage-one duct. Cover the stacks with the bark sheets at night and in rain. Never let wet blocks freeze.",
     "After a week, break one open to check."
+   ],
+   "photos": [
+    {
+     "name": "Dry clay blocks",
+     "url": "https://www.google.com/search?tbm=isch&q=adobe%20mud%20bricks%20drying"
+    }
    ]
   },
   "stove.bench-dry": {
@@ -2148,7 +2366,8 @@ window.DESIGN = {
      "note": "only once the bark test is dry"
     },
     "Plaster the top last, 1–2 cm, leaving the bend plugs free."
-   ]
+   ],
+   "photos": []
   },
   "shelter.earth-skirt": {
    "title": "Bank earth around the foot of the walls",
@@ -2180,7 +2399,8 @@ window.DESIGN = {
     "Leave a gap of 30 cm around the cleanout plug at the foot of the chimney, so it can still be lifted.",
     "Tread the bank firm and shape its outer face so water runs away from the walls, not into the drain ditch behind the back wall.",
     "Lay moss back over the bank so rain does not wash it away."
-   ]
+   ],
+   "photos": []
   },
   "shelter.snow-bank": {
    "title": "Bank snow against the walls and roof",
@@ -2213,7 +2433,8 @@ window.DESIGN = {
     "Let snow lie on the roof up to 30 cm deep. Paddle off anything deeper, and anything within 50 cm of the chimney.",
     "Open the vent in the back wall to about twice its size: remove the next section of log beside it. The snow bank stops the leaks that carried moisture out, and without a bigger vent the shelter air gets damp enough to frost the inner tarp.",
     "After every snowfall and every windy night: clear the door, the air inlet, the vent and the chimney top before you light the stove, then top up the bank."
-   ]
+   ],
+   "photos": []
   }
  }
 };

@@ -43,3 +43,9 @@ test('every catalog name that quotes a design number can be filled in', () => {
     for (const m of x.name.matchAll(/\{([a-zA-Z.]+)\}/g)) assert.ok(m[1] in params, `${id} quotes {${m[1]}}`);
   }
 });
+
+test('every material has a picture search, and the picture list names only real materials', () => {
+  const photos = require('../procedures/photos.js');
+  for (const [id, m] of Object.entries(C.MATERIALS)) assert.ok(m.photos && m.photos.startsWith('https://'), `${id} has no photos link`);
+  for (const id of Object.keys(photos.QUERIES)) assert.ok(C.MATERIALS[id], `photos.js names "${id}", which is not a material`);
+});

@@ -43,7 +43,8 @@
         const src = x.source === 'site' ? esc(W.site)
           : x.source === 'bought' ? `bought, about ${money(x.cost)} ${x.unit === 'count' ? 'each' : 'per ' + esc(x.unit)}`
           : link(x.source);
-        return `${q}${T(x.name.charAt(0).toLowerCase() + x.name.slice(1))} <span class="src">(${src})</span>`;
+        const pic = x.photos ? ` <a class="photos" href="${esc(x.photos)}" target="_blank" rel="noopener">photos</a>` : '';
+        return `${q}${T(x.name.charAt(0).toLowerCase() + x.name.slice(1))} <span class="src">(${src})</span>${pic}`;
       };
       const ul = (items, empty = 'None') => items.length ? `<ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>` : `<p class="src">${empty}</p>`;
 
