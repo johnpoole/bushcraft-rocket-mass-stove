@@ -21,7 +21,7 @@ test('guide design draws well with no problems', () => {
 test('a narrow chimney is named as the pinch point and carries the most drag', () => {
   const { res, ids } = run({ chimneySize: 7 });
   assert.ok(ids.includes('pinch'));
-  const worst = M.SECTIONS.reduce((a, s) => (res.lossShare[s] > res.lossShare[a] ? s : a));
+  const worst = res.sections.reduce((a, s) => (res.lossShare[s] > res.lossShare[a] ? s : a));
   assert.equal(worst, 'chimney');
   assert.ok(res.airFlow < run().res.airFlow);
 });
@@ -98,6 +98,75 @@ test('bad input is rejected with the parameter named', () => {
   assert.throws(() => M.simulate({ ...M.DEFAULTS, riserHeight: 0 }), /riserHeight/);
   assert.throws(() => M.simulate({ ...M.DEFAULTS, topGap: NaN }), /topGap/);
   assert.throws(() => M.simulate({ ...M.DEFAULTS, fuel: 'wet' }), /fuel/);
+  assert.throws(() => M.simulate({ ...M.DEFAULTS, design: 'foo' }), /design/);
+  assert.throws(() => M.simulate({ ...M.DEFAULTS, ...M.DESIGN_DEFAULTS.batch, portWidth: 0 }), /portWidth/);
   const { bends, ...missing } = M.DEFAULTS;
   assert.throws(() => M.simulate(missing), /bends/);
+});
+
+test('a narrowing before a J-tube riser only throttles it', () => {
+  const { res, ids } = run({ throat: true });
+  assert.ok(ids.includes('throat'));
+  assert.ok(res.sections.includes('throat'));
+  assert.ok(res.airRatio < run().res.airRatio / 2, `air ratio ${res.airRatio}`);
+});
+
+// The batch box at its guide sizes, with any change on top.
+const batch = (change = {}) => run({ ...M.DESIGN_DEFAULTS.batch, ...change });
+
+test('the batch box sizes follow the published ratios from the riser', () => {
+  const g = M.batchGuide(11);
+  const d = (11 * 2) / Math.sqrt(Math.PI);
+  assert.ok(Math.abs(g.B - 0.7234 * d) < 1e-9);
+  assert.ok(Math.abs(g.portWidth - 0.5 * g.B) < 1e-9 && Math.abs(g.portHeight - 2.2 * g.B) < 1e-9);
+  assert.ok(Math.abs(g.fireboxWidth - 2 * g.B) < 1e-9 && Math.abs(g.fireboxHeight - 3 * g.B) < 1e-9);
+  const { params: p } = batch().res;
+  assert.ok(Math.abs(p.portWidth - g.portWidth) < 0.5 && Math.abs(p.portHeight - g.portHeight) < 0.5);
+  assert.ok(p.fireboxDepth >= g.fireboxDepth[0] && p.fireboxDepth <= g.fireboxDepth[1]);
+  assert.ok(p.riserHeight >= g.riserHeight[0] && p.riserHeight <= g.riserHeight[1]);
+});
+
+test('the batch box at its guide sizes draws well, spins hard and has no problems', () => {
+  const { res, ids } = batch();
+  assert.equal(res.stalled, false);
+  assert.deepEqual(res.sections, ['inlet', 'firebox', 'port', 'riser', 'topGap', 'sideGap', 'channel', 'chimney']);
+  assert.ok(res.airRatio >= 1.5, `air ratio ${res.airRatio}`);
+  assert.ok(res.temps.exhaust > 50 && res.temps.exhaust < 150, `exhaust ${res.temps.exhaust}`);
+  assert.equal(res.burnBackRatio, null);
+  assert.equal(res.swirl, 1);
+  assert.ok(res.swirl > run().res.swirl);
+  assert.deepEqual(ids, []);
+});
+
+test('a batch box without its P-channel burns smoky and stops spinning', () => {
+  const { res, ids } = batch({ pChannel: false });
+  assert.ok(ids.includes('noPChannel'));
+  assert.ok(res.swirl < batch().res.swirl);
+  assert.ok(res.airRatio < batch().res.airRatio);
+});
+
+test('a tight port chokes the batch box and a wide one loses its jet', () => {
+  const tight = batch({ portWidth: 2.5 });
+  assert.ok(tight.ids.includes('tightPort'));
+  assert.ok(tight.res.airRatio < 1, `air ratio ${tight.res.airRatio}`);
+  assert.ok(tight.ids.includes('starved'));
+  const wide = batch({ portWidth: 9 });
+  assert.ok(wide.ids.includes('widePort'));
+  assert.ok(wide.res.swirl < batch().res.swirl);
+});
+
+test('a leaking door is named and lets in air the fire does not need', () => {
+  const { res, ids } = batch({ doorSealed: false });
+  assert.ok(ids.includes('doorLeak'));
+  assert.ok(res.temps.fire < batch().res.temps.fire);
+});
+
+test('a batch box riser shorter than the ratios is named', () => {
+  assert.ok(batch({ riserHeight: 60 }).ids.includes('shortRiser'));
+  assert.ok(batch({ riserHeight: 60 }).res.airRatio < batch().res.airRatio);
+});
+
+test('J-tube-only checks stay off for the batch box', () => {
+  const { ids } = batch({ feedHeight: 80, feedLid: true, tunnelLength: 15 });
+  for (const id of ['burnBack', 'feedLid', 'shortTunnel', 'shortFeed']) assert.ok(!ids.includes(id), `${id} shown for a batch box`);
 });

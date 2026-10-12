@@ -15,7 +15,20 @@
   const BENCH_WIDTH = 0.5;   // m
   const MASS_DENSITY = 1800, MASS_C = 900;
 
+  // Batch box proportions from Peter van den Berg (batchrocket.eu/en/building), all from the
+  // base number B = 72.34% of a round riser's diameter. Our riser is square, so B is taken from
+  // the round riser of the same area: D = side × 2/√π.
+  const B_OF_D = 0.7234;
+  const FIREBOX_W_B = 2, FIREBOX_H_B = 3, FIREBOX_DEPTH_B = [4, 5.5];
+  const PORT_H_B = 2.2, PORT_W_B = 0.5, RISER_H_B = [8, 10];
+  const MAIN_INLET = 0.20, P_CHANNEL = 0.05; // air inlet areas as shares of the riser area
+  const DOOR_LEAK = 0.10;                    // estimate: gaps round an unsealed door, share of the riser area
+  const FIREBOX_W_PER_CM2 = 12;              // estimate: W a full batch load gives per cm² of firebox floor
+  const PORT_WALL = 6;                       // cm, thickness of the wall the port runs through
+  const THROAT = 0.5;                        // a J-tube narrowing keeps this share of the tunnel area
+
   const DEFAULTS = Object.freeze({
+    design: 'jtube',
     feedSize: 11, tunnelSize: 11, riserSize: 11, channelSize: 11, chimneySize: 11,
     feedHeight: 30, tunnelLength: 40, riserHeight: 110,
     riserInsulation: 8, topGap: 6, sideGap: 5,
@@ -23,22 +36,60 @@
     chimneyAboveRiser: 125,
     ambient: 10, fuel: 'dry', coldStart: false, burnHours: 2,
     riverStones: false, fibreInRefractory: false, cracksSealed: true, feedLid: false,
+    throat: false,
+    fireboxDepth: 45, portWidth: 4.5, portHeight: 20, pChannel: true, doorSealed: true,
   });
 
-  const SECTIONS = ['feed', 'tunnel', 'riser', 'topGap', 'sideGap', 'channel', 'chimney'];
+  const DESIGNS = ['jtube', 'batch'];
+  // The guide sizes that differ between the two. The batch box's inlets meter its air, so it moves
+  // less gas than the J-tube and needs a shorter bench to leave the exhaust warm enough to draw.
+  const DESIGN_DEFAULTS = Object.freeze({
+    jtube: Object.freeze({ design: 'jtube', riserHeight: 110, channelLength: 390 }),
+    batch: Object.freeze({ design: 'batch', riserHeight: 85, channelLength: 340 }),
+  });
   const SECTION_NAMES = {
-    feed: 'feed tube', tunnel: 'burn tunnel', riser: 'heat riser', topGap: 'gap over the riser',
+    feed: 'feed tube', tunnel: 'burn tunnel', throat: 'narrowing before the riser',
+    inlet: 'air inlets', firebox: 'firebox', port: 'port',
+    riser: 'heat riser', topGap: 'gap over the riser',
     sideGap: 'gap between riser and dome', channel: 'bench channel', chimney: 'chimney',
   };
+  const TAIL = ['riser', 'topGap', 'sideGap', 'channel', 'chimney'];
+
+  function sections(p) {
+    if (p.design === 'batch') return ['inlet', 'firebox', 'port', ...TAIL];
+    return p.throat ? ['feed', 'tunnel', 'throat', ...TAIL] : ['feed', 'tunnel', ...TAIL];
+  }
+
+  // The batch box sizes the published ratios give for this riser, in cm.
+  function batchGuide(riserSize) {
+    const b = B_OF_D * riserSize * 2 / Math.sqrt(Math.PI);
+    return {
+      B: b,
+      fireboxWidth: FIREBOX_W_B * b, fireboxHeight: FIREBOX_H_B * b,
+      fireboxDepth: FIREBOX_DEPTH_B.map((k) => k * b),
+      portWidth: PORT_W_B * b, portHeight: PORT_H_B * b,
+      riserHeight: RISER_H_B.map((k) => k * b),
+    };
+  }
 
   const rho = (T) => 353 / T;
   const area = (cm) => (cm / 100) ** 2;
+  const hyd = (w, h) => (2 * w * h) / (w + h) / 100;
 
   function geometry(p) {
     const riserOuter = p.riserSize + 2 * (REFR_T + p.riserInsulation);
+    const g = batchGuide(p.riserSize);
+    const inletShare = MAIN_INLET + (p.pChannel ? P_CHANNEL : 0) + (p.doorSealed ? 0 : DOOR_LEAK);
+    const throatSide = Math.sqrt(THROAT) * Math.min(p.tunnelSize, p.riserSize);
     return {
       feed: { A: area(p.feedSize), L: p.feedHeight / 100, D: p.feedSize / 100, K: 0.5 + 1.2 + (p.feedLid ? 5000 : 0) },
       tunnel: { A: area(p.tunnelSize), L: p.tunnelLength / 100, D: p.tunnelSize / 100, K: 1.2 },
+      throat: { A: area(throatSide), L: PORT_WALL / 100, D: throatSide / 100, K: 1.5 },
+      // The P-channel feeds its air in at the port, not through the firebox; it is counted with
+      // the other inlets because all of it has to come in through a small opening from the room.
+      inlet: { A: inletShare * area(p.riserSize), L: 0, D: 1, K: 1.5 },
+      firebox: { A: (g.fireboxWidth * g.fireboxHeight) / 1e4, L: p.fireboxDepth / 100, D: hyd(g.fireboxWidth, g.fireboxHeight), K: 0.5 },
+      port: { A: (p.portWidth * p.portHeight) / 1e4, L: PORT_WALL / 100, D: hyd(p.portWidth, p.portHeight), K: 1.5 },
       riser: { A: area(p.riserSize), L: p.riserHeight / 100, D: p.riserSize / 100, K: 0 },
       // Gas spills over the riser lip through a curtain as tall as the gap and as long as the lip.
       topGap: { A: (4 * p.riserSize * p.topGap) / 1e4, L: 0, D: 1, K: 1.5 },
@@ -50,10 +101,25 @@
   }
 
   // Temperatures along the gas path for a given air mass flow m (kg/s).
+  // How well the batch box mixes its smoke with air: the P-channel's secondary air and a narrow
+  // port jet are what make it burn clean. 1 is the published design.
+  function batchMixing(p) {
+    const g = batchGuide(p.riserSize);
+    return (p.pChannel ? 1 : 0.85) * (p.portWidth > 1.5 * g.portWidth ? 0.9 : 1);
+  }
+
+  function fuelCapacity(p) {
+    if (p.design === 'batch') {
+      const g = batchGuide(p.riserSize);
+      return FIREBOX_W_PER_CM2 * g.fireboxWidth * p.fireboxDepth;
+    }
+    return FUEL_W_PER_CM2 * p.feedSize ** 2;
+  }
+
   function temperatures(p, m, T0) {
-    const eta = p.fuel === 'damp' ? 0.7 : 0.92;
+    const eta = (p.fuel === 'damp' ? 0.7 : 0.92) * (p.design === 'batch' ? batchMixing(p) : 1);
     const coldFactor = p.coldStart ? 4 : 1;
-    const Pmax = FUEL_W_PER_CM2 * p.feedSize ** 2;
+    const Pmax = fuelCapacity(p);
     const mcp = m * CP;
     const Pburn = Math.min(Pmax, m * AIR_HEAT);
     const Tfire = Math.min(T_FLAME_MAX, T0 + (eta * Pburn) / mcp);
@@ -76,18 +142,22 @@
       TriserMean: (Tfire + TriserTop) / 2,
       TdownMean: (TriserTop + Tbell) / 2,
       Ttop: TriserTop,
+      T0,
     };
   }
 
   function sectionTemps(t) {
     return {
-      feed: t.Tfeed, tunnel: t.Tfire, riser: t.TriserMean, topGap: t.Ttop,
-      sideGap: t.TdownMean, channel: t.TchannelMean, chimney: t.Texit,
+      feed: t.Tfeed, tunnel: t.Tfire, throat: t.Tfire, inlet: t.T0, firebox: t.Tfire, port: t.Tfire,
+      riser: t.TriserMean, topGap: t.Ttop, sideGap: t.TdownMean, channel: t.TchannelMean, chimney: t.Texit,
     };
   }
 
   function draft(p, t, T0) {
-    const Hf = p.feedHeight / 100, Hr = p.riserHeight / 100, Hc = (p.riserHeight + p.chimneyAboveRiser) / 100;
+    // A batch box's firebox is closed above and drains through a port near its floor, so no hot
+    // column pushes back against the riser the way a J-tube's feed tube does.
+    const Hf = p.design === 'batch' ? 0 : p.feedHeight / 100;
+    const Hr = p.riserHeight / 100, Hc = (p.riserHeight + p.chimneyAboveRiser) / 100;
     const r0 = rho(T0);
     return G * (
       Hr * (rho(t.TdownMean) - rho(t.TriserMean)) +
@@ -96,9 +166,9 @@
     );
   }
 
-  function losses(geo, temps, m) {
+  function losses(secs, geo, temps, m) {
     const out = {};
-    for (const s of SECTIONS) {
+    for (const s of secs) {
       const g = geo[s];
       const r = rho(temps[s]);
       const k = (g.L > 0 ? (FRICTION * g.L) / g.D : 0) + g.K;
@@ -115,8 +185,10 @@
         throw new Error(`simulate: parameter "${key}" must be a number, got ${JSON.stringify(p[key])}`);
       }
     }
+    if (!DESIGNS.includes(p.design)) throw new Error(`simulate: design must be one of ${DESIGNS.join(', ')}, got ${JSON.stringify(p.design)}`);
     for (const key of ['feedSize', 'tunnelSize', 'riserSize', 'channelSize', 'chimneySize',
-      'feedHeight', 'tunnelLength', 'riserHeight', 'topGap', 'sideGap', 'channelLength', 'burnHours']) {
+      'feedHeight', 'tunnelLength', 'riserHeight', 'topGap', 'sideGap', 'channelLength', 'burnHours',
+      'fireboxDepth', 'portWidth', 'portHeight']) {
       if (p[key] <= 0) throw new Error(`simulate: parameter "${key}" must be above 0, got ${p[key]}`);
     }
     if (p.riserHeight + p.chimneyAboveRiser <= 0) {
@@ -130,11 +202,12 @@
     validate(p);
     const T0 = p.ambient + 273.15;
     const geo = geometry(p);
+    const secs = sections(p);
 
     const imbalance = (m) => {
       const t = temperatures(p, m, T0);
-      const l = losses(geo, sectionTemps(t), m);
-      return draft(p, t, T0) - SECTIONS.reduce((a, s) => a + l[s], 0);
+      const l = losses(secs, geo, sectionTemps(t), m);
+      return draft(p, t, T0) - secs.reduce((a, s) => a + l[s], 0);
     };
 
     // Draft and drag can balance at more than one flow: a hot, fast-running stove and a
@@ -159,10 +232,10 @@
     const mm = stalled ? lo0 : m;
     const t = temperatures(p, mm, T0);
     const st = sectionTemps(t);
-    const l = losses(geo, st, mm);
-    const totalLoss = SECTIONS.reduce((a, s) => a + l[s], 0);
+    const l = losses(secs, geo, st, mm);
+    const totalLoss = secs.reduce((a, s) => a + l[s], 0);
     const velocity = {}, lossShare = {};
-    for (const s of SECTIONS) {
+    for (const s of secs) {
       velocity[s] = stalled ? 0 : m / (rho(st[s]) * geo[s].A);
       lossShare[s] = stalled ? 0 : l[s] / totalLoss;
     }
@@ -182,13 +255,22 @@
 
     const hr = p.riserHeight, hf = p.feedHeight;
     const r0 = rho(T0);
-    const burnBackRatio = stalled ? 0
+    // A closed firebox has no feed tube for the fire to climb, so the ratio only exists for the J-tube.
+    const burnBackRatio = p.design === 'batch' ? null : stalled ? 0
       : (hr * (r0 - rho(t.TriserMean))) / (hf * (r0 - rho(t.Tfire)));
+
+    // How hard the gas spins as it enters the riser, 0 to 1. The J-tube rolls a little at the
+    // turn, more through a narrowing; the batch box's port jet and P-channel air make it spin hard.
+    const swirl = stalled ? 0 : p.design === 'batch'
+      ? (p.pChannel ? 1 : 0.5) * (p.portWidth > 1.5 * batchGuide(p.riserSize).portWidth ? 0.4 : 1)
+      : p.throat ? 0.5 : 0.25;
 
     const K = (T) => T - 273.15;
     return {
       params: p,
+      sections: secs,
       stalled,
+      swirl,
       airFlow: m,
       airRatio: stalled ? 0 : (m * AIR_HEAT) / t.Pmax,
       firePower: Pburn,
@@ -219,8 +301,10 @@
     const out = [];
     const add = (id, level, title, text) => out.push({ id, level, title, text });
     const c = (x) => `${Math.round(x)}°C`;
+    const batch = p.design === 'batch';
+    const mouth = batch ? 'the door' : 'the feed tube';
 
-    if (p.feedLid) add('feedLid', 'danger', 'Lid on the feed tube',
+    if (!batch && p.feedLid) add('feedLid', 'danger', 'Lid on the feed tube',
       'The fire cannot get air. Gas builds up inside and can puff back out when the lid is lifted. Never cover the feed tube while it burns.');
     if (!p.cracksSealed) add('cracks', 'danger', 'Cracks not sealed',
       'Smoke and carbon monoxide leak out of the cracks into the shelter. Carbon monoxide has no smell and can kill.');
@@ -229,48 +313,73 @@
 
     if (res.stalled) {
       add('stalled', 'danger', 'No draft',
-        'The hot columns cannot lift the gas through the stove. Smoke and flame come back out of the feed tube.');
+        `The hot columns cannot lift the gas through the stove. Smoke and flame come back out of ${mouth}.`);
     } else if (res.airRatio < 1) {
       add('starved', 'danger', 'Fire starved of air',
-        `The stove pulls only ${Math.round(res.airRatio * 100)}% of the air the sticks need. The fire smoulders, smoke rolls out of the feed tube and it makes carbon monoxide.`);
+        `The stove pulls only ${Math.round(res.airRatio * 100)}% of the air the wood needs. The fire smoulders, smoke rolls out of ${mouth} and it makes carbon monoxide.`);
     } else if (res.airRatio < 1.5) {
       add('smoky', 'problem', 'Weak pull, smoky burn',
-        'There is barely enough air for the sticks. Smoke is not burned off, soot and tar build up in the bench channel, and smoke can spill from the feed tube.');
+        `There is barely enough air for the wood. Smoke is not burned off, soot and tar build up in the bench channel, and smoke can spill from ${mouth}.`);
     }
 
     if (!res.stalled) {
-      const feedA = p.feedSize ** 2;
-      const pinch = [['tunnel', p.tunnelSize], ['riser', p.riserSize], ['channel', p.channelSize], ['chimney', p.chimneySize]]
-        .filter(([, s]) => s * s < 0.8 * feedA)
+      // Passages narrower than the one that sets the fire's size throttle it. In a J-tube that is
+      // the feed tube; in a batch box the riser, since its port is meant to be narrow.
+      const [refName, ref] = batch ? ['heat riser', p.riserSize] : ['feed tube', p.feedSize];
+      const pinch = (batch ? [['channel', p.channelSize], ['chimney', p.chimneySize]]
+        : [['tunnel', p.tunnelSize], ['riser', p.riserSize], ['channel', p.channelSize], ['chimney', p.chimneySize]])
+        .filter(([, s]) => s * s < 0.8 * ref * ref)
         .sort((a, b) => a[1] - b[1]);
       if (pinch.length) {
         const [s, size] = pinch[0];
         add('pinch', 'problem', `Pinch point at the ${SECTION_NAMES[s]}`,
-          `The ${SECTION_NAMES[s]} is ${size} × ${size} cm but the feed tube is ${p.feedSize} × ${p.feedSize} cm. It causes ${Math.round(res.lossShare[s] * 100)}% of the drag in the whole stove and throttles the fire.`);
+          `The ${SECTION_NAMES[s]} is ${size} × ${size} cm but the ${refName} is ${ref} × ${ref} cm. It causes ${Math.round(res.lossShare[s] * 100)}% of the drag in the whole stove and throttles the fire.`);
       }
-      const big = [['tunnel', p.tunnelSize], ['riser', p.riserSize]].filter(([, s]) => s * s > 1.5 * feedA);
+      const big = batch ? [] : [['tunnel', p.tunnelSize], ['riser', p.riserSize]].filter(([, s]) => s * s > 1.5 * ref * ref);
       if (big.length) {
         add('oversize', 'note', `Oversize ${SECTION_NAMES[big[0][0]]}`,
           'The gas slows down and cools in the larger passage, so the fire burns less cleanly than it would at the feed tube size.');
       }
       if (res.temps.riserMean < 630) add('coolRiser', 'problem', 'Riser runs cool',
         `The riser averages ${c(res.temps.riserMean)}. Smoke needs about 650°C to burn off, so it passes through unburned and coats the channel with soot and tar.`);
-      if (res.burnBackRatio < 2) add('burnBack', 'problem', 'Fire climbs the feed tube',
+      if (!batch && res.burnBackRatio < 2) add('burnBack', 'problem', 'Fire climbs the feed tube',
         `The riser pulls only ${res.burnBackRatio.toFixed(1)} times as hard as the hot feed tube. The fire creeps up the sticks and burns at the top of the feed tube, and smoke spills into the shelter.`);
+      if (!batch && p.throat) add('throat', 'problem', 'Narrowing before the riser',
+        `The narrowing causes ${Math.round(res.lossShare.throat * 100)}% of the drag. A J-tube has no second air supply at that point to burn in a jet, so the narrowing only throttles the fire.`);
       if (res.temps.exhaust < 50 && res.airRatio >= 1) add('coldExhaust', 'problem', 'Exhaust too cold',
         `Gas leaves at ${c(res.temps.exhaust)}. The chimney pulls weakly, water condenses and drips back into the channel, and the stove is hard to start from cold.`);
       else if (res.temps.exhaust > 150) add('hotExhaust', 'note', 'Heat going up the chimney',
         `Gas leaves at ${c(res.temps.exhaust)}. A longer bench channel would keep more of that heat in the mass.`);
     }
 
-    if (p.riserHeight < 2 * p.tunnelLength) add('shortRiser', 'problem', 'Riser short for the tunnel',
-      `The riser is ${p.riserHeight} cm and the tunnel ${p.tunnelLength} cm. The riser should be at least twice the tunnel length or the flame is not pulled sideways.`);
+    if (batch) {
+      const g = batchGuide(p.riserSize);
+      const cm = (x) => `${Math.round(x)} cm`;
+      const portA = p.portWidth * p.portHeight, guideA = g.portWidth * g.portHeight;
+      if (p.riserHeight < g.riserHeight[0]) add('shortRiser', 'problem', 'Riser short for the firebox',
+        `The riser is ${p.riserHeight} cm. For this riser size it should be ${cm(g.riserHeight[0])}–${cm(g.riserHeight[1])} from the firebox floor, or it cannot pull the port jet through.`);
+      if (!p.pChannel) add('noPChannel', 'problem', 'No P-channel',
+        'Without the second air fed in at the port, the smoke leaving the firebox has nothing to burn with. The flame does not spin in the riser and the exhaust is smoky.');
+      if (portA < 0.7 * guideA) add('tightPort', 'problem', 'Port too small',
+        `The port is ${p.portWidth} × ${p.portHeight} cm; this riser wants about ${g.portWidth.toFixed(1)} × ${Math.round(g.portHeight)} cm. It causes ${Math.round(res.lossShare.port * 100)}% of the drag and chokes the fire.`);
+      if (p.portWidth > 1.5 * g.portWidth) add('widePort', 'problem', 'Port too wide',
+        `At ${p.portWidth} cm wide the port makes no jet. The gas drifts into the riser without spinning, mixes poorly and burns smoky. This riser wants about ${g.portWidth.toFixed(1)} cm.`);
+      if (p.fireboxDepth < g.fireboxDepth[0]) add('shallowBox', 'note', 'Shallow firebox',
+        `A ${p.fireboxDepth} cm firebox holds a small load. The published depth for this riser is ${cm(g.fireboxDepth[0])}–${cm(g.fireboxDepth[1])}.`);
+      else if (p.fireboxDepth > g.fireboxDepth[1]) add('deepBox', 'problem', 'Deep firebox',
+        `A ${p.fireboxDepth} cm load gives off more gas than the port can burn. The published depth for this riser is ${cm(g.fireboxDepth[0])}–${cm(g.fireboxDepth[1])}.`);
+      if (!p.doorSealed) add('doorLeak', 'problem', 'Door not sealed',
+        'Air leaks round the door and cools the fire. When the pull drops, smoke and carbon monoxide come out through the same gaps.');
+    } else {
+      if (p.riserHeight < 2 * p.tunnelLength) add('shortRiser', 'problem', 'Riser short for the tunnel',
+        `The riser is ${p.riserHeight} cm and the tunnel ${p.tunnelLength} cm. The riser should be at least twice the tunnel length or the flame is not pulled sideways.`);
+      if (p.tunnelLength < 25) add('shortTunnel', 'note', 'Short burn tunnel',
+        'The flame reaches the riser before it mixes with the air, so less of the smoke burns.');
+      if (p.feedHeight < 20) add('shortFeed', 'note', 'Short feed tube',
+        'The fire sits close to the opening. Sparks and smoke spill out and long sticks topple.');
+    }
     if (p.riserInsulation < 5) add('bareRiser', 'problem', 'Riser not insulated',
       'Without insulation the riser walls soak up the heat. It takes a long time to start pulling and the burn stays smoky until the mass warms.');
-    if (p.tunnelLength < 25) add('shortTunnel', 'note', 'Short burn tunnel',
-      'The flame reaches the riser before it mixes with the air, so less of the smoke burns.');
-    if (p.feedHeight < 20) add('shortFeed', 'note', 'Short feed tube',
-      'The fire sits close to the opening. Sparks and smoke spill out and long sticks topple.');
     if (p.topGap < 4) add('tightTop', 'problem', 'Gap over the riser too tight',
       `A ${p.topGap} cm gap chokes the gas as it turns over the riser. It causes ${Math.round(res.lossShare.topGap * 100)}% of the drag.`);
     else if (p.topGap > 10) add('wideTop', 'note', 'Wide gap over the riser',
@@ -287,8 +396,8 @@
       'When the stove is cold or the wind gusts, the gas runs backwards and smoke fills the shelter.');
     else if (p.chimneyAboveRiser < 60) add('shortChimney', 'problem', 'Chimney short',
       'The chimney top should be at least 60 cm above the riser top and clear of the roof. Wind eddies around the roof can push smoke back down.');
-    if (p.fibreInRefractory) add('fibre', 'problem', 'Fibre in the tunnel walls',
-      'Straw and grass burn out of the hot tunnel walls and leave holes. The walls weaken and crumble.');
+    if (p.fibreInRefractory) add('fibre', 'problem', `Fibre in the ${batch ? 'firebox' : 'tunnel'} walls`,
+      `Straw and grass burn out of the hot ${batch ? 'firebox' : 'tunnel'} walls and leave holes. The walls weaken and crumble.`);
     if (p.fuel === 'damp') add('damp', 'problem', 'Damp fuel',
       'Heat goes into boiling off water. The fire runs cooler, smokes, and leaves tar in the channel.');
     if (p.coldStart) add('cold', 'note', 'Stove cold',
@@ -298,7 +407,7 @@
     return out.sort((a, b) => order[a.level] - order[b.level]);
   }
 
-  const api = { DEFAULTS, SECTIONS, SECTION_NAMES, simulate, diagnose };
+  const api = { DEFAULTS, DESIGNS, DESIGN_DEFAULTS, SECTION_NAMES, sections, batchGuide, simulate, diagnose };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.StoveModel = api;
 })(this);

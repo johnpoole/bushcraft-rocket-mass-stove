@@ -113,13 +113,14 @@ select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(-
   <div class="panel">
     <div class="v3head">
       <h2>3D view</h2>
+      <label><input type="checkbox" id="v3flow" checked> Flow</label>
       <label><input type="checkbox" id="v3riser"> Riser close-up</label>
       <label><input type="checkbox" id="v3cut" checked> Cut in half</label>
       <label><input type="checkbox" id="v3spin"> Spin</label>
       <button class="btn" id="v3reset">Reset view</button>
     </div>
     <div id="view3d" aria-label="3D view of the stove"></div>
-    <div class="v3help">Drag to turn it, scroll or pinch to zoom, right-drag or two-finger drag to move it. It follows the sliders and the build step above.</div>
+    <div class="v3help">Drag to turn it, scroll or pinch to zoom, right-drag or two-finger drag to move it. It follows the sliders and the build step above. The flow shows at step 8, while the stove fires.</div>
   </div>
   <div class="panel">
     <h2>How it runs</h2>
@@ -151,25 +152,43 @@ const M = window.StoveModel;
 if (!M) throw new Error('model.js did not load: StoveModel is missing. Keep model.js next to index.html.');
 
 const PASSAGES = ['feedSize', 'tunnelSize', 'riserSize', 'channelSize', 'chimneySize'];
+const guideOf = (p) => M.batchGuide(p.riserSize);
+const r0 = (x) => Math.round(x), r1 = (x) => Math.round(x * 10) / 10;
+// An item with `only` shows for that design alone. A guide or hint given as a function is worked out from the current sizes.
 const GROUPS = [
+  { title: 'Design', open: true, items: [
+    { key: 'design', type: 'select', label: 'Stove', options: [['jtube', 'J-tube'], ['batch', 'Batch box']] },
+  ] },
   { title: 'Passage sizes', open: true, items: [
     { key: 'allSizes', label: 'Every passage', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: 11, the same all the way through', linkedOnly: true },
-    { key: 'feedSize', label: 'Feed tube', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: 11', unlinkedOnly: true },
-    { key: 'tunnelSize', label: 'Burn tunnel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
+    { key: 'feedSize', label: 'Feed tube', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: 11', unlinkedOnly: true, only: 'jtube' },
+    { key: 'tunnelSize', label: 'Burn tunnel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true, only: 'jtube' },
     { key: 'riserSize', label: 'Heat riser', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
     { key: 'channelSize', label: 'Bench channel', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
     { key: 'chimneySize', label: 'Chimney', min: 5, max: 20, step: 1, unit: 'cm square', guide: [11, 11], hint: 'Guide: same as the feed tube', unlinkedOnly: true },
   ] },
   { title: 'Core', open: true, items: [
-    { key: 'feedHeight', label: 'Feed tube height', min: 15, max: 80, step: 1, unit: 'cm', guide: [25, 35], hint: 'Guide: about 30' },
-    { key: 'tunnelLength', label: 'Burn tunnel length', min: 15, max: 90, step: 1, unit: 'cm', guide: [30, 40], hint: 'Guide: 30–40' },
-    { key: 'riserHeight', label: 'Riser height', min: 40, max: 200, step: 5, unit: 'cm', guide: [80, 120], hint: 'Guide: 80–120, at least 2–3× the tunnel' },
+    { key: 'feedHeight', label: 'Feed tube height', min: 15, max: 80, step: 1, unit: 'cm', guide: [25, 35], hint: 'Guide: about 30', only: 'jtube' },
+    { key: 'tunnelLength', label: 'Burn tunnel length', min: 15, max: 90, step: 1, unit: 'cm', guide: [30, 40], hint: 'Guide: 30–40', only: 'jtube' },
+    { key: 'throat', type: 'check', label: 'Narrowing between the tunnel and the riser', only: 'jtube' },
+    { key: 'fireboxDepth', label: 'Firebox depth', min: 20, max: 80, step: 1, unit: 'cm', only: 'batch',
+      guide: (p) => guideOf(p).fireboxDepth, hint: (p) => `Guide: ${guideOf(p).fireboxDepth.map(r0).join('–')}, ${r0(guideOf(p).fireboxWidth)} wide and ${r0(guideOf(p).fireboxHeight)} high` },
+    { key: 'portWidth', label: 'Port width', min: 2, max: 12, step: 0.5, unit: 'cm', only: 'batch',
+      guide: (p) => [guideOf(p).portWidth * 0.85, guideOf(p).portWidth * 1.2], hint: (p) => `Guide: ${r1(guideOf(p).portWidth)}` },
+    { key: 'portHeight', label: 'Port height', min: 8, max: 30, step: 1, unit: 'cm', only: 'batch',
+      guide: (p) => [guideOf(p).portHeight * 0.9, guideOf(p).portHeight * 1.1], hint: (p) => `Guide: ${r0(guideOf(p).portHeight)}` },
+    { key: 'pChannel', type: 'check', label: 'P-channel feeding air in at the port', only: 'batch' },
+    { key: 'doorSealed', type: 'check', label: 'Door sealed', only: 'batch' },
+    { key: 'riserHeight', label: 'Riser height', min: 40, max: 200, step: 5, unit: 'cm',
+      guide: (p) => (p.design === 'batch' ? guideOf(p).riserHeight : [80, 120]),
+      hint: (p) => (p.design === 'batch' ? `Guide: ${guideOf(p).riserHeight.map(r0).join('–')} from the firebox floor` : 'Guide: 80–120, at least 2–3× the tunnel') },
     { key: 'riserInsulation', label: 'Riser insulation', min: 0, max: 15, step: 1, unit: 'cm', guide: [8, 10], hint: 'Guide: 8–10 of light clay' },
     { key: 'topGap', label: 'Gap over the riser', min: 1, max: 20, step: 1, unit: 'cm', guide: [5, 8], hint: 'Guide: 5–8' },
     { key: 'sideGap', label: 'Gap around the riser', min: 1, max: 15, step: 1, unit: 'cm', guide: [4, 6], hint: 'Guide: about 5' },
   ] },
   { title: 'Bench and chimney', open: true, items: [
-    { key: 'channelLength', label: 'Channel length', min: 50, max: 800, step: 10, unit: 'cm', guide: [100, 400], hint: 'Guide: up to 3–4 m' },
+    { key: 'channelLength', label: 'Channel length', min: 50, max: 800, step: 10, unit: 'cm',
+      guide: (p) => (p.design === 'batch' ? [100, 350] : [100, 400]), hint: (p) => (p.design === 'batch' ? 'Guide: up to about 3.5 m' : 'Guide: up to 3–4 m') },
     { key: 'bends', label: 'Bends in the channel', min: 0, max: 8, step: 1, unit: '', guide: [0, 4], hint: 'Guide: as few as you can' },
     { key: 'benchCover', label: 'Mass over the channel', min: 5, max: 40, step: 1, unit: 'cm', guide: [15, 25], hint: 'Guide: 15–25' },
     { key: 'chimneyAboveRiser', label: 'Chimney top above riser top', min: -30, max: 150, step: 5, unit: 'cm', guide: [60, 150], hint: 'Guide: at least 60' },
@@ -179,7 +198,7 @@ const GROUPS = [
     { key: 'riverStones', type: 'check', label: 'Stones from rivers or wet ground near the fire' },
     { key: 'fibreInRefractory', type: 'check', label: 'Straw or grass in the tunnel mix' },
     { key: 'cracksSealed', type: 'check', label: 'Cracks sealed with slip' },
-    { key: 'feedLid', type: 'check', label: 'Lid on the feed tube' },
+    { key: 'feedLid', type: 'check', label: 'Lid on the feed tube', only: 'jtube' },
     { key: 'coldStart', type: 'check', label: 'Stove cold, first fire of the day' },
   ] },
   { title: 'Conditions', open: false, items: [
@@ -188,22 +207,40 @@ const GROUPS = [
   ] },
 ];
 
-const PRESETS = [
-  ['Pinch the chimney', { chimneySize: 7 }, false],
-  ['Bare riser', { riserInsulation: 0 }],
-  ['Short riser', { riserHeight: 60 }],
-  ['Tall feed tube', { feedHeight: 60 }],
-  ['Long bench', { channelLength: 800 }],
-  ['Short bench', { channelLength: 100 }],
-  ['Low chimney', { chimneyAboveRiser: -20 }],
-  ['Tight cooktop gap', { topGap: 2 }],
-  ['Damp wood', { fuel: 'damp' }],
-  ['Cold start', { coldStart: true }],
-  ['Cracks left open', { cracksSealed: false }],
-  ['River stones', { riverStones: true }],
-];
+const PRESETS = {
+  jtube: [
+    ['Pinch the chimney', { chimneySize: 7 }, false],
+    ['Bare riser', { riserInsulation: 0 }],
+    ['Short riser', { riserHeight: 60 }],
+    ['Tall feed tube', { feedHeight: 60 }],
+    ['Narrowing before the riser', { throat: true }],
+    ['Long bench', { channelLength: 800 }],
+    ['Short bench', { channelLength: 100 }],
+    ['Low chimney', { chimneyAboveRiser: -20 }],
+    ['Tight cooktop gap', { topGap: 2 }],
+    ['Damp wood', { fuel: 'damp' }],
+    ['Cold start', { coldStart: true }],
+    ['Cracks left open', { cracksSealed: false }],
+    ['River stones', { riverStones: true }],
+  ],
+  batch: [
+    ['No P-channel', { pChannel: false }],
+    ['Tight port', { portWidth: 2.5 }],
+    ['Wide port', { portWidth: 9 }],
+    ['Door leaking', { doorSealed: false }],
+    ['Deep firebox', { fireboxDepth: 70 }],
+    ['Short riser', { riserHeight: 60 }],
+    ['Bare riser', { riserInsulation: 0 }],
+    ['Pinch the chimney', { chimneySize: 7 }, false],
+    ['Long bench', { channelLength: 600 }],
+    ['Low chimney', { chimneyAboveRiser: -20 }],
+    ['Damp wood', { fuel: 'damp' }],
+    ['Cold start', { coldStart: true }],
+    ['Cracks left open', { cracksSealed: false }],
+  ],
+};
 
-const STEPS = [
+const JTUBE_STEPS = [
   ['Site and base', 'Clear leaf litter and topsoil down to mineral soil. Under the stove, dig out 20 cm and lay 10 cm of dry stone, then 10 cm of light clay, level with the floor, with a gravel drain running downhill. Lay 10 cm of dry stone along the bench route.'],
   ['Burn tunnel and feed tube', 'Lay a flat floor stone. Set grass or withy bundle formers for the 40 cm tunnel and the 30 cm feed tube and pack refractory mix 5–8 cm thick around them. Cap the tunnel with flat stones.'],
   ['Heat riser', 'Stand a 110 cm woven withy former at the far end of the tunnel. Build a 3 cm refractory wall around it, then 8 cm of light clay insulation. Build in layers so it does not slump.'],
@@ -214,7 +251,23 @@ const STEPS = [
   ['Dry and fire', 'Air-dry for several days. Small fires burn out the formers. Build the fire up over several days. It is working when the fire roars sideways down the feed tube and the chimney shows little smoke.'],
 ];
 
-const SEG_COLOURS = { feed: '#7a8c99', tunnel: '#d4531c', riser: '#e8892b', topGap: '#c9a227', sideGap: '#8e4a32', channel: '#6f7671', chimney: '#3f6488' };
+function batchSteps(p) {
+  const g = guideOf(p), A = (p.riserSize ** 2);
+  return [
+    JTUBE_STEPS[0],
+    ['Firebox and port', `Lay a flat floor stone. Pack refractory mix around a former for the firebox, ${r0(g.fireboxWidth)} cm wide, ${r0(g.fireboxHeight)} cm high and ${p.fireboxDepth} cm deep inside, its floor sloping up at 45° on both sides of a flat strip as wide as the port. In the back wall at floor level leave the port, a slot ${p.portWidth} cm wide and ${p.portHeight} cm high through to the foot of the riser. Cap the firebox with flat stones.`],
+    ['Heat riser', `Stand a ${p.riserHeight} cm woven withy former behind the port, its foot on the firebox floor. Build a 3 cm refractory wall around it, then ${p.riserInsulation} cm of light clay insulation. Build in layers so it does not slump.`],
+    ['P-channel and door', `Build the P-channel, a flat duct that brings room air in over the firebox roof and down its back wall. It ends just above the port and overhangs it by its own depth. Its mouth is as wide as the port and about ${r0(A * 0.05)} cm² in area. Close the front with a flat stone door set tight in a clay frame, and leave the main air inlet under it at floor level, about ${r0(A * 0.2)} cm².`],
+    JTUBE_STEPS[3],
+    ['Bench, channel and chimney', `${JTUBE_STEPS[4][1]} ${JTUBE_STEPS[5][1]}`],
+    ['Seal and plaster', 'Plaster the dome, the duct joints and the chimney base with clay and sand and fill every crack with slip. Seal round the door frame. Any leak lets out smoke and carbon monoxide.'],
+    ['Dry and fire', 'Air-dry for several days. Small fires burn out the formers. Build the fire up over several days. Load the firebox full of split wood, light it at the top and close the door. It is working when the flame shoots through the port and spins up the riser, and the chimney shows little smoke.'],
+  ];
+}
+const steps = () => (params.design === 'batch' ? batchSteps(params) : JTUBE_STEPS);
+
+const SEG_COLOURS = { feed: '#7a8c99', tunnel: '#d4531c', throat: '#9b2c2c', inlet: '#7a8c99', firebox: '#d4531c', port: '#9b2c2c',
+  riser: '#e8892b', topGap: '#c9a227', sideGap: '#8e4a32', channel: '#6f7671', chimney: '#3f6488' };
 
 let params = { ...M.DEFAULTS };
 let linked = true;
@@ -261,12 +314,19 @@ function buildControls() {
         row.querySelector('input').addEventListener('change', (e) => { params[it.key] = e.target.checked; update(); });
       } else if (it.type === 'select') {
         row.innerHTML = `<label><span>${it.label}</span><select data-k="${it.key}">${it.options.map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select></label>`;
-        row.querySelector('select').addEventListener('change', (e) => { params[it.key] = e.target.value; update(); });
+        row.querySelector('select').addEventListener('change', (e) => {
+          if (it.key === 'design') {
+            // Each design starts from its own guide sizes; passage sizes and the rest carry over.
+            params = { ...params, ...M.DESIGN_DEFAULTS[e.target.value] };
+            stopPlay(); buildPresets(); syncControls(); renderSteps();
+          } else params[it.key] = e.target.value;
+          update();
+        });
       } else {
         const id = `c-${it.key}`;
         row.innerHTML = `<label for="${id}"><span>${it.label}</span><output></output></label>
           <input type="range" id="${id}" min="${it.min}" max="${it.max}" step="${it.step}" data-k="${it.key}">
-          <div class="hint">${it.hint || ''}</div>`;
+          <div class="hint"></div>`;
         row.querySelector('input').addEventListener('input', (e) => {
           const v = Number(e.target.value);
           if (it.key === 'allSizes') PASSAGES.forEach((k) => (params[k] = v));
@@ -285,7 +345,7 @@ function syncControls() {
   $('linked').checked = linked;
   for (const row of document.querySelectorAll('#controls .ctl')) {
     const it = row._item;
-    row.hidden = (it.linkedOnly && !linked) || (it.unlinkedOnly && linked);
+    row.hidden = (it.linkedOnly && !linked) || (it.unlinkedOnly && linked) || (it.only && it.only !== params.design);
     const val = it.key === 'allSizes' ? params.feedSize : params[it.key];
     const input = row.querySelector('[data-k]');
     if (it.type === 'check') input.checked = !!val;
@@ -293,24 +353,29 @@ function syncControls() {
     else {
       input.value = val;
       row.querySelector('output').textContent = `${val}${it.unit ? ' ' + it.unit : ''}`;
-      if (it.guide) row.classList.toggle('off', val < it.guide[0] || val > it.guide[1]);
+      const guide = typeof it.guide === 'function' ? it.guide(params) : it.guide;
+      row.querySelector('.hint').textContent = typeof it.hint === 'function' ? it.hint(params) : it.hint || '';
+      if (guide) row.classList.toggle('off', val < guide[0] - 1e-9 || val > guide[1] + 1e-9);
     }
   }
 }
 
 function buildPresets() {
   const box = $('presets');
+  box.innerHTML = '';
+  const design = params.design;
+  const guide = () => ({ ...M.DEFAULTS, ...M.DESIGN_DEFAULTS[design] });
   const reset = document.createElement('button');
   reset.className = 'btn';
   reset.textContent = 'Guide design';
-  reset.addEventListener('click', () => { params = { ...M.DEFAULTS }; linked = true; syncControls(); update(); });
+  reset.addEventListener('click', () => { params = guide(); linked = true; syncControls(); update(); });
   box.appendChild(reset);
-  for (const [name, change, keepLinked] of PRESETS) {
+  for (const [name, change, keepLinked] of PRESETS[design]) {
     const b = document.createElement('button');
     b.className = 'btn';
     b.textContent = name;
     b.addEventListener('click', () => {
-      params = { ...M.DEFAULTS, ...change };
+      params = { ...guide(), ...change };
       linked = keepLinked !== false;
       stage = 8;
       syncControls(); renderSteps(); update();
@@ -323,6 +388,7 @@ function buildPresets() {
 function renderSteps() {
   const box = $('steps');
   box.innerHTML = '';
+  const STEPS = steps();
   STEPS.forEach(([name], i) => {
     const b = document.createElement('button');
     b.textContent = `${i + 1} ${name}`;
@@ -354,17 +420,60 @@ function stopPlay() {
 }
 
 // ---------- drawing ----------
+// The stove cut lengthwise, in cm: x along the stove from the front of the fire, z up from the floor.
+// Each solid is shown from build step `st` until step `until`. `segs` is the gas path, one piece per
+// section the model names, each with its width in the drawing and its width across the stove.
 function layout(p) {
-  const W = 6, ROOF = 6, DOME = 8, COOK = 6, FOUND = 10, CW = 8, REFR = 3;
+  const W = 6, ROOF = 6, DOME = 8, COOK = 6, FOUND = 10, CW = 8, REFR = 3, PORT_WALL = 6;
+  const batch = p.design === 'batch';
   const sf = p.feedSize, st = p.tunnelSize, sr = p.riserSize, sc = p.channelSize, sk = p.chimneySize;
   const ins = p.riserInsulation;
-  // The feed tube stands outside the dome, against its front wall; the tunnel runs under that wall to the riser.
-  const DMIN = 4;
-  const Lt = Math.max(p.tunnelLength, sf + DMIN + p.sideGap + ins + REFR + sr);
-  const DF = Math.min(DOME, Lt - (sf + p.sideGap + ins + REFR + sr));
-  const Hf = Math.max(p.feedHeight, st + 4);
-  const Hr = Math.max(p.riserHeight, st + 10);
-  const riserL = Lt - sr;
+  const s = [];
+  const R = (st0, cls, x, z, w, h, until = 99) => { if (w > 0 && h > 0) s.push({ st: st0, until, cls, x, z, w, h }); };
+  const segs = [];
+  const seg = (k, a, b, w, d) => segs.push({ k, x0: a[0], z0: a[1], x1: b[0], z1: b[1], w, d });
+
+  // The fire end: a feed tube and tunnel, or a firebox and port. Both end at the foot of the riser,
+  // whose front wall stands on a roof at height `foot`.
+  let Lt, riserL, foot, DF, Hf = 0, front;
+  const Hr0 = p.riserHeight;
+  const g = M.batchGuide(sr);
+  const fw = g.fireboxWidth, fh = g.fireboxHeight, D = p.fireboxDepth, pw = p.portWidth, ph = p.portHeight;
+  if (batch) {
+    riserL = D + PORT_WALL;
+    Lt = riserL + sr;
+    foot = fh + ROOF;
+    DF = DOME;
+    const inletH = 2;
+    front = -W;
+    R(2, 'refr', D, ph, PORT_WALL, fh - ph);
+    R(2, 'slab', -W, fh, riserL + W, ROOF);
+    R(2, 'former', 0, 0, D, fh, 7);
+    R(2, 'former', D, 0, PORT_WALL, ph, 7);
+    R(4, 'slab', -W, inletH, W, fh - inletH);
+    if (p.pChannel) R(4, 'slab', D - 4, ph - 1.5, 1.5, fh - ph + 1.5);
+  } else {
+    // The feed tube stands outside the dome, against its front wall; the tunnel runs under that wall to the riser.
+    const DMIN = 4;
+    Lt = Math.max(p.tunnelLength, sf + DMIN + p.sideGap + ins + REFR + sr);
+    DF = Math.min(DOME, Lt - (sf + p.sideGap + ins + REFR + sr));
+    Hf = Math.max(p.feedHeight, st + 4);
+    riserL = Lt - sr;
+    foot = st + ROOF;
+    front = -W;
+    const outL0 = riserL - REFR - ins, domeInL0 = outL0 - p.sideGap;
+    R(2, 'refr', -W, 0, W, Hf);
+    R(2, 'refr', sf, st, Math.min(W, domeInL0 - sf), Math.max(0, Hf - st));
+    R(2, 'slab', sf, st, riserL - sf, ROOF);
+    R(2, 'former', 0, 0, sf, Hf, 7);
+    R(2, 'former', 0, 0, Lt, st, 7);
+    if (p.throat) {
+      const lip = (st - Math.sqrt(0.5) * Math.min(st, sr)) / 2;
+      R(2, 'refr', riserL - PORT_WALL, 0, PORT_WALL, lip);
+      R(2, 'refr', riserL - PORT_WALL, st - lip, PORT_WALL, lip);
+    }
+  }
+  const Hr = Math.max(Hr0, foot + 10);
   const outL = riserL - REFR - ins, outR = Lt + REFR + ins;
   const domeInL = outL - p.sideGap, domeInR = outR + p.sideGap;
   const domeOutL = domeInL - DF;
@@ -374,43 +483,58 @@ function layout(p) {
   const xC = benchStart + Ldraw;
   const Hc = Math.max(Hr + p.chimneyAboveRiser, sc + 10);
   const benchTop = sc + p.benchCover;
+  // Build step of each shared part: the batch box spends step 4 on its P-channel and door.
+  const S = batch ? { dome: 5, bench: 6, chimney: 6 } : { dome: 4, bench: 5, chimney: 6 };
 
-  const s = [];
-  const R = (st0, cls, x, z, w, h, until = 99) => { if (w > 0 && h > 0) s.push({ st: st0, until, cls, x, z, w, h }); };
-  R(1, 'stone', -W - 6, -FOUND, xC + sk + CW + W + 12, FOUND);
-  R(2, 'refr', -W, 0, W, Hf);
-  R(2, 'refr', sf, st, Math.min(W, domeInL - sf), Math.max(0, Hf - st));
-  R(2, 'slab', sf, st, riserL - sf, ROOF);
-  R(2, 'former', 0, 0, sf, Hf, 7);
-  R(2, 'former', 0, 0, Lt, st, 7);
-  R(3, 'refr', riserL - REFR, st + ROOF, REFR, Hr - st - ROOF);
-  R(3, 'insul', outL, st + ROOF, ins, Hr - st - ROOF);
+  R(1, 'stone', front - 6, -FOUND, xC + sk + CW - front + 12, FOUND);
+  R(3, 'refr', riserL - REFR, foot, REFR, Hr - foot);
+  R(3, 'insul', outL, foot, ins, Hr - foot);
   R(3, 'refr', Lt, 0, REFR, Hr);
   R(3, 'insul', Lt + REFR, 0, ins, Hr);
-  R(3, 'former', riserL, st, sr, Hr - st, 7);
-  R(4, 'cob', domeOutL, st + ROOF, DF, domeTop - st - ROOF);
-  R(4, 'cob', domeInR, sc, DOME, domeTop - sc);
-  R(4, 'slab', domeOutL - 4, domeTop, domeInR + DOME - domeOutL + 8, COOK);
-  R(5, 'cob', benchStart, sc, xC - CW - benchStart, p.benchCover);
-  R(5, 'former', domeInR, 0, xC + sk - domeInR, sc, 7);
-  R(6, 'cob', xC - CW, sc, CW, Hc - sc);
-  R(6, 'cob', xC + sk, 0, CW, Hc);
-  R(6, 'former', xC, sc, sk, Hc - sc, 7);
+  R(3, 'former', riserL, batch ? 0 : st, sr, batch ? Hr : Hr - st, 7);
+  R(S.dome, 'cob', domeOutL, foot, DF, domeTop - foot);
+  R(S.dome, 'cob', domeInR, sc, DOME, domeTop - sc);
+  R(S.dome, 'slab', domeOutL - 4, domeTop, domeInR + DOME - domeOutL + 8, COOK);
+  R(S.bench, 'cob', benchStart, sc, xC - CW - benchStart, p.benchCover);
+  R(S.bench, 'former', domeInR, 0, xC + sk - domeInR, sc, 7);
+  R(S.chimney, 'cob', xC - CW, sc, CW, Hc - sc);
+  R(S.chimney, 'cob', xC + sk, 0, CW, Hc);
+  R(S.chimney, 'former', xC, sc, sk, Hc - sc, 7);
   const PL = 1.5;
   R(7, 'plaster', benchStart, benchTop, xC - CW - benchStart, PL);
-  R(7, 'plaster', domeOutL - PL, st + ROOF, PL, domeTop - st - ROOF);
+  R(7, 'plaster', domeOutL - PL, foot, PL, domeTop - foot);
   R(7, 'plaster', domeInR + DOME, benchTop, PL, domeTop - benchTop);
   R(7, 'plaster', xC + sk + CW, 0, PL, Hc);
   R(7, 'plaster', xC - CW - PL, benchTop, PL, Hc - benchTop);
-  R(7, 'plaster', -W - PL, 0, PL, Hf);
+  if (!batch) R(7, 'plaster', -W - PL, 0, PL, Hf);
 
-  const path = [
-    [sf / 2, Hf + 14], [sf / 2, st / 2], [Lt - sr / 2, st / 2], [Lt - sr / 2, Hr + p.topGap / 2],
-    [domeInR - p.sideGap / 2, Hr + p.topGap / 2], [domeInR - p.sideGap / 2, sc / 2],
-    [xC + sk / 2, sc / 2], [xC + sk / 2, Hc + 30],
-  ];
-  const widths = [sf, st, sr, p.topGap, p.sideGap, sc, sk];
-  return { s, path, widths, Ldraw, sf, st, sr, sc, sk, Lt, Hf, Hr, Hc, domeInL, domeInR, domeOutL, domeTop, DOME, ROOF, REFR, COOK, FOUND, CW, W, xC, benchStart, benchTop, riserL };
+  const xr = Lt - sr / 2;
+  let riserFoot;
+  if (batch) {
+    seg('inlet', [-W - 16, 1], [0, 1], 2, fw);
+    seg('firebox', [0, 1], [D, ph / 2], fh * 0.8, fw);
+    seg('port', [D, ph / 2], [xr, ph / 2], ph, pw);
+    riserFoot = [xr, ph / 2];
+  } else {
+    const ts = Math.sqrt(0.5) * Math.min(st, sr);
+    seg('feed', [sf / 2, Hf + 14], [sf / 2, st / 2], sf, sf);
+    if (p.throat) {
+      seg('tunnel', [sf / 2, st / 2], [riserL - PORT_WALL, st / 2], st, st);
+      seg('throat', [riserL - PORT_WALL, st / 2], [xr, st / 2], ts, ts);
+    } else seg('tunnel', [sf / 2, st / 2], [xr, st / 2], st, st);
+    riserFoot = [xr, st / 2];
+  }
+  const xd = domeInR - p.sideGap / 2;
+  seg('riser', riserFoot, [xr, Hr + p.topGap / 2], sr, sr);
+  seg('topGap', [xr, Hr + p.topGap / 2], [xd, Hr + p.topGap / 2], p.topGap, sr + 2 * (REFR + ins));
+  seg('sideGap', [xd, Hr + p.topGap / 2], [xd, sc / 2], p.sideGap, 2 * (sr / 2 + REFR + ins + p.sideGap));
+  seg('channel', [xd, sc / 2], [xC + sk / 2, sc / 2], sc, sc);
+  seg('chimney', [xC + sk / 2, sc / 2], [xC + sk / 2, Hc + 30], sk, sk);
+  // The P-channel's air comes down the back wall of the firebox and joins the gas at the port.
+  const pchan = batch && p.pChannel ? [[D - 1.2, foot + 12], [D - 1.2, ph], [D + 2, ph / 2]] : null;
+
+  return { batch, s, segs, pchan, Ldraw, sf, st, sr, sc, sk, Lt, Hf, Hr, Hc, domeInL, domeInR, domeOutL, domeTop, DOME, ROOF, REFR, COOK, FOUND, CW, W, xC, benchStart, benchTop, riserL, foot, front,
+    fw, fh, D, pw, ph, PORT_WALL };
 }
 
 function tempColour(t) {
@@ -457,14 +581,23 @@ function draw() {
       const cookGlow = Math.min(0.6, Math.max(0, (res.temps.cooktop - 60) / 600));
       h += `<rect class="glow" x="${L.domeOutL - 4}" y="${-(L.domeTop + L.COOK)}" width="${L.domeInR + L.DOME - L.domeOutL + 8}" height="${L.COOK}" fill="#d4531c" opacity="${cookGlow.toFixed(2)}"/>`;
     }
-    for (const f of [0.2, 0.45, 0.7]) h += `<rect class="stick" x="${L.sf * f}" y="${-(L.Hf + 12)}" width="${L.sf * 0.13}" height="${L.Hf + 12 - L.st * 0.25}"/>`;
     const power = res.stalled ? 0.15 : res.firePower / res.fuelCapacity;
-    const climbing = res.stalled || res.airRatio < 1 || res.burnBackRatio < 2 || p.feedLid;
-    if (climbing) h += `<ellipse class="flame" cx="${L.sf / 2}" cy="${-L.Hf * 0.7}" rx="${L.sf * 0.55}" ry="${L.Hf * 0.35}" fill="url(#g-flame)" opacity="${(0.4 + 0.5 * power).toFixed(2)}"/>`;
-    if (!res.stalled) h += `<ellipse class="flame" cx="${(L.sf + L.Lt) * 0.45}" cy="${-L.st / 2}" rx="${L.Lt * 0.5 * (0.4 + 0.6 * power)}" ry="${L.st * 0.5}" fill="url(#g-flame)" opacity="${(0.35 + 0.65 * power).toFixed(2)}"/>`;
+    if (L.batch) {
+      // A batch load lies in the firebox; the flame fills it and leaves as a jet through the port.
+      for (const f of [0.15, 0.4, 0.65]) h += `<rect class="stick" x="${L.D * 0.08}" y="${-(L.fh * f + L.fh * 0.12)}" width="${L.D * 0.84}" height="${L.fh * 0.12}"/>`;
+      if (!res.stalled) {
+        h += `<ellipse class="flame" cx="${L.D * 0.55}" cy="${-L.fh * 0.5}" rx="${L.D * 0.5 * (0.4 + 0.6 * power)}" ry="${L.fh * 0.45}" fill="url(#g-flame)" opacity="${(0.35 + 0.65 * power).toFixed(2)}"/>`;
+        h += `<ellipse class="flame" cx="${L.riserL + L.sr / 2}" cy="${-L.ph * 0.9}" rx="${L.sr * 0.5}" ry="${L.ph * (0.6 + 0.8 * res.swirl)}" fill="url(#g-flame)" opacity="${(0.3 + 0.6 * power * res.swirl).toFixed(2)}"/>`;
+      }
+    } else {
+      for (const f of [0.2, 0.45, 0.7]) h += `<rect class="stick" x="${L.sf * f}" y="${-(L.Hf + 12)}" width="${L.sf * 0.13}" height="${L.Hf + 12 - L.st * 0.25}"/>`;
+      const climbing = res.stalled || res.airRatio < 1 || res.burnBackRatio < 2 || p.feedLid;
+      if (climbing) h += `<ellipse class="flame" cx="${L.sf / 2}" cy="${-L.Hf * 0.7}" rx="${L.sf * 0.55}" ry="${L.Hf * 0.35}" fill="url(#g-flame)" opacity="${(0.4 + 0.5 * power).toFixed(2)}"/>`;
+      if (!res.stalled) h += `<ellipse class="flame" cx="${(L.sf + L.Lt) * 0.45}" cy="${-L.st / 2}" rx="${L.Lt * 0.5 * (0.4 + 0.6 * power)}" ry="${L.st * 0.5}" fill="url(#g-flame)" opacity="${(0.35 + 0.65 * power).toFixed(2)}"/>`;
+    }
   }
 
-  if (p.channelLength > L.Ldraw && stage >= 5) {
+  if (p.channelLength > L.Ldraw && stage >= (L.batch ? 6 : 5)) {
     const mid = L.benchStart + (L.xC - L.CW - L.benchStart) / 2;
     const zig = (x0) => { const pts = []; let k = 0; for (let z = -L.FOUND - 3; z <= L.benchTop + 5; z += fs * 0.6) pts.push(`${x0 + (k++ % 2 ? fs * 0.5 : 0)},${-z}`); return `<polyline class="brk" points="${pts.join(' ')}"/>`; };
     h += `<rect x="${mid - fs * 0.6}" y="${-(L.benchTop + 6)}" width="${fs * 1.7}" height="${L.benchTop + L.FOUND + 10}" fill="var(--sky)"/>` + zig(mid - fs * 0.6) + zig(mid + fs * 0.6);
@@ -472,13 +605,21 @@ function draw() {
 
   const T = (x, z, txt, anchor = 'middle') => `<text x="${x}" y="${-z}" font-size="${fs}" text-anchor="${anchor}">${txt}</text>`;
   const t0 = res && stage === 8 && !res.stalled;
-  if (stage >= 2) h += T(-L.W - 4, L.Hf * 0.6, 'feed tube', 'end');
-  if (stage >= 2) h += T(L.Lt / 2, -L.FOUND - fs * 1.2, t0 ? `burn tunnel · ${Math.round(res.temps.fire)}°C` : 'burn tunnel');
-  if (stage >= 4) h += T((L.domeInL + L.domeInR) / 2, L.domeTop + L.COOK + fs * 0.5, t0 ? `cooktop · ${Math.round(res.temps.cooktop)}°C` : 'cooktop');
-  if (stage >= 3) h += T(L.domeOutL - fs * 0.4, L.Hr * 0.55, t0 ? `riser · ${Math.round(res.temps.riserMean)}°C` : 'riser', 'end');
-  if (stage >= 5) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, L.benchTop + fs * 0.6, t0 ? `bench · +${res.bench.riseC.toFixed(0)}°C` : 'bench');
-  if (stage >= 5) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, -L.FOUND - fs * 1.2, `channel ${(p.channelLength / 100).toFixed(1)} m`);
-  if (stage >= 6) h += T(L.xC + L.sk + L.CW + fs * 0.4, L.Hc - fs * 0.6, t0 ? `exhaust ${Math.round(res.temps.exhaust)}°C` : 'chimney', 'start');
+  const S = L.batch ? { dome: 5, bench: 6, chimney: 6 } : { dome: 4, bench: 5, chimney: 6 };
+  if (L.batch) {
+    if (stage >= 4) h += T(-L.W - 4, L.fh * 0.6, 'door', 'end');
+    if (stage >= 2) h += T(L.D / 2, -L.FOUND - fs * 1.2, t0 ? `firebox · ${Math.round(res.temps.fire)}°C` : 'firebox');
+    if (stage >= 2) h += T(L.D + L.PORT_WALL / 2, -L.FOUND - fs * 2.4, 'port');
+    if (stage >= 4 && p.pChannel) h += T(L.D - 2, L.foot + fs * 1.6, 'P-channel', 'end');
+  } else {
+    if (stage >= 2) h += T(-L.W - 4, L.Hf * 0.6, 'feed tube', 'end');
+    if (stage >= 2) h += T(L.Lt / 2, -L.FOUND - fs * 1.2, t0 ? `burn tunnel · ${Math.round(res.temps.fire)}°C` : 'burn tunnel');
+  }
+  if (stage >= S.dome) h += T((L.domeInL + L.domeInR) / 2, L.domeTop + L.COOK + fs * 0.5, t0 ? `cooktop · ${Math.round(res.temps.cooktop)}°C` : 'cooktop');
+  if (stage >= 3) h += T(L.domeOutL - fs * 0.4, L.Hr * 0.55 + (L.batch ? L.foot * 0.4 : 0), t0 ? `riser · ${Math.round(res.temps.riserMean)}°C` : 'riser', 'end');
+  if (stage >= S.bench) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, L.benchTop + fs * 0.6, t0 ? `bench · +${res.bench.riseC.toFixed(0)}°C` : 'bench');
+  if (stage >= S.bench) h += T(L.benchStart + (L.xC - L.CW - L.benchStart) / 2, -L.FOUND - fs * 1.2, `channel ${(p.channelLength / 100).toFixed(1)} m`);
+  if (stage >= S.chimney) h += T(L.xC + L.sk + L.CW + fs * 0.4, L.Hc - fs * 0.6, t0 ? `exhaust ${Math.round(res.temps.exhaust)}°C` : 'chimney', 'start');
 
   h += '<g id="parts"></g>';
   svg.innerHTML = h;
@@ -491,33 +632,74 @@ function draw() {
 let flow = [], smoke = [], lastT = 0, smokeAcc = 0, crackAcc = 0;
 const SLOW = 0.3;
 
+// air2: the P-channel's air. core: extra particles that only loop from the fire to the top of the
+// riser, so the 3D view shows the spin there densely.
+let air2 = [], core = [];
+
 function segments() {
   const L = scene.L, p = params, t = res.temps;
-  const keys = M.SECTIONS;
   const tmp = {
-    feed: [t.ambient, t.ambient], tunnel: [t.fire, t.fire], riser: [t.fire, t.riserTop], topGap: [t.riserTop, t.riserTop],
+    feed: [t.ambient, t.ambient], tunnel: [t.fire, t.fire], throat: [t.fire, t.fire],
+    inlet: [t.ambient, t.ambient], firebox: [t.ambient, t.fire], port: [t.fire, t.fire],
+    riser: [t.fire, t.riserTop], topGap: [t.riserTop, t.riserTop],
     sideGap: [t.riserTop, t.bell], channel: [t.bell, t.exhaust], chimney: [t.exhaust, t.exhaust],
   };
+  const names = L.segs.map((s) => s.k).join();
+  if (names !== res.sections.join()) throw new Error(`simulator: the drawing's gas path (${names}) does not match the model's sections (${res.sections.join()})`);
   let acc = 0;
-  return keys.map((k, i) => {
-    const [x0, z0] = L.path[i], [x1, z1] = L.path[i + 1];
-    const len = Math.hypot(x1 - x0, z1 - z0);
-    const squeeze = k === 'channel' ? L.Ldraw / p.channelLength : 1;
-    const seg = { k, x0, z0, x1, z1, len, start: acc, w: L.widths[i], T: tmp[k],
-      speed: Math.max(4, res.velocity[k] * 100 * SLOW * squeeze), dx: (x1 - x0) / len, dz: (z1 - z0) / len };
+  return L.segs.map((g) => {
+    const len = Math.hypot(g.x1 - g.x0, g.z1 - g.z0);
+    const squeeze = g.k === 'channel' ? L.Ldraw / p.channelLength : 1;
+    const seg = { ...g, len, start: acc, T: tmp[g.k],
+      speed: Math.max(4, res.velocity[g.k] * 100 * SLOW * squeeze), dx: (g.x1 - g.x0) / len, dz: (g.z1 - g.z0) / len };
     acc += len;
     return seg;
   });
 }
 
 function resetParticles() {
-  flow = []; smoke = [];
+  flow = []; smoke = []; air2 = []; core = [];
   if (!res || stage !== 8) return;
   scene.segs = segments();
   scene.total = scene.segs[scene.segs.length - 1].start + scene.segs[scene.segs.length - 1].len;
+  const top = scene.segs.find((s) => s.k === 'topGap');
+  scene.coreEnd = top.start + top.len;
   const n = res.stalled ? 0 : Math.min(160, Math.max(8, Math.round(res.airFlow * 1000 * 12)));
-  for (let i = 0; i < n; i++) flow.push({ s: Math.random() * scene.total, j: Math.random() - 0.5 });
+  // j: offset across the passage in the drawing; q: offset across the stove; ph and side: where on the spin it rides.
+  const particle = (s, i) => ({ s, j: Math.random() - 0.5, q: Math.random() - 0.5, ph: Math.random() * 6.283, side: i % 2 ? 1 : -1 });
+  for (let i = 0; i < n; i++) flow.push(particle(Math.random() * scene.total, i));
+  if (!res.stalled) for (let i = 0; i < 90; i++) core.push(particle(Math.random() * scene.coreEnd, i));
+  if (scene.L.pchan && !res.stalled) for (let i = 0; i < 10; i++) air2.push({ f: Math.random(), q: Math.random() - 0.5 });
 }
+
+// Where a flow particle is, in stove cm: x along, z up, y across (0 is the middle).
+// In the riser the gas spins: one helix for a J-tube, two turning against each other for a batch box.
+function flowPoint(pt) {
+  const seg = scene.segs.find((s) => pt.s < s.start + s.len) || scene.segs[scene.segs.length - 1];
+  const f = Math.min(1, (pt.s - seg.start) / seg.len);
+  let x = seg.x0 + seg.dx * f * seg.len, z = seg.z0 + seg.dz * f * seg.len, y = pt.q * seg.d * 0.7;
+  const off = pt.j * seg.w * 0.7;
+  x -= seg.dz * off; z += seg.dx * off;
+  if (seg.k === 'riser' && res.swirl > 0) {
+    const grow = Math.min(1, f * 5) * (1 - 0.6 * f);
+    const th = pt.ph + pt.s * 0.18 * (0.5 + res.swirl);
+    const xc = seg.x0;
+    if (scene.L.batch) {
+      const r = (seg.w / 4) * res.swirl * grow;
+      x = xc + pt.side * r * Math.cos(th); y = pt.side * seg.w / 4 + r * Math.sin(pt.side * th);
+    } else {
+      const r = (seg.w / 2) * 0.75 * res.swirl * grow;
+      x = xc + r * Math.cos(th); y = r * Math.sin(th);
+    }
+  }
+  return { x, y, z, seg, temp: seg.T[0] + (seg.T[1] - seg.T[0]) * f };
+}
+// Smoke the fire did not burn shows grey in the bench and chimney: too little air, a cool riser,
+// or a batch box without the mixing its P-channel and narrow port give it.
+const smokyGas = () => !res.stalled && (res.airRatio < 1.5 || res.temps.riserMean < 630
+  || (params.design === 'batch' && (!params.pChannel || params.portWidth > 1.5 * guideOf(params).portWidth)));
+const lateSeg = (k) => k === 'channel' || k === 'chimney' || k === 'sideGap';
+const backflow = () => res.stalled || res.airRatio < 1 || (params.design === 'jtube' && (res.burnBackRatio < 2 || params.feedLid));
 
 function circle(i) {
   const c = scene.circles;
@@ -536,30 +718,54 @@ function tick(now) {
   if (!scene || !res || stage !== 8) { if (scene) scene.circles.forEach((c) => c.setAttribute('r', 0)); return; }
   const L = scene.L, fs = scene.fs, p = params;
   let ci = 0;
-  const smoky = !res.stalled && res.airRatio < 1.5;
+  const smoky = smokyGas();
 
   for (const pt of flow) {
-    let seg = scene.segs.find((s) => pt.s < s.start + s.len) || scene.segs[scene.segs.length - 1];
-    pt.s += seg.speed * dt;
-    if (pt.s >= scene.total) { pt.s -= scene.total; pt.j = Math.random() - 0.5; }
-    seg = scene.segs.find((s) => pt.s < s.start + s.len) || scene.segs[scene.segs.length - 1];
-    const f = (pt.s - seg.start) / seg.len;
-    const off = pt.j * seg.w * 0.7;
-    const x = seg.x0 + seg.dx * f * seg.len - seg.dz * off;
-    const z = seg.z0 + seg.dz * f * seg.len + seg.dx * off;
-    const temp = seg.T[0] + (seg.T[1] - seg.T[0]) * f;
+    const seg0 = flowPoint(pt).seg;
+    pt.s += seg0.speed * dt;
+    if (pt.s >= scene.total) { pt.s -= scene.total; pt.j = Math.random() - 0.5; pt.q = Math.random() - 0.5; }
+    const { x, z, seg, temp } = flowPoint(pt);
+    pt.colour = smoky && lateSeg(seg.k) ? '#6b6560' : tempColour(temp);
+    pt.fade = seg.k === 'chimney' && z > L.Hc ? Math.max(0, 1 - (z - L.Hc) / 30) : 0.9;
     const el = circle(ci++);
     el.setAttribute('cx', x.toFixed(1)); el.setAttribute('cy', (-z).toFixed(1));
     el.setAttribute('r', (fs * 0.22).toFixed(2));
-    const late = seg.k === 'channel' || seg.k === 'chimney' || seg.k === 'sideGap';
-    el.setAttribute('fill', smoky && late ? '#6b6560' : tempColour(temp));
-    el.setAttribute('opacity', seg.k === 'chimney' && z > L.Hc ? Math.max(0, 1 - (z - L.Hc) / 30).toFixed(2) : '0.9');
+    el.setAttribute('fill', pt.colour);
+    el.setAttribute('opacity', pt.fade.toFixed(2));
   }
 
-  const backflow = res.stalled || res.airRatio < 1 || res.burnBackRatio < 2 || p.feedLid;
-  if (backflow) {
+  for (const pt of core) {
+    pt.s += flowPoint(pt).seg.speed * dt;
+    if (pt.s >= scene.coreEnd) { pt.s %= scene.coreEnd; pt.j = Math.random() - 0.5; pt.q = Math.random() - 0.5; }
+    pt.colour = tempColour(flowPoint(pt).temp);
+  }
+
+  // The P-channel's room air, cool, falling down the back wall into the port.
+  if (L.pchan) {
+    const [a, b, c] = L.pchan;
+    const v = Math.max(0.15, (res.velocity.port || 0) * 0.25);
+    for (const q of air2) {
+      q.f = (q.f + dt * v) % 1;
+      const [p0, p1, f] = q.f < 0.75 ? [a, b, q.f / 0.75] : [b, c, (q.f - 0.75) / 0.25];
+      q.x = p0[0] + (p1[0] - p0[0]) * f; q.z = p0[1] + (p1[1] - p0[1]) * f;
+      const el = circle(ci++);
+      el.setAttribute('cx', q.x.toFixed(1)); el.setAttribute('cy', (-q.z).toFixed(1));
+      el.setAttribute('r', (fs * 0.18).toFixed(2));
+      el.setAttribute('fill', '#7fa6cf');
+      el.setAttribute('opacity', '0.9');
+    }
+  }
+
+  // Smoke backs out of the feed tube, or out round a batch box door, when the stove cannot pull it through.
+  const mouthZ = L.batch ? L.fh : L.Hf;
+  if (backflow()) {
     smokeAcc += dt * (res.stalled ? 22 : 12);
-    while (smokeAcc > 1) { smokeAcc -= 1; smoke.push({ x: L.sf * (0.2 + Math.random() * 0.6), z: L.st, vx: -3 - Math.random() * 6, vz: 18 + Math.random() * 14, life: 1 }); }
+    while (smokeAcc > 1) {
+      smokeAcc -= 1;
+      smoke.push(L.batch
+        ? { x: -L.W, z: p.doorSealed ? 1 + Math.random() * 2 : L.fh * Math.random(), vx: -14 - Math.random() * 8, vz: 4 + Math.random() * 6, life: 1 }
+        : { x: L.sf * (0.2 + Math.random() * 0.6), z: L.st, vx: -3 - Math.random() * 6, vz: 18 + Math.random() * 14, life: 1 });
+    }
   }
   if (!p.cracksSealed) {
     crackAcc += dt * 8;
@@ -567,8 +773,9 @@ function tick(now) {
   }
   smoke = smoke.filter((s) => s.life > 0);
   for (const s of smoke) {
-    s.x += s.vx * dt * (s.z > L.Hf ? 1.6 : 0.2); s.z += s.vz * dt;
-    if (s.z > L.Hf || s.x < L.domeOutL - 2) s.life -= dt * 0.35;
+    const out = L.batch ? s.x < -L.W - 1 : s.z > mouthZ;
+    s.x += s.vx * dt * (out || L.batch ? 1.6 : 0.2); s.z += s.vz * dt * (L.batch && out ? 3 : 1);
+    if (out || s.x < L.domeOutL - 2) s.life -= dt * 0.35;
     const el = circle(ci++);
     el.setAttribute('cx', s.x.toFixed(1)); el.setAttribute('cy', (-s.z).toFixed(1));
     el.setAttribute('r', (fs * (0.3 + (1 - s.life) * 0.7)).toFixed(2));
@@ -586,6 +793,7 @@ function renderReadouts() {
     ['Fire', r.stalled ? 'out' : `${(r.firePower / 1000).toFixed(1)} kW`, cls(r.stalled, r.firePower < 0.8 * r.fuelCapacity)],
     ['Air for the fire', r.stalled ? 'none' : `${r.airRatio.toFixed(1)}× needed`, cls(r.airRatio < 1, r.airRatio < 1.5)],
     ['Draft', `${Math.max(0, r.draft).toFixed(1)} Pa`, cls(r.stalled, false)],
+    ...(params.design === 'batch' ? [['Gas speed in port', `${r.velocity.port.toFixed(1)} m/s`, '']] : []),
     ['Gas speed in riser', `${r.velocity.riser.toFixed(1)} m/s`, ''],
     ['Riser', `${Math.round(t.riserMean)}°C`, cls(false, !r.stalled && t.riserMean < 630)],
     ['Cooktop', `${Math.round(t.cooktop)}°C`, ''],
@@ -596,7 +804,7 @@ function renderReadouts() {
   ];
   $('readouts').innerHTML = items.map(([k, v, c]) => `<div class="ro ${c}"><span>${k}</span><b>${v}</b></div>`).join('');
 
-  const shares = M.SECTIONS.map((k) => [k, r.lossShare[k]]);
+  const shares = r.sections.map((k) => [k, r.lossShare[k]]);
   $('dragbar').innerHTML = r.stalled ? '' : shares.map(([k, v]) => `<div title="${M.SECTION_NAMES[k]} ${Math.round(v * 100)}%" style="width:${(v * 100).toFixed(2)}%;background:${SEG_COLOURS[k]}"></div>`).join('');
   $('draglegend').innerHTML = r.stalled ? 'No gas moving.' : shares.map(([k, v]) => `<span><i style="background:${SEG_COLOURS[k]}"></i>${M.SECTION_NAMES[k]} ${Math.round(v * 100)}%</span>`).join('');
 
@@ -639,7 +847,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 const box = document.getElementById('view3d');
-const cutBox = document.getElementById('v3cut'), spinBox = document.getElementById('v3spin'), riserBox = document.getElementById('v3riser');
+const cutBox = document.getElementById('v3cut'), spinBox = document.getElementById('v3spin'), riserBox = document.getElementById('v3riser'), flowBox = document.getElementById('v3flow');
 const STUB = 45; // cm of bench channel drawn past the dome
 
 let renderer;
@@ -668,6 +876,39 @@ sun.position.set(-120, 300, 260);
 scene3.add(sun);
 const stoveGroup = new THREE.Group();
 scene3.add(stoveGroup);
+
+// The moving gas: the same particles the section drawing moves, placed in 3D each frame.
+const MAX_DOTS = 600;
+const dots = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.95, depthWrite: false }), MAX_DOTS);
+dots.frustumCulled = false;
+dots.count = 0;
+scene3.add(dots);
+const dotM = new THREE.Matrix4(), dotC = new THREE.Color(), dotQ = new THREE.Quaternion(), dotP = new THREE.Vector3(), dotS = new THREE.Vector3();
+function placeDot(i, x, y, z, r, colour) {
+  dotM.compose(dotP.set(x, y, z), dotQ, dotS.set(r, r, r));
+  dots.setMatrixAt(i, dotM);
+  dots.setColorAt(i, dotC.set(colour));
+}
+function updateDots() {
+  let n = 0;
+  if (flowBox.checked && stage === 8 && res && scene && scene.segs) {
+    // Only as much of the bench is drawn as the stub past the dome, so gas beyond it is not shown.
+    // The close-up shows the fire end, riser and dome only.
+    const xEnd = scene.L.domeInR + scene.L.DOME + STUB;
+    const close = riserBox.checked;
+    for (const pt of [...flow, ...core]) {
+      if (n >= MAX_DOTS || !pt.colour) continue;
+      const { x, y, z, seg } = flowPoint(pt);
+      if (x > xEnd || (close && (seg.k === 'channel' || seg.k === 'chimney'))) continue;
+      placeDot(n++, x, z, y, 1.3, pt.colour);
+    }
+    for (const q of air2) if (n < MAX_DOTS && q.x !== undefined) placeDot(n++, q.x, q.z, q.q * scene.L.pw, 1.0, '#7fa6cf');
+    for (const s of smoke) if (n < MAX_DOTS) placeDot(n++, s.x, s.z, 0, 1.5 + (1 - s.life) * 3, '#5e5a57');
+  }
+  dots.count = n;
+  dots.instanceMatrix.needsUpdate = true;
+  if (dots.instanceColor) dots.instanceColor.needsUpdate = true;
+}
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 let mats = null, matTheme = '';
@@ -702,7 +943,7 @@ function hideCovered() {
 function frame(L) {
   // Fit a sphere around the stove (or just the riser and its dome) into the view, looking at the cut face from a little to the side and above.
   const close = riserBox.checked;
-  const x0 = close ? L.domeOutL - 70 : -L.W - 6, x1 = L.domeInR + (close ? L.DOME + 70 : L.DOME + STUB);
+  const x0 = close ? L.domeOutL - 70 : L.front - 6, x1 = L.domeInR + (close ? L.DOME + 70 : L.DOME + STUB);
   const y0 = close ? 0 : -L.FOUND, y1 = L.domeTop + L.COOK;
   const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
   const radius = 0.5 * Math.hypot(x1 - x0, y1 - y0, close ? 0 : 2 * (L.domeInL - L.domeOutL + 40));
@@ -723,10 +964,11 @@ function build() {
 
   // One box per solid piece, shown from its build step on. With the cut on, only the back half is kept.
   // In the riser close-up only the riser is solid; the tunnel, dome and cooktop are faint outlines for the gaps.
+  const S = L.batch ? { door: 4, dome: 5, bench: 6 } : { dome: 4, bench: 5 };
   const B = (st0, mat, x0, x1, y0, y1, z0, z1) => {
     if (stage < st0) return;
     if (close && st0 !== 3) {
-      if (st0 !== 2 && st0 !== 4) return;
+      if (st0 !== 2 && st0 !== S.dome) return;
       mat = 'ghost';
     }
     if (cut) z1 = Math.min(z1, 0);
@@ -754,34 +996,61 @@ function build() {
   const ho = hd + DOME;
   const xEnd = domeInR + DOME + STUB;
 
+  const { foot } = L;
+  // Half-width across the stove of whatever stands under the dome's front wall.
+  let tw;
   // 1 base
-  B(1, 'stone', -W - 6, xEnd, -FOUND, 0, -ho - 6, ho + 6);
-  // 2 burn tunnel and feed tube
-  const tw = Math.max(ht, hf) + W;
-  pair(2, 'refr', -W, Lt + REFR, 0, st, ht, tw);
-  B(2, 'slab', sf, riserL, st, st + ROOF, -tw, tw);
-  B(2, 'refr', -W, 0, 0, Hf, -hf - W, hf + W);
-  pair(2, 'refr', 0, sf, st, Hf, hf, hf + W);
-  B(2, 'refr', sf, sf + Math.min(W, domeInL - sf), st + ROOF, Hf, -hf - W, hf + W);
-  // 3 riser: 3 cm refractory, then the insulation, on the tunnel roof; the far side runs down to the floor
-  ring(3, 'refr', riserL, Lt, st + ROOF, Hr, hr, REFR);
-  B(3, 'refr', Lt, Lt + REFR, 0, st + ROOF, -hr - REFR, hr + REFR);
-  ring(3, 'insul', riserL - REFR, Lt + REFR, st + ROOF, Hr, hr + REFR, ins);
-  B(3, 'insul', Lt + REFR, Lt + REFR + ins, 0, st + ROOF, -hr - REFR - ins, hr + REFR + ins);
-  // 4 dome and cooktop
-  B(4, 'cob', domeOutL, domeInL, st + ROOF, domeTop, -ho, ho);
-  pair(4, 'cob', domeOutL, domeInL, 0, st + ROOF, tw, ho);
-  B(4, 'cob', domeInR, domeInR + DOME, sc, domeTop, -ho, ho);
-  pair(4, 'cob', domeInR, domeInR + DOME, 0, sc, hc, ho);
-  pair(4, 'cob', domeInL, domeInR, 0, domeTop, hd, ho);
-  B(4, 'slab', domeOutL - 4, domeInR + DOME + 4, domeTop, domeTop + COOK, -ho - 4, ho + 4);
-  // 5 the start of the bench channel
+  B(1, 'stone', L.front - 6, xEnd, -FOUND, 0, -ho - 6, ho + 6);
+  if (L.batch) {
+    // 2 firebox and port: walls round a box fw wide and fh high, the port a slot through its back wall
+    const { fw, fh, D, pw, ph, PORT_WALL } = L;
+    const hw = fw / 2, hp = pw / 2;
+    tw = hw + W;
+    pair(2, 'refr', -W, riserL, 0, fh, hw, tw);
+    B(2, 'slab', -W, riserL, fh, fh + ROOF, -tw, tw);
+    B(2, 'refr', D, riserL, ph, fh, -hw, hw);
+    pair(2, 'refr', D, riserL, 0, ph, hp, hw);
+    // the riser's foot, between the port and the floor, walled on three sides
+    pair(2, 'refr', riserL, Lt, 0, foot, hr, hr + REFR);
+    // 4 door and P-channel
+    B(S.door, 'slab', -W, 0, 2, fh, -hw, hw);
+    if (p.pChannel) B(S.door, 'slab', D - 4, D - 2.5, ph - 1.5, fh, -hp - 1, hp + 1);
+  } else {
+    // 2 burn tunnel and feed tube
+    tw = Math.max(ht, hf) + W;
+    pair(2, 'refr', -W, Lt + REFR, 0, st, ht, tw);
+    B(2, 'slab', sf, riserL, st, st + ROOF, -tw, tw);
+    B(2, 'refr', -W, 0, 0, Hf, -hf - W, hf + W);
+    pair(2, 'refr', 0, sf, st, Hf, hf, hf + W);
+    B(2, 'refr', sf, sf + Math.min(W, domeInL - sf), st + ROOF, Hf, -hf - W, hf + W);
+    if (p.throat) {
+      // a narrowing just before the riser: lips top and bottom, and the sides drawn in
+      const ts = Math.sqrt(0.5) * Math.min(st, sr), lip = (st - ts) / 2;
+      B(2, 'refr', riserL - 6, riserL, 0, lip, -ht, ht);
+      B(2, 'refr', riserL - 6, riserL, st - lip, st, -ht, ht);
+      pair(2, 'refr', riserL - 6, riserL, lip, st - lip, ts / 2, ht);
+    }
+  }
+  // 3 riser: 3 cm refractory, then the insulation, on the roof over the fire; the far side runs down to the floor
+  ring(3, 'refr', riserL, Lt, foot, Hr, hr, REFR);
+  B(3, 'refr', Lt, Lt + REFR, 0, foot, -hr - REFR, hr + REFR);
+  ring(3, 'insul', riserL - REFR, Lt + REFR, foot, Hr, hr + REFR, ins);
+  B(3, 'insul', Lt + REFR, Lt + REFR + ins, 0, foot, -hr - REFR - ins, hr + REFR + ins);
+  // dome and cooktop
+  B(S.dome, 'cob', domeOutL, domeInL, foot, domeTop, -ho, ho);
+  pair(S.dome, 'cob', domeOutL, domeInL, 0, foot, tw, ho);
+  B(S.dome, 'cob', domeInR, domeInR + DOME, sc, domeTop, -ho, ho);
+  pair(S.dome, 'cob', domeInR, domeInR + DOME, 0, sc, hc, ho);
+  pair(S.dome, 'cob', domeInL, domeInR, 0, domeTop, hd, ho);
+  B(S.dome, 'slab', domeOutL - 4, domeInR + DOME + 4, domeTop, domeTop + COOK, -ho - 4, ho + 4);
+  // the start of the bench channel
   const top = sc + p.benchCover;
-  pair(5, 'cob', domeInR + DOME, xEnd, 0, top, hc, hc + CW);
-  B(5, 'cob', domeInR + DOME, xEnd, sc, top, -hc, hc);
+  pair(S.bench, 'cob', domeInR + DOME, xEnd, 0, top, hc, hc + CW);
+  B(S.bench, 'cob', domeInR + DOME, xEnd, sc, top, -hc, hc);
 
-  // Hot gas in the passages while it fires, coloured by the simulated temperature.
-  if (stage === 8 && res && !res.stalled) {
+  // Hot gas in the passages while it fires, coloured by the simulated temperature. With the flow on,
+  // the moving particles show the gas instead.
+  if (stage === 8 && res && !res.stalled && !flowBox.checked) {
     const t = res.temps;
     const gas = (temp, x0, x1, y0, y1, a) => {
       const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, cut ? a : 2 * a);
@@ -790,9 +1059,12 @@ function build() {
       mesh.position.set((x0 + x1) / 2, (y0 + y1) / 2, cut ? -a / 2 : 0);
       stoveGroup.add(mesh);
     };
-    gas(t.fire, 0, Lt, 0, st, ht);
-    gas(t.fire, riserL, Lt, st, (st + Hr) / 2, hr);
-    gas(t.riserTop, riserL, Lt, (st + Hr) / 2, Hr, hr);
+    if (L.batch) {
+      gas(t.fire, 0, L.D, 0, L.fh, L.fw / 2);
+      gas(t.fire, L.D, riserL, 0, L.ph, L.pw / 2);
+    } else gas(t.fire, 0, Lt, 0, st, ht);
+    gas(t.fire, riserL, Lt, foot - ROOF, (foot + Hr) / 2, hr);
+    gas(t.riserTop, riserL, Lt, (foot + Hr) / 2, Hr, hr);
     if (!close) {
       gas(t.riserTop, domeInL, domeInR, Hr, domeTop, hd);
       gas(t.bell, domeInR - p.sideGap, domeInR, 0, Hr, hd);
@@ -827,21 +1099,28 @@ function build() {
     label(3, `passage ${sr} × ${sr} cm inside`, (riserL + Lt) / 2, Hr * 0.85, 0, 'left');
     label(3, `refractory ${REFR} cm`, riserL - REFR / 2, Hr * 0.68, 0, 'left');
     if (ins > 0) label(3, `insulation ${ins} cm`, riserL - REFR - ins / 2, Hr * 0.51, 0, 'left');
-    label(3, 'from the burn tunnel', riserL + 2, st / 2, 0, 'left');
-    label(4, `${p.topGap} cm gap under the cooktop`, Lt - 2, Hr + p.topGap / 2, 0, 'right');
+    label(3, L.batch ? 'from the port' : 'from the burn tunnel', riserL + 2, L.batch ? L.ph / 2 : st / 2, 0, 'left');
+    label(S.dome, `${p.topGap} cm gap under the cooktop`, Lt - 2, Hr + p.topGap / 2, 0, 'right');
     label(3, `${Hr} cm tall, ${outside} cm square outside`, Lt + REFR + ins, Hr * 0.6, 0, 'right');
-    label(4, `${p.sideGap} cm gap to the dome`, domeInR - p.sideGap / 2, Hr * 0.35, 0, 'right');
+    label(S.dome, `${p.sideGap} cm gap to the dome`, domeInR - p.sideGap / 2, Hr * 0.35, 0, 'right');
   } else {
-  label(2, 'feed tube', sf / 2, Hf + 10, 0);
-  label(2, 'burn tunnel', (sf + riserL) / 2, -FOUND - 8, zl);
+  if (L.batch) {
+    label(S.door, 'door', -W, L.fh + 10, 0);
+    label(2, 'firebox', L.D / 2, -FOUND - 8, zl);
+    label(2, 'port', L.D + L.PORT_WALL / 2, -FOUND - 8, zl);
+    if (p.pChannel) label(S.door, 'P-channel', L.D - 3, L.fh - 4, cut ? -L.pw / 2 : 0);
+  } else {
+    label(2, 'feed tube', sf / 2, Hf + 10, 0);
+    label(2, 'burn tunnel', (sf + riserL) / 2, -FOUND - 8, zl);
+  }
   label(3, 'riser', Lt - hr, Hr * 0.6, cut ? -hr : 0);
-  label(4, 'cooktop', (domeOutL + domeInR) / 2, domeTop + COOK + 10, 0);
-  label(4, 'dome', domeInR + DOME / 2, domeTop * 0.75, cut ? -hd : zl);
-  label(5, 'to the bench', xEnd - 6, top + 10, 0);
+  label(S.dome, 'cooktop', (domeOutL + domeInR) / 2, domeTop + COOK + 10, 0);
+  label(S.dome, 'dome', domeInR + DOME / 2, domeTop * 0.75, cut ? -hd : zl);
+  label(S.bench, 'to the bench', xEnd - 6, top + 10, 0);
   }
 
   // Frame the stove the first time, and again when its overall size changes a lot.
-  const key = `${close}|${Math.round(L.domeTop / 20)}|${Math.round((xEnd + W) / 20)}`;
+  const key = `${close}|${p.design}|${Math.round(L.domeTop / 20)}|${Math.round((xEnd + W) / 20)}`;
   if (!framed || key !== lastKey) { frame(L); framed = true; }
   lastKey = key;
   scene3.background = new THREE.Color(css('--sky'));
@@ -860,6 +1139,7 @@ resize();
 window.draw3d = () => { try { build(); } catch (e) { showError(e); } };
 cutBox.addEventListener('change', window.draw3d);
 riserBox.addEventListener('change', window.draw3d);
+flowBox.addEventListener('change', window.draw3d);
 spinBox.addEventListener('change', () => { controls.autoRotate = spinBox.checked; });
 document.getElementById('v3reset').addEventListener('click', () => frame(layout(params)));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', window.draw3d);
@@ -867,6 +1147,7 @@ window.draw3d();
 
 renderer.setAnimationLoop(() => {
   controls.update();
+  updateDots();
   hideCovered();
   renderer.render(scene3, camera);
   labels.render(scene3, camera);
