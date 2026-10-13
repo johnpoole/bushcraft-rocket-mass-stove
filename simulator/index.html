@@ -114,13 +114,14 @@ select{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(-
     <div class="v3head">
       <h2>3D view</h2>
       <label><input type="checkbox" id="v3flow" checked> Flow</label>
+      <label id="v3simLabel"><input type="checkbox" id="v3sim"> Simulated</label>
       <label><input type="checkbox" id="v3riser"> Riser close-up</label>
       <label><input type="checkbox" id="v3cut" checked> Cut in half</label>
       <label><input type="checkbox" id="v3spin"> Spin</label>
       <button class="btn" id="v3reset">Reset view</button>
     </div>
     <div id="view3d" aria-label="3D view of the stove"></div>
-    <div class="v3help">Drag to turn it, scroll or pinch to zoom, right-drag or two-finger drag to move it. It follows the sliders and the build step above. The flow shows at step 8, while the stove fires.</div>
+    <div class="v3help">Drag to turn it, scroll or pinch to zoom, right-drag or two-finger drag to move it. It follows the sliders and the build step above. The flow shows at step 8, while the stove fires. Simulated shows the gas paths worked out in 3D for the guide J-tube, and works only at those sizes.</div>
   </div>
   <div class="panel">
     <h2>How it runs</h2>
@@ -879,6 +880,7 @@ import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer
 
 const box = document.getElementById('view3d');
 const cutBox = document.getElementById('v3cut'), spinBox = document.getElementById('v3spin'), riserBox = document.getElementById('v3riser'), flowBox = document.getElementById('v3flow');
+const simBox = document.getElementById('v3sim'), simLabel = document.getElementById('v3simLabel');
 const STUB = 45; // cm of bench channel drawn past the dome
 
 let renderer;
@@ -909,7 +911,38 @@ const stoveGroup = new THREE.Group();
 scene3.add(stoveGroup);
 
 // The moving gas: the same particles the section drawing moves, placed in 3D each frame.
-const MAX_DOTS = 600;
+// With "Simulated" on, the dots instead replay gas paths traced through a 3D flow simulation
+// of the guide J-tube (cfd-jtube.json: points every `dt` seconds as x, height, across in cm, then °C).
+const MAX_DOTS = 900;
+let cfd = null, cfdLoading = null;
+function loadCfd() {
+  cfdLoading = cfdLoading || fetch('cfd-jtube.json').then((r) => {
+    if (!r.ok) throw new Error(`3D view: could not load the simulated flow, cfd-jtube.json returned HTTP ${r.status}`);
+    return r.json();
+  }).then((d) => {
+    if (!Array.isArray(d.paths) || !(d.dt > 0)) throw new Error('3D view: cfd-jtube.json has no paths or no time step');
+    cfd = d;
+  }).catch((e) => { simBox.checked = false; showError(e); });
+  return cfdLoading;
+}
+const isGuideJtube = () => Object.keys(M.DEFAULTS).every((k) => params[k] === M.DEFAULTS[k]);
+function simulatedDots(n, xEnd, close, now) {
+  const clock = (now / 1000) * SLOW;
+  cfd.paths.forEach((p, i) => {
+    const count = p.length / 4, span = count * cfd.dt;
+    for (const phase of [0, 0.5]) {
+      if (n >= MAX_DOTS) return;
+      const f = ((clock + (i * 0.618 + phase) * span) % span) / cfd.dt;
+      const a = Math.min(count - 1, Math.floor(f)) * 4, b = Math.min(count - 1, Math.floor(f) + 1) * 4, w = f - Math.floor(f);
+      const at = (k) => p[a + k] + (p[b + k] - p[a + k]) * w;
+      const x = at(0), across = at(2);
+      // With the stove cut in half, gas in the removed half would float over the cut walls.
+      if (x > xEnd || (close && x > scene.L.domeInR) || (cutBox.checked && across > 0)) continue;
+      placeDot(n++, x, at(1), across, 1.3, tempColour(at(3)));
+    }
+  });
+  return n;
+}
 const dots = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.95, depthWrite: false }), MAX_DOTS);
 dots.frustumCulled = false;
 dots.count = 0;
@@ -920,13 +953,15 @@ function placeDot(i, x, y, z, r, colour) {
   dots.setMatrixAt(i, dotM);
   dots.setColorAt(i, dotC.set(colour));
 }
-function updateDots() {
+function updateDots(now) {
   let n = 0;
-  if (flowBox.checked && stage === 8 && res && scene && scene.segs) {
-    // Only as much of the bench is drawn as the stub past the dome, so gas beyond it is not shown.
-    // The close-up shows the fire end, riser and dome only.
-    const xEnd = scene.L.domeInR + scene.L.DOME + STUB;
-    const close = riserBox.checked;
+  // Only as much of the bench is drawn as the stub past the dome, so gas beyond it is not shown.
+  // The close-up shows the fire end, riser and dome only.
+  const xEnd = scene ? scene.L.domeInR + scene.L.DOME + STUB : 0;
+  const close = riserBox.checked;
+  if (flowBox.checked && stage === 8 && simBox.checked && cfd && isGuideJtube()) {
+    n = simulatedDots(n, xEnd, close, now);
+  } else if (flowBox.checked && stage === 8 && res && scene && scene.segs) {
     for (const pt of [...flow, ...core]) {
       if (n >= MAX_DOTS || !pt.colour) continue;
       const { x, y, z, seg } = flowPoint(pt);
@@ -988,6 +1023,9 @@ function frame(L) {
 function build() {
   const p = params, L = layout(p), M3 = materials();
   const cut = cutBox.checked, close = riserBox.checked;
+  simLabel.hidden = p.design !== 'jtube';
+  simBox.disabled = !isGuideJtube();
+  simLabel.style.opacity = simBox.disabled ? '0.45' : '';
   for (const o of [...stoveGroup.children]) {
     stoveGroup.remove(o);
     o.traverse((c) => { if (c.geometry) c.geometry.dispose(); if (c.element) c.element.remove(); });
@@ -1171,6 +1209,7 @@ window.draw3d = () => { try { build(); } catch (e) { showError(e); } };
 cutBox.addEventListener('change', window.draw3d);
 riserBox.addEventListener('change', window.draw3d);
 flowBox.addEventListener('change', window.draw3d);
+simBox.addEventListener('change', () => { if (simBox.checked) loadCfd(); });
 spinBox.addEventListener('change', () => { controls.autoRotate = spinBox.checked; });
 document.getElementById('v3reset').addEventListener('click', () => frame(layout(params)));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', window.draw3d);
@@ -1178,7 +1217,7 @@ window.draw3d();
 
 renderer.setAnimationLoop(() => {
   controls.update();
-  updateDots();
+  updateDots(performance.now());
   hideCovered();
   renderer.render(scene3, camera);
   labels.render(scene3, camera);
